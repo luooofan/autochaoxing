@@ -2,7 +2,17 @@
 无界面超星刷课脚本，通过selenium库+bs4库+正则处理，实现看视频+章节测试全自动，无需打开浏览器即可刷课
 
 ## 使用
-- 安装chrome浏览器以及相对应的chromedriver，并**将chromedriver复制到该目录下**，[参考](https://blog.csdn.net/qq_40604853/article/details/81388078?depth_1-utm_source=distribute.pc_relevant.none-task&utm_source=distribute.pc_relevant.none-task)(可以不配置环境变量)
+- 安装chrome浏览器以及相对应的chromedriver，并**将chromedriver复制到该目录下**
+    - [chrome浏览器下载地址](https://www.google.cn/chrome/)
+    - [chromedriver下载地址](http://npm.taobao.org/mirrors/chromedriver/)或者[这里](http://chromedriver.storage.googleapis.com/index.html)
+    - 一定要版本对应，chromedriverV2.9之前的版本可以进notes.txt查看对应chrome版本，之后的70及以上到80都是直接和chrome对应的，版本号前三个数要对应，第四个可以更换着尝试
+- 附：已经测试过的可以正常运行的版本对应关系：
+
+     |chrome | chromedriver |
+     :-:|:-:
+     |80.0.3987.132 | 80.0.3987.106|
+     |76.0.3809.132 | 76.0.3809.126|
+     
 - 安装python3和pip，[python官网](https://www.python.org)
 - 命令行执行`pip install selenium pillow requests beautifulsoup4`
 - 在logindata.txt中填写登录信息
@@ -11,7 +21,7 @@
     - 第三行填写登录密码
     - [其实就是这里的登录信息](https://passport2.chaoxing.com/login?refer=http://i.mooc.chaoxing.com)
 - `python autochaoxing.py`开始刷课
-- 懒人通道：用pyinstaller打包成了exe，稍后会同步到仓库，适用于win10x64用户（直接下载，填写登录信息后点击autochaoxing.exe即可运行）
+
 
 ## 功能支持
 - [x] 几乎支持所有机构用户登录运行
