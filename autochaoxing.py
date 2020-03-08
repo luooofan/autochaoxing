@@ -380,8 +380,7 @@ def play_video(driver, menu_url):
             # 自动检测答题
             pre = 1  # 选项默认值
             try:
-                uls = driver.find_element_by_xpath('//div[@class="x-container ans-timelineobjects x-container-default"]/span/div/div/ul'
-                )
+                uls = driver.find_element_by_xpath('//div[@class="x-container ans-timelineobjects x-container-default"]/span/div/div/ul')
                 que_type = driver.find_element_by_xpath('//div[@class="ans-videoquiz-title"]').get_attribute( 'textContent')
                 log_fp.write('que_type:' + que_type + '\n')
                 que_type = re.search(r'[[]([\w\W]+?)[]]', que_type).group(1)
