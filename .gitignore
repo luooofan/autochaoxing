@@ -1,0 +1,4 @@
+!*.exe
+*.txt
+chromedriver.exe
+*.png
