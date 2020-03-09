@@ -6,6 +6,7 @@
     - [chrome浏览器下载地址](https://www.google.cn/chrome/)
     - [chromedriver下载地址](http://npm.taobao.org/mirrors/chromedriver/)或者[这里](http://chromedriver.storage.googleapis.com/index.html)
     - 一定要版本对应，chromedriverV2.9之前的版本可以进notes.txt查看对应chrome版本，之后的70及以上到80都是直接和chrome对应的，版本号前三个数要对应，第四个可以更换着尝试
+    
 - 附：已经测试过的可以正常运行的版本对应关系：
 
      |chrome | chromedriver |
@@ -14,16 +15,24 @@
      |76.0.3809.132 | 76.0.3809.126|
      
 - 安装python3和pip，[python官网](https://www.python.org)
+
 - 命令行执行`pip install selenium pillow requests beautifulsoup4`
+
 - 在logindata.txt中填写登录信息
     - 第一行填写机构全称
     - 第二行填写手机号或学号
     - 第三行填写登录密码
     - [其实就是这里的登录信息](https://passport2.chaoxing.com/login?refer=http://i.mooc.chaoxing.com)
+    - logindata.txt需要是utf-8编码，若不是，可另存为->选择编码->覆盖原文件
+    
 - `python autochaoxing.py`开始刷课
 
+- *注意*：必须让autochaoxing.exe、logindata.txt和chromedriver.exe在**同一目录下**才可执行
+
+- **懒人通道**：发布了win10x64下的打包程序，直接下载运行即可刷课+查题
 
 ## 功能支持
+
 - [x] 几乎支持所有机构用户登录运行
 - [x] 自动刷视频(包括页面内多视频)，静音播放，解决视频弹出的试题
 - [x] 自动答章节测试题（单选、多选、判断）
@@ -45,7 +54,7 @@
  - [ ] 阅读任务
  - [ ] 自动考试
  - [ ] chrome外其他浏览器的适配
- 
+
 ## 关于题库与考试
  - 题库是直接访问的前辈们维护的题库服务器；考试因为考虑到直接无界面完成会不放心，所以暂未提供支持，考试时可使用查题程序查题
  - 题库服务器来源：[js脚本刷课项目](https://github.com/CodFrm/cxmooc-tools),[greasyfork](https://greasyfork.org/zh-CN/scripts/369625-%E8%B6%85%E6%98%9F%E7%BD%91%E8%AF%BE%E5%8A%A9%E6%89%8B),十分感谢！
@@ -54,9 +63,10 @@
  - 2020-3-9：
    - 修复了部分视频检测错误的bug、修复了有些页面无法打开视频页面和章节测试的bug
    - 新增了查题程序，分命令行执行和窗口执行两种，配套刷课脚本用来考试查询
+   - 发布了win10x64下的打包程序(刷课+查题)，可直接运行exe开始刷课
 
- 
+
 ## 写在最后
 本脚本主要用来学习，之后会在博客里写一份详细的使用文档和编程过程中的记录总结，欢迎大家一起前来交流
 （*QQ群:1075080181*）
- 
+

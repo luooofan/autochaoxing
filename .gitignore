@@ -1,4 +1,8 @@
-!*.exe
 *.txt
-chromedriver.exe
+*.exe
 *.png
+*.ico
+dist/*
+logindata.txt
+*win10x64*
+
