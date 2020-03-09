@@ -29,7 +29,7 @@
 
 - *注意*：必须让autochaoxing.exe、logindata.txt和chromedriver.exe在**同一目录下**才可执行
 
-- **懒人通道**：发布了win10x64下的打包程序，直接下载运行即可刷课+查题
+- [**懒人通道**](https://github.com/Luoofan/autochaoxing/releases)：发布了win10x64下的打包程序，直接下载运行即可刷课+查题
 
 ## 功能支持
 
