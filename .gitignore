@@ -3,6 +3,7 @@
 *.png
 *.ico
 dist/*
-logindata.txt
 *win10x64*
-
+cp.py
+test.py
+debug.log

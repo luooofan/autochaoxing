@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
@@ -29,10 +30,12 @@ class FLAG:
     end = 0
     chapter = 0
     section = 0
+    subsection = 0
 
-    def getvalue(self, _chapter, _section, _flag, _end, _pattern):
+    def getvalue(self, _chapter, _section, _subsection, _flag, _end, _pattern):
         self.chapter = _chapter
         self.section = _section
+        self.subsection = _subsection
         self.flag = _flag
         self.end = _end
         self.pattern = _pattern
@@ -45,7 +48,7 @@ def getlogindata():
 
 def init():
     # 初始化
-    chrome_options = webdriver.ChromeOptions()
+    chrome_options = Options()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument('log-level=3')
     chrome_options.add_argument('–incognito')  # 启动无痕/隐私模式
@@ -56,21 +59,21 @@ def init():
     ##  LOG_ERROR = 2,
     ##  LOG_FATAL = 3
     ##  default is 0
-    return webdriver.Chrome(chrome_options=chrome_options,executable_path=r".\chromedriver")
+    return webdriver.Chrome(options=chrome_options, executable_path=r".\chromedriver")
 
 
 def login(driver):
     wait = WebDriverWait(driver, 20)
     action_chains = ActionChains(driver)
     logindata = getlogindata()
-    log_fp.write('\n' +time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())) + '\n')
-    log_fp.write('登录信息:' + logindata[0].strip(' \t\n') +logindata[1].strip(' \t\n') + '\n')
+    log_fp.write('\n' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())) + '\n')
+    log_fp.write('登录信息:' + logindata[0].strip(' \t\n') + logindata[1].strip(' \t\n') + '\n')
 
     # 访问登陆界面并选择机构
     url = "https://passport2.chaoxing.com/login?refer=http://i.mooc.chaoxing.com"
     driver.get(url)
 
-    wait.until( EC.presence_of_element_located((By.XPATH, '//a[@id="selectSchoolA"]')))
+    wait.until(EC.presence_of_element_located((By.XPATH, '//a[@id="selectSchoolA"]')))
     school_select = driver.find_element_by_xpath('//a[@id="selectSchoolA"]')
     action_chains.move_to_element(school_select)
     school_select.click()
@@ -83,7 +86,7 @@ def login(driver):
     action_chains.move_to_element(search)
     search.click()
 
-    wait.until( EC.presence_of_element_located((By.XPATH, '//div[@id="dialog2"]/div/div[2]/div/ul/li[1]/span/a')))
+    wait.until(EC.presence_of_element_located((By.XPATH, '//div[@id="dialog2"]/div/div[2]/div/ul/li[1]/span/a')))
     school_bn = driver.find_element_by_xpath('//div[@id="dialog2"]/div/div[2]/div/ul/li[1]/span/a')
     action_chains.move_to_element(school_bn)
     school_bn.click()
@@ -93,7 +96,7 @@ def login(driver):
     print(COLOR.DISPLAY, 'check your school name:', school_name, COLOR.END)
     log_fp.write('now url:' + driver.current_url + '\n')
 
-    driver.find_element_by_xpath('//input[@class="zl_input"]').send_keys( logindata[1].strip(' \t\n'))
+    driver.find_element_by_xpath('//input[@class="zl_input"]').send_keys(logindata[1].strip(' \t\n'))
     driver.find_element_by_xpath('//input[@class="zl_input2"]').send_keys(logindata[2].strip(' \t\n'))
     # 获取验证码，填写并点击登录
     while 1:
@@ -101,7 +104,7 @@ def login(driver):
         img.screenshot('login_vercode.png')
         img = Image.open('login_vercode.png')
         img.show()
-        numVerCode = input(COLOR.NOTE + "please input the vercode:" +COLOR.END)
+        numVerCode = input(COLOR.NOTE + "please input the vercode:" + COLOR.END)
         driver.find_element_by_id('numcode').send_keys(numVerCode)
         driver.find_element_by_xpath('//input[@class="zl_btn_right"]').click()
         log_fp.write("now url:" + driver.current_url + '\n')
@@ -119,22 +122,29 @@ def choose_course(driver):
     wait = WebDriverWait(driver, 30)
     wait.until(EC.presence_of_element_located((By.XPATH, '//iframe')))
     iframe = driver.find_element_by_xpath('//iframe')
-    driver.switch_to_frame(iframe)
+    driver.switch_to.frame(iframe)
     wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '.ulDiv')))
     courses_num = len(
         driver.find_elements_by_xpath('//div[@class="ulDiv"]/ul/li'))
     courses_lt = []
+    valid_i = 1
     for i in range(1, courses_num):
-        name = driver.find_element_by_xpath('//div[@class="ulDiv"]/ul/li[' + str(i) +']/div[2]/h3/a').get_attribute('title')
-        href = driver.find_element_by_xpath('//div[@class="ulDiv"]/ul/li[' +str(i) +']/div[1]/a').get_attribute('href')
-        courses_lt.append((name, href))
-        print(COLOR.DISPLAY + '\t', i, '、', name + COLOR.END)
+        try:
+            name = driver.find_element_by_xpath(
+                '//div[@class="ulDiv"]/ul/li[' + str(i) + ']/div[2]/h3/a').get_attribute('title')
+            href = driver.find_element_by_xpath(
+                '//div[@class="ulDiv"]/ul/li[' + str(i) + ']/div[1]/a').get_attribute('href')
+            courses_lt.append((name, href))
+            print(COLOR.DISPLAY + '\t', valid_i, '、', name + COLOR.END)
+            valid_i += 1
+        except:
+            pass
     while 1:
-        course_id = eval( input(COLOR.NOTE + 'please select which course by order:' +COLOR.END))
+        course_id = eval(input(COLOR.NOTE + 'please select which course by order:' + COLOR.END))
         if course_id > 0 and course_id <= len(courses_lt):
             break
         else:
-            print(COLOR.ERR, ' invalid course order, please reinput!',COLOR.END)
+            print(COLOR.ERR, ' invalid course order, please reinput!', COLOR.END)
     menu_url = courses_lt[course_id - 1][1]
     course_name = courses_lt[course_id - 1][0]
 
@@ -143,6 +153,18 @@ def choose_course(driver):
     log_fp.write("choose:" + course_name + '\n')
 
     return [menu_url, course_name]
+
+
+def bs4_3rd_titles(text):
+    soup = BeautifulSoup(text, 'html.parser')
+    titles = []
+    icons = soup.find_all(class_='icon')
+    # print(icons)
+    for i in range(1, len(icons)+1):
+        flag = icons[i-1].find('em')
+        if 'orange' in flag['class']:  # or 'blank' in flag['class']:
+            titles.append(i)
+    return titles
 
 
 def get_chapter_section(driver, menu_url):
@@ -159,26 +181,36 @@ def get_chapter_section(driver, menu_url):
         try:
             for j in range(1, 50):
                 # print(i,j)
-                icon = lt.find_element_by_xpath('//div[' + str(i) + ']/div[' +str(j) + ']' + '/h3/span[@class="icon"]')
+                icon = lt.find_element_by_xpath('//div[' + str(i) + ']/div[' + str(j) + ']' + '/h3/span[@class="icon"]')
                 end = 0
-                name = lt.find_element_by_xpath('//div[' + str(i) + ']/div[' + str(j) + ']' +'/h3/span[@class="articlename"]/a').get_attribute('title')
+                name = lt.find_element_by_xpath(
+                    '//div[' + str(i) + ']/div[' + str(j) + ']' + '/h3/span[@class="articlename"]/a').get_attribute('title')
                 if name in ["问卷调查", "阅读"]:
                     continue
-                if 'openlock' not in icon.get_attribute('innerHTML'):
-                    ch_se_lt.append([i, j])
+                # if 'openlock' not in icon.get_attribute('innerHTML'):
+                try:
+                    # 寻找三级标题
+                    three_levels = lt.find_element_by_xpath(
+                        '//div[' + str(i) + ']/div[' + str(j) + ']' + '/div[@class="levelthree"]')
+                    ch_se_lt.extend([*map(lambda x:[i, j, x], bs4_3rd_titles(three_levels.get_attribute('innerHTML')))])
+                except:
+                    # 找不到三级标题
+                    if 'orange' in icon.get_attribute('innerHTML'):
+                        ch_se_lt.append([i, j])
         except:
             end += 1
 
     return ch_se_lt
 
-
 # 返回road_lt[]列表
+
+
 def get_video_road(text, video_num):
     # print(text)
-    soup = BeautifulSoup('<html><body>' + text + '</body></html>','html.parser')
+    soup = BeautifulSoup('<html><body>' + text + '</body></html>', 'html.parser')
     # 'lxml'和'html5lib'会解析错误，把</p>提前
     # print(soup.prettify())
-    #video_lt = soup.find_all('iframe')#视频不一定全部有效
+    # video_lt = soup.find_all('iframe')#视频不一定全部有效
     video_lt = soup.find_all(class_='ans-job-icon')
     road_lt = []
     for i in range(0, video_num):
@@ -192,15 +224,16 @@ def get_video_road(text, video_num):
     log_fp.write(' video road:' + str(road_lt) + '\n')
     return road_lt
 
-
+#按章节号寻找并播放视频，间隔性检测视频内题目并解答
+#如果flags.flag>0 return说明视频时间获取失败, =0则正常
+#如果flags.end>0 说明检测到无效章节，manual模式下生效
 def play_video(driver, menu_url):
     wait = WebDriverWait(driver, 20)
     action_chains = ActionChains(driver)
-
     # 进入课程主页进行选节播放
     driver.get(menu_url)
     try:
-        WebDriverWait(driver,10).until(EC.presence_of_element_located((By.XPATH, '//div[@class="weedialog bradius"]')))
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//div[@class="weedialog bradius"]')))
         sleep(2)
         dialog = driver.find_element_by_xpath('//div[@class="weedialog bradius"]/div/a')
         sleep(2)
@@ -208,26 +241,38 @@ def play_video(driver, menu_url):
         dialog.click()
     except:
         pass
-
     try:
         wait.until(EC.presence_of_element_located((By.XPATH, '//div[@class="timeline"]')))
         lt = driver.find_element_by_xpath('//div[@class="timeline"]')
         sleep(1)
-        lt.find_element_by_xpath('//div[' + str(flags.chapter) + ']/div[' +
-                                 str(flags.section) + ']' + '/h3/span[@class="articlename"]/a').click()
+        if flags.subsection == 0:  # 2
+            lt.find_element_by_xpath('//div[' + str(flags.chapter) + ']/div[' +
+                                     str(flags.section) + ']' + '/h3/span[@class="articlename"]/a').click()
+        else:  # 3
+            lt.find_element_by_xpath('//div[' + str(flags.chapter) + ']/div[' + str(flags.section) + ']' +
+                                     '/div[@class="levelthree"]/h3['+str(flags.subsection)+']/span[@class="articlename"]/a').click()
     except:  # 正常情况下：是到了阅读模块和调查问卷模块 或者是遇到无效章节
         if flags.pattern == 1:
             flags.chapter += 1
             flags.section = 1
             flags.end += 1
         return
-    print(COLOR.DISPLAY + 'now turns to ' + COLOR.END, str(flags.chapter) + '-' + str(flags.section))
-    log_fp.write('now turns to ' + str(flags.chapter) + '-' + str(flags.section) + '\n')
+    print(COLOR.DISPLAY + 'now turns to ' + COLOR.END, str(flags.chapter) + '-' + str(flags.section), end="")
+    if flags.subsection == 0:
+        print()
+    else:
+        print('-'+str(flags.subsection))
+    log_fp.write('now turns to ' + str(flags.chapter) + '-' + str(flags.section) + '-'+str(flags.subsection) + '\n')
 
-    # 点击视频确保进入视频界面
-    wait.until(
-        EC.presence_of_element_located((By.XPATH, '//div[@class="left"]/div/div[@class="main"]/div[@class="tabtags"]')))  # /span[@title="视频"]')))
-    #print('1',end=" ")
+    # 点击视频确保进入视频界面（若出现问题增多可以改换bs4或者re分析）
+    try:
+        wait.until(EC.presence_of_element_located(
+            (By.XPATH, '//div[@class="left"]/div/div[@class="main"]/div[@class="tabtags"]')))
+    except:
+        print(COLOR.NOTE, ' no videos,continue~', COLOR.END)
+        log_fp.write(' no videos,continue~\n')
+        return
+
     try:
         bt = driver.find_element_by_xpath(
             '//div[@class="left"]/div/div[@class="main"]/div[@class="tabtags"]/span[@title="视频"]')
@@ -236,27 +281,36 @@ def play_video(driver, menu_url):
             bt = driver.find_element_by_xpath(
                 '//div[@class="left"]/div/div[@class="main"]/div[@class="tabtags"]/span[@title="视频 "]')
         except:
-            bt=driver.find_element_by_xpath(
-                '//div[@class="left"]/div/div[@class="main"]/div[@class="tabtags"]/span[last()-1]')
-    #print('2',end=" ")
+            try:  # 无标题视频
+                bt = driver.find_element_by_xpath(
+                    '//div[@class="left"]/div/div[@class="main"]/div[@class="tabtags"]/span[last()-1]')
+            except:
+                pass
     sleep(7)
-    action_chains.move_to_element(bt)
-    bt.click()
-    #print(3, end=" ")
+    try:
+        action_chains.move_to_element(bt)
+        bt.click()
+    except:
+        pass
     # action_chains.click_and_hold(bt)
     # action_chains.release(bt)
 
-    wait.until(EC.presence_of_element_located((By.XPATH, '//iframe')))
-    iframe = driver.find_element_by_xpath('//iframe')
-    driver.switch_to.frame(iframe)
-    sleep(1)
-
+    try:
+        wait.until(EC.presence_of_element_located((By.XPATH, '//iframe')))
+        iframe = driver.find_element_by_xpath('//iframe')
+        driver.switch_to.frame(iframe)
+        sleep(1)
+    except:#以上各种都找不到视频
+        print(COLOR.NOTE, ' no videos,continue~', COLOR.END)
+        log_fp.write(' no videos,continue~\n')
+        return
+    
     # 多视频处理
     video_num = driver.execute_script(
         "window.scrollTo(0,document.body.scrollHeight);return document.getElementsByClassName('ans-job-icon').length")
     ans_cc = driver.find_element_by_xpath('//div[@class="ans-cc"]')
     h5_text = ans_cc.get_attribute('innerHTML')
-    video_road = get_video_road(h5_text, video_num)  # bs4处理
+    video_road = get_video_road(h5_text, video_num)  # bs4处理得到各个视频路径
 
     print(COLOR.DISPLAY, ' there are ' + str(video_num) + ' video in this section:', COLOR.END)
     log_fp.write(' there are ' + str(video_num) + ' videos in this section:\n')
@@ -299,7 +353,7 @@ def play_video(driver, menu_url):
                 # 如果视频任务已完成,访问下一个视频
                 continue
         except:
-            icon_flag = 0
+            icon_flag = 0 #有的视频无任务点标识
 
         # 点击播放并静音
         # print(driver.page_source)
@@ -316,10 +370,11 @@ def play_video(driver, menu_url):
         # action_chains.click(bt)
         sleep(5)
         bt.click()  # 点击播放
-        print('\033[92m start play \033[0m')
+        print(COLOR.OK+' start play '+COLOR.END)
         log_fp.write(' start play \n')
 
-        wait.until(EC.presence_of_element_located((By.XPATH,'//button[@class="vjs-mute-control vjs-control vjs-button vjs-vol-3"]')))
+        wait.until(EC.presence_of_element_located(
+            (By.XPATH, '//button[@class="vjs-mute-control vjs-control vjs-button vjs-vol-3"]')))
         volumn = driver.find_element_by_xpath('//button[@class="vjs-mute-control vjs-control vjs-button vjs-vol-3"]')
         action_chains.move_to_element(volumn)
         try:
@@ -341,18 +396,19 @@ def play_video(driver, menu_url):
         # 检测时间获取异常
         if total_tm == 0:
             log_fp.write(' failed to get total_tm ,will retry this section \n')
-            print('\033[95m failed to get total_tm \033[0m,will retry this section ')
-            flags.flag += 1
+            print(COLOR.ERR,' failed to get total_tm '+ COLOR.END + ',will retry this section ')
+            flags.flag += 1 #时间获取异常标志
             return
         else:
-            flags.flag = 0
+            flags.flag = 0 #时间正常
 
         # 输出时间信息
         nt_index = str(now_tm).find(':')
         now_tm = int(now_tm[:nt_index], 10) * 60 + int(now_tm[nt_index + 1:], 10)
         need_tm = total_tm - now_tm
         print("   now_tm:", now_tm, '\t', "total_tm:", total_tm, '\t', "needtm:", need_tm)
-        log_fp.write("   now_tm:" + str(now_tm) + '\t' + "total_tm:" + str(total_tm) + '\t' + "needtm:" + str(need_tm) + '\n')
+        log_fp.write("   now_tm:" + str(now_tm) + '\t' + "total_tm:" +
+                     str(total_tm) + '\t' + "needtm:" + str(need_tm) + '\n')
 
         # 间隔性检验 剩余时间 和 视频内题目
         restime_lt = [x for i in range(1, 8) for x in range(300 * i - 5, 300 * i + 5)]
@@ -360,7 +416,7 @@ def play_video(driver, menu_url):
             # 获取粗略剩余时间信息，10s误差
             if need_tm in restime_lt:
                 print("   time rest: ", ((need_tm + 5) // 300) * 5, "min")
-                log_fp.write("   time rest: " +str(((need_tm + 5) // 300) * 5) + "min\n")
+                log_fp.write("   time rest: " + str(((need_tm + 5) // 300) * 5) + "min\n")
 
             # 剩余时间<5min则间隔性检验任务是否已完成
             if icon_flag == 1 and need_tm <= 300:
@@ -369,26 +425,28 @@ def play_video(driver, menu_url):
                 flag = driver.find_element_by_xpath(first_road +
                                                     video_road[v_num - 1])
                 nowflag = flag.get_attribute('class')
-                # driver.switch_to_frame(driver.find_element_by_xpath('//div[@class="ans-cc"]/p['+str(p_index[v_num-1])+']/div/iframe'))
-                driver.switch_to_frame(driver.find_element_by_xpath(first_road +video_road[v_num - 1] +'/iframe'))
+                # driver.switch_to.frame(driver.find_element_by_xpath('//div[@class="ans-cc"]/p['+str(p_index[v_num-1])+']/div/iframe'))
+                driver.switch_to.frame(driver.find_element_by_xpath(first_road + video_road[v_num - 1] + '/iframe'))
                 if 'finished' in nowflag:
-                    print(COLOR.OK,' Well！the video is finished ahead of time! continue~',COLOR.END)
-                    log_fp.write(' Well！the video is finished ahead of time! continue~'+ '\n')
+                    print(COLOR.OK, ' Well！the video is finished ahead of time! continue~', COLOR.END)
+                    log_fp.write(' Well！the video is finished ahead of time! continue~' + '\n')
                     sleep(10)
                     break
 
             # 自动检测答题
             pre = 1  # 选项默认值
             try:
-                uls = driver.find_element_by_xpath('//div[@class="x-container ans-timelineobjects x-container-default"]/span/div/div/ul')
-                que_type = driver.find_element_by_xpath('//div[@class="ans-videoquiz-title"]').get_attribute( 'textContent')
+                uls = driver.find_element_by_xpath(
+                    '//div[@class="x-container ans-timelineobjects x-container-default"]/span/div/div/ul')
+                que_type = driver.find_element_by_xpath(
+                    '//div[@class="ans-videoquiz-title"]').get_attribute('textContent')
                 log_fp.write('que_type:' + que_type + '\n')
                 que_type = re.search(r'[[]([\w\W]+?)[]]', que_type).group(1)
                 print('      monitor question')
                 log_fp.write('      monitor question,' + que_type + '\n')
                 if "多选题" in que_type:
                     # print(uls.find_elements_by_xpath('//li[@class="ans-videoquiz-opt"]'))
-                    opt_num = len(uls.find_elements_by_xpath('//li[@class="ans-videoquiz-opt"]'))#选项个数
+                    opt_num = len(uls.find_elements_by_xpath('//li[@class="ans-videoquiz-opt"]'))  # 选项个数
                     # print(opt_num)
                     for opt_i in range(2, opt_num + 1):  # 选择个数2，3，4
                         fin_que = 1
@@ -396,14 +454,15 @@ def play_video(driver, menu_url):
                             print('      select:', end=" ")
                             log_fp.write('      select:')
                             for opt_k in range(0, opt_i):  # 个数
-                                option = uls.find_element_by_xpath('//li[' + str(opt_j + opt_k) +']/label/input')
+                                option = uls.find_element_by_xpath('//li[' + str(opt_j + opt_k) + ']/label/input')
                                 action_chains.move_to_element(option)
                                 option.click()
                                 print(chr(opt_j + opt_k + 64), end=" ")
                                 log_fp.write(chr(pre + 64) + ' ')
                             print('\n', end="")
                             log_fp.write('\n')
-                            bn = driver.find_element_by_xpath('//div[@class="x-container ans-timelineobjects x-container-default"]/span/div/div/div[2]')
+                            bn = driver.find_element_by_xpath(
+                                '//div[@class="x-container ans-timelineobjects x-container-default"]/span/div/div/div[2]')
                             action_chains.move_to_element(bn)
                             bn.click()
                             # action_chains.click(bn)
@@ -426,12 +485,13 @@ def play_video(driver, menu_url):
                 else:
                     while 1:
                         try:
-                            option = uls.find_element_by_xpath('//li[' +str(pre) + ']/label/input')
+                            option = uls.find_element_by_xpath('//li[' + str(pre) + ']/label/input')
                             action_chains.move_to_element(option)
                             option.click()
                             print('      select ' + chr(pre + 64))
-                            log_fp.write('      select ' + chr(pre + 64) +'\n')
-                            bn = driver.find_element_by_xpath('//div[@class="x-container ans-timelineobjects x-container-default"]/span/div/div/div[2]')
+                            log_fp.write('      select ' + chr(pre + 64) + '\n')
+                            bn = driver.find_element_by_xpath(
+                                '//div[@class="x-container ans-timelineobjects x-container-default"]/span/div/div/div[2]')
                             action_chains.move_to_element(bn)
                             bn.click()
                             # action_chains.click(bn)
@@ -450,10 +510,10 @@ def play_video(driver, menu_url):
                 sleep(10)
                 need_tm -= 10
 
-        print('\033[92m finish the video: \033[0m',str(flags.chapter) + '-' + str(flags.section) + '-' + str(v_num))
-        log_fp.write(' finish the video: ' + str(flags.chapter) + '-' +str(flags.section) + '-' + str(v_num) + '\n')
+        print(COLOR.OK+' finish the video: '+COLOR.END+ str(flags.chapter) + '-' + str(flags.section) + '-' + str(v_num))
+        log_fp.write(' finish the video: ' + str(flags.chapter) + '-' + str(flags.section) + '-' + str(v_num) + '\n')
 
-    flags.end = 0
+    flags.end = 0 #只要成功执行到这里就置end为0
 
 
 def quiry_ans(question, course_name):
@@ -512,7 +572,7 @@ def re_process(text, course_name):
     for i in range(0, len(que_lt)):
         que_lt[i] = re.sub(r'<.+?>', '', que_lt[i])
         que_lt[i] = re.sub(r'[(](.*?)[)]', '', que_lt[i])
-        que_lt[i]=re.sub(r'\uff08(.*?)\uff09','',que_lt[i])
+        que_lt[i] = re.sub(r'\uff08(.*?)\uff09', '', que_lt[i])
 
     # print(que_lt)  # 问题
     pd_opt = ['正确', '错误', '√', '×', '对', '错', '是', '否', 'T', 'F', 'ri', 'wr']
@@ -564,9 +624,10 @@ def ans_question(driver, course_name):
             '//div[@class="left"]/div/div[@class="main"]/div[@class="tabtags"]/span[@title="章节测验"]')
     except:
         try:
-            bt=driver.find_element_by_xpath('//div[@class="left"]/div/div[@class="main"]/div[@class="tabtags"]/span[last()]')
+            bt = driver.find_element_by_xpath(
+                '//div[@class="left"]/div/div[@class="main"]/div[@class="tabtags"]/span[last()]')
         except:
-            print(COLOR.NOTE, ' no questions,continue~', COLOR.END)#未找到章节测验
+            print(COLOR.NOTE, ' no questions,continue~', COLOR.END)  # 未找到章节测验
             log_fp.write(' no questions,continue~\n')
             return 0
     sleep(3)
@@ -584,8 +645,8 @@ def ans_question(driver, course_name):
     #print(7, end=" ")
 
     # 检测是否已完成
-    wait.until(EC.presence_of_element_located((By.XPATH,'//div[@class="ans-cc"]')))
-    ans_cc=driver.find_element_by_xpath('//div[@class="ans-cc"]')
+    wait.until(EC.presence_of_element_located((By.XPATH, '//div[@class="ans-cc"]')))
+    ans_cc = driver.find_element_by_xpath('//div[@class="ans-cc"]')
     action_chains.move_to_element(ans_cc)
     try:
         flag = ans_cc.find_element_by_xpath('//div[@class="ans-job-icon"]/..')
@@ -596,11 +657,11 @@ def ans_question(driver, course_name):
             log_fp.write(' questions of the section is already finished! continue~' + '\n')
             return 0
     except:
-        #定位到题目页元素但无法查看完成状态
+        # 定位到题目页元素但无法查看完成状态
         print(COLOR.ERR, "  答题失败！", COLOR.END)
         log_fp.write("  答题失败！" + '\n')
         return str(flags.chapter) + '-' + str(flags.section)
-    
+
     for i in range(2):
         wait.until(EC.presence_of_element_located((By.XPATH, '//iframe[1]')))
         iframe = driver.find_element_by_xpath('//iframe[1]')
@@ -642,7 +703,8 @@ def ans_question(driver, course_name):
     # //*[@id="ZyBottom"]/div/div[4]/div[4]/div[4]/div[4]/div[5]/a[2]
     # //*[@id="ZyBottom"]/div[2]/a[2]/span
     try:
-        bn = driver.find_element_by_xpath('//*[@id="ZyBottom"]/div' + '/div[4]' *(len(ans_lt) - 2) + '/div[5]/a[2]')  # 多个题目
+        bn = driver.find_element_by_xpath('//*[@id="ZyBottom"]/div' + '/div[4]' *
+                                          (len(ans_lt) - 2) + '/div[5]/a[2]')  # 多个题目
     except:
         bn = driver.find_element_by_xpath('//*[@id="ZyBottom"]/div[2]/a[2]')  # 只有一个题
     action_chains.move_to_element(bn)
@@ -698,7 +760,8 @@ def perform(driver, menu_url, course_name):
     if pattern == 1:
         chapter = eval(input(COLOR.NOTE + "please select which chapter:" + COLOR.END))
         section = eval(input(COLOR.NOTE + "please select which section:" + COLOR.END))
-        flags.getvalue(chapter, section, 0, 0, pattern)
+        subsection = eval(input(COLOR.NOTE + "please select which subsection(if not input 0):" + COLOR.END))
+        flags.getvalue(chapter, section, subsection, 0, 0, pattern)
         while 1:
             play_video(driver, menu_url)
             if flags.flag > 0:
@@ -714,12 +777,13 @@ def perform(driver, menu_url, course_name):
                 error_lt.append(err_section)  # 记录答题提交失败的章节
             else:
                 print(COLOR.OK, 'finished!', COLOR.END)
-            flags.section+=1
+            flags.section += 1
     else:
-        flags.getvalue(0, 0, 0, 0, pattern)
+        flags.getvalue(0, 0, 0, 0, 0, pattern)
         for ch_se in ch_se_lt:
             flags.chapter = ch_se[0]
             flags.section = ch_se[1]
+            flags.subsection = ch_se[2] if len(ch_se) == 3 else 0
             while 1:
                 play_video(driver, menu_url)
                 if flags.flag > 0:
