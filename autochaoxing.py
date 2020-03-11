@@ -1,3 +1,4 @@
+# coding=UTF-8
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.wait import WebDriverWait
@@ -41,6 +42,10 @@ class FLAG:
         self.pattern = _pattern
 
 
+que_type = ['单选题', '多选题', '填空题', '判断题', '简答题', '名词解释题', '论述题', '计算题', '其他',
+            '分录题', '资料题', '连线题', '', '排序题', '完形填空', '阅读理解', '', '', '口语题', '听力题']
+
+
 def getlogindata():
     with open(r'./logindata.txt', 'r', encoding='utf-8') as f:
         return f.readlines()
@@ -59,7 +64,7 @@ def init():
     ##  LOG_ERROR = 2,
     ##  LOG_FATAL = 3
     ##  default is 0
-    return webdriver.Chrome(options=chrome_options, executable_path=r".\chromedriver")
+    return webdriver.Chrome(options=chrome_options, executable_path=r"./chromedriver")
 
 
 def login(driver):
@@ -224,9 +229,11 @@ def get_video_road(text, video_num):
     log_fp.write(' video road:' + str(road_lt) + '\n')
     return road_lt
 
-#按章节号寻找并播放视频，间隔性检测视频内题目并解答
-#如果flags.flag>0 return说明视频时间获取失败, =0则正常
-#如果flags.end>0 说明检测到无效章节，manual模式下生效
+# 按章节号寻找并播放视频，间隔性检测视频内题目并解答
+# 如果flags.flag>0 return说明视频时间获取失败, =0则正常
+# 如果flags.end>0 说明检测到无效章节，manual模式下生效
+
+
 def play_video(driver, menu_url):
     wait = WebDriverWait(driver, 20)
     action_chains = ActionChains(driver)
@@ -300,11 +307,11 @@ def play_video(driver, menu_url):
         iframe = driver.find_element_by_xpath('//iframe')
         driver.switch_to.frame(iframe)
         sleep(1)
-    except:#以上各种都找不到视频
+    except:  # 以上各种都找不到视频
         print(COLOR.NOTE, ' no videos,continue~', COLOR.END)
         log_fp.write(' no videos,continue~\n')
         return
-    
+
     # 多视频处理
     video_num = driver.execute_script(
         "window.scrollTo(0,document.body.scrollHeight);return document.getElementsByClassName('ans-job-icon').length")
@@ -353,7 +360,7 @@ def play_video(driver, menu_url):
                 # 如果视频任务已完成,访问下一个视频
                 continue
         except:
-            icon_flag = 0 #有的视频无任务点标识
+            icon_flag = 0  # 有的视频无任务点标识
 
         # 点击播放并静音
         # print(driver.page_source)
@@ -396,11 +403,11 @@ def play_video(driver, menu_url):
         # 检测时间获取异常
         if total_tm == 0:
             log_fp.write(' failed to get total_tm ,will retry this section \n')
-            print(COLOR.ERR,' failed to get total_tm '+ COLOR.END + ',will retry this section ')
-            flags.flag += 1 #时间获取异常标志
+            print(COLOR.ERR, ' failed to get total_tm ' + COLOR.END + ',will retry this section ')
+            flags.flag += 1  # 时间获取异常标志
             return
         else:
-            flags.flag = 0 #时间正常
+            flags.flag = 0  # 时间正常
 
         # 输出时间信息
         nt_index = str(now_tm).find(':')
@@ -510,13 +517,13 @@ def play_video(driver, menu_url):
                 sleep(10)
                 need_tm -= 10
 
-        print(COLOR.OK+' finish the video: '+COLOR.END+ str(flags.chapter) + '-' + str(flags.section) + '-' + str(v_num))
+        print(COLOR.OK+' finish the video: '+COLOR.END + str(flags.chapter) + '-' + str(flags.section) + '-' + str(v_num))
         log_fp.write(' finish the video: ' + str(flags.chapter) + '-' + str(flags.section) + '-' + str(v_num) + '\n')
 
-    flags.end = 0 #只要成功执行到这里就置end为0
+    flags.end = 0  # 只要成功执行到这里就置end为0
 
 
-def quiry_ans(question, course_name):
+def query_ans(type, question, course_name):
     lt = [x for x in range(0, 10)]
     # lt.append('(')
     lt.extend(['(', ')', '?'])
@@ -528,7 +535,7 @@ def quiry_ans(question, course_name):
             goal += urllib.parse.quote(c)
     # print(goal)
     course = urllib.parse.quote(course_name)
-    data = {'course': course, 'type': '0', 'option': ''}
+    data = {'course': course, 'type': str(type)}
     headers = {
         'Host': 'mooc.forestpolice.org',
         'User-Agent':
@@ -567,13 +574,13 @@ def re_process(text, course_name):
     regex = re.compile(r'[ \t\n]')
     text = regex.sub('', text)
     # print(text)
-    regex = re.compile(r'\u3010[\u4e00-\u9fa5]+?\u3011([\w\W]+?)[ \t\n]*</div>')
+    regex = re.compile(r'\u3010([\u4e00-\u9fa5]+?)\u3011([\w\W]+?)[ \t\n]*</div>')
     que_lt = regex.findall(text)  # 问题列表
     for i in range(0, len(que_lt)):
-        que_lt[i] = re.sub(r'<.+?>', '', que_lt[i])
-        que_lt[i] = re.sub(r'[(](.*?)[)]', '', que_lt[i])
-        que_lt[i] = re.sub(r'\uff08(.*?)\uff09', '', que_lt[i])
-
+        que_lt[i][1] = re.sub(r'<.+?>', '', que_lt[i][1])
+        que_lt[i][1] = re.sub(r'[(](.*?)[)]', '', que_lt[i][1])
+        que_lt[i][1] = re.sub(r'\uff08(.*?)\uff09', '', que_lt[i][1])
+        que_lt[i][0] = re.sub(r' \t\n', '', que_lt[i][0])
     # print(que_lt)  # 问题
     pd_opt = ['正确', '错误', '√', '×', '对', '错', '是', '否', 'T', 'F', 'ri', 'wr']
     with open(r'./record.txt', 'a+', encoding="utf-8") as f:
@@ -581,10 +588,14 @@ def re_process(text, course_name):
         ans_ul = re.findall(r'<ulclass="[\w\W]+?</ul>', text)  # 答案列表
         # for item in ans_ul:
         for i in range(1, len(ans_ul) + 1):
-            f.write(que_lt[i - 1])
-            ans = quiry_ans(que_lt[i - 1], course_name)
+            f.write(que_lt[i - 1][1])
+            if que_type.count(que_lt[i-1][0]) == 0:
+                q_type = 8
+            else:
+                q_type = que_type.index(que_lt[i-1][0])
+            ans = query_ans(q_type, que_lt[i - 1][1], course_name)
             # ans为0，未获取到答案
-            log_fp.write('      go to ' + str(que_lt[i - 1]) + ' get ' + str(ans) + '\n')
+            log_fp.write('      go to ' + str(que_lt[i - 1][1]) + ' get ' + str(ans) + '\n')
             if ans == 0:
                 ans_order.append([1])  # 服务器异常，默认选1
                 continue
