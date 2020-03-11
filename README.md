@@ -29,7 +29,7 @@
 
 - *注意*：必须让autochaoxing.exe、logindata.txt和chromedriver.exe在**同一目录下**才可执行
 
-- [**懒人通道**](https://github.com/Luoofan/autochaoxing/releases)：发布了win10x64下的打包程序，直接下载运行即可刷课+查题
+- [**懒人通道**](https://github.com/Luoofan/autochaoxing/releases)：发布了win10x64下的打包程序，直接下载运行即可刷课
 
 ## 功能支持
 
@@ -56,16 +56,20 @@
  - [ ] chrome外其他浏览器的适配
 
 ## 关于题库与考试
- - 题库是直接访问的前辈们维护的题库服务器；考试因为考虑到直接无界面完成会不放心，所以暂未提供支持，考试时可使用查题程序查题
+ - 题库是直接访问的前辈们维护的题库服务器；考试因为考虑到直接无界面完成会不放心，所以暂未提供支持，考试时可参考record.txt，当然你也可以来[这里get查题软件](https://github.com/yanyongyu/CXmoocSearchTool)或者直接使用以下的脚本
  - 题库服务器来源：[js脚本刷课项目](https://github.com/CodFrm/cxmooc-tools),[greasyfork](https://greasyfork.org/zh-CN/scripts/369625-%E8%B6%85%E6%98%9F%E7%BD%91%E8%AF%BE%E5%8A%A9%E6%89%8B),十分感谢！
 
 ## 更新
  - 2020-3-9：
    - 修复了部分视频检测错误的bug、修复了有些页面无法打开视频页面和章节测试的bug
    - 新增了查题程序，分命令行执行和窗口执行两种，配套刷课脚本用来考试查询
-   - 发布了win10x64下的打包程序(刷课+查题)，可直接运行exe开始刷课
+   - 发布了win10x64下的打包程序，可直接运行exe开始刷课
 - 2020-3-10：
   - 修复了部分页面无法获取课程的bug、修复了普通章节下的子章节无法获取的bug
+- 2020-3-11：
+  - 规范了查题接口的使用
+  - 删去了查题程序，如果有查题需要可以移步*题库与考试下的链接*
+  - 修复了程序在linux编码错误和执行路径错误的bug
 
 ## 写在最后
 
