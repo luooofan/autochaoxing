@@ -1,7 +1,8 @@
 *.txt
-*.exe
+chrome*.exe
 *.png
 *.ico
+auto*.exe
 dist/*
 *win10x64*
 cp.py
