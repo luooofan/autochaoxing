@@ -8,3 +8,4 @@ dist/*
 cp.py
 test.py
 debug.log
+*quiry_ans*
