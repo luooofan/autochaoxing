@@ -3,7 +3,7 @@ chrome*.exe
 *.png
 *.ico
 auto*.exe
-dist/*
+dist*/*
 *win10x64*
 cp.py
 test.py
