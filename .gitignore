@@ -5,7 +5,7 @@ chrome*.exe
 auto*.exe
 dist*/*
 *win10x64*
-cp.py
 test.py
 debug.log
 *quiry_ans*
+*picshow*
