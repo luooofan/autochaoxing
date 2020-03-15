@@ -1,4 +1,11 @@
-# coding=UTF-8
+# coding=utf-8
+##
+# brief  
+# details
+# author Luoofan
+# date   2020-03-15 15:40:43
+# FilePath\autochaoxing.py
+# 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.wait import WebDriverWait
@@ -27,19 +34,21 @@ class color:
 
 class FLAG:
     pattern = 0
-    flag = 0
+    flag = 0  # 视频时间获取异常标志
+    flag2 = 0  # 播放视频异常标志
     end = 0
     chapter = 0
     section = 0
     subsection = 0
 
-    def getvalue(self, _chapter, _section, _subsection, _flag, _end, _pattern):
+    def getvalue(self, _chapter, _section, _subsection, _flag, _end, _pattern, _flag2=0):
         self.chapter = _chapter
         self.section = _section
         self.subsection = _subsection
         self.flag = _flag
         self.end = _end
         self.pattern = _pattern
+        self.flag2 = _flag2
 
 
 que_type = ['单选题', '多选题', '填空题', '判断题', '简答题', '名词解释题', '论述题', '计算题', '其他',
@@ -177,7 +186,7 @@ def get_chapter_section(driver, menu_url):
     WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//div[@class="timeline"]')))
     lt = driver.find_element_by_xpath('//div[@class="timeline"]')
     sleep(3)
-
+    
     ch_se_lt = []
     end = 0
     for i in range(1, 50):
@@ -185,14 +194,17 @@ def get_chapter_section(driver, menu_url):
             break
         try:
             for j in range(1, 50):
-                # print(i,j)
                 icon = lt.find_element_by_xpath('//div[' + str(i) + ']/div[' + str(j) + ']' + '/h3/span[@class="icon"]')
                 end = 0
-                name = lt.find_element_by_xpath(
-                    '//div[' + str(i) + ']/div[' + str(j) + ']' + '/h3/span[@class="articlename"]/a').get_attribute('title')
-                if name in ["问卷调查", "阅读"]:
-                    continue
-                # if 'openlock' not in icon.get_attribute('innerHTML'):
+                #print(str(i)+' '+str(j)+' '+re.sub(r'[ \t\n]+','',icon.get_attribute('innerHTML')))
+
+                try:
+                    name = lt.find_element_by_xpath(
+                        '//div[' + str(i) + ']/div[' + str(j) + ']' + '/h3/span[@class="articlename"]/a').get_attribute('title')
+                    if name in ["问卷调查", "阅读"]:
+                        continue
+                except:
+                    pass
                 try:
                     # 寻找三级标题
                     three_levels = lt.find_element_by_xpath(
@@ -200,7 +212,8 @@ def get_chapter_section(driver, menu_url):
                     ch_se_lt.extend([*map(lambda x:[i, j, x], bs4_3rd_titles(three_levels.get_attribute('innerHTML')))])
                 except:
                     # 找不到三级标题
-                    if 'orange' in icon.get_attribute('innerHTML'):
+                    icon_html=icon.get_attribute('innerHTML')
+                    if 'orange' in icon_html or "display:inline-block;" in icon_html:
                         ch_se_lt.append([i, j])
         except:
             end += 1
@@ -235,7 +248,7 @@ def get_video_road(text, video_num):
 
 
 def play_video(driver, menu_url):
-    wait = WebDriverWait(driver, 20)
+    wait = WebDriverWait(driver, 60)
     action_chains = ActionChains(driver)
     # 进入课程主页进行选节播放
     driver.get(menu_url)
@@ -366,27 +379,36 @@ def play_video(driver, menu_url):
         # print(driver.page_source)
         #wait.until(EC.presence_of_element_located((By.XPATH, '//div[@class="ans-cc"]/p['+str(p_index[v_num-1])+']/div/iframe')))
         #iframe = driver.find_element_by_xpath('//div[@class="ans-cc"]/p['+str(p_index[v_num-1])+']/div/iframe')
-        wait.until(EC.presence_of_element_located((By.XPATH, first_road + video_road[v_num - 1] + '/iframe')))
-        iframe = driver.find_element_by_xpath(first_road + video_road[v_num - 1] + '/iframe')
-        driver.switch_to.frame(iframe)
-
-        wait.until(EC.presence_of_element_located(
-            (By.XPATH, '//div[@id="reader"]/div/button[@class="vjs-big-play-button"]')))
-        bt = driver.find_element_by_xpath('//div[@id="reader"]/div/button[@class="vjs-big-play-button"]')
-        action_chains.move_to_element_with_offset(bt, 0, 0)
-        # action_chains.click(bt)
-        sleep(5)
-        bt.click()  # 点击播放
-        print(COLOR.OK+' start play '+COLOR.END)
-        log_fp.write(' start play \n')
-
-        wait.until(EC.presence_of_element_located(
-            (By.XPATH, '//button[@class="vjs-mute-control vjs-control vjs-button vjs-vol-3"]')))
-        volumn = driver.find_element_by_xpath('//button[@class="vjs-mute-control vjs-control vjs-button vjs-vol-3"]')
-        action_chains.move_to_element(volumn)
         try:
-            volumn.click()  # 点击静音
+            wait.until(EC.presence_of_element_located((By.XPATH, first_road + video_road[v_num - 1] + '/iframe')))
+            iframe = driver.find_element_by_xpath(first_road + video_road[v_num - 1] + '/iframe')
+            driver.switch_to.frame(iframe)
+
+            wait.until(EC.presence_of_element_located(
+                (By.XPATH, '//div[@id="reader"]/div/button[@class="vjs-big-play-button"]')))
+            bt = driver.find_element_by_xpath('//div[@id="reader"]/div/button[@class="vjs-big-play-button"]')
+            action_chains.move_to_element_with_offset(bt, 0, 0)
+            # action_chains.click(bt)
+            sleep(5)
+            bt.click()  # 点击播放
+            print(COLOR.OK+' start play '+COLOR.END)
+            log_fp.write(' start play \n')
+            flags.flag2 = 0
         except:
+            # 找的到视频但无法播放
+            log_fp.write(' failed to start,Retry \n')
+            print(COLOR.ERR, ' failed to start ' + COLOR.END + ',will retry this section ')
+            flags.flag2 = 1  # 视频获取异常标志
+            return
+
+        try:
+            wait.until(EC.presence_of_element_located(
+                (By.XPATH, '//button[@class="vjs-mute-control vjs-control vjs-button vjs-vol-3"]')))
+            volumn = driver.find_element_by_xpath(
+                '//button[@class="vjs-mute-control vjs-control vjs-button vjs-vol-3"]')
+            action_chains.move_to_element(volumn)
+            volumn.click()  # 点击静音
+        except:  # 无法定位静音
             sleep(1)
 
         # 获取时间信息
@@ -577,6 +599,7 @@ def re_process(text, course_name):
     regex = re.compile(r'\u3010([\u4e00-\u9fa5]+?)\u3011([\w\W]+?)[ \t\n]*</div>')
     que_lt = regex.findall(text)  # 问题列表
     for i in range(0, len(que_lt)):
+        que_lt[i] = list(que_lt[i])
         que_lt[i][1] = re.sub(r'<.+?>', '', que_lt[i][1])
         que_lt[i][1] = re.sub(r'[(](.*?)[)]', '', que_lt[i][1])
         que_lt[i][1] = re.sub(r'\uff08(.*?)\uff09', '', que_lt[i][1])
@@ -649,13 +672,14 @@ def ans_question(driver, course_name):
     #print(6, end=" ")
 
     # 进入答题界面
-    wait = WebDriverWait(driver, 20)
+    wait = WebDriverWait(driver, 60)
     wait.until(EC.presence_of_element_located((By.XPATH, '//iframe[1]')))
     iframe = driver.find_element_by_xpath('//iframe[1]')
     driver.switch_to.frame(iframe)
     #print(7, end=" ")
 
     # 检测是否已完成
+    sleep(10)
     wait.until(EC.presence_of_element_located((By.XPATH, '//div[@class="ans-cc"]')))
     ans_cc = driver.find_element_by_xpath('//div[@class="ans-cc"]')
     action_chains.move_to_element(ans_cc)
@@ -747,13 +771,13 @@ def ans_question(driver, course_name):
     action_chains.move_to_element(bn)
     try:
         bn.click()
-        print(COLOR.OK, 'questions of the section is already finished! continue~', COLOR.END)
+        print(COLOR.OK, 'questions of the section is finished! continue~', COLOR.END)
         log_fp.write(' finish the questions ' + '\n')
     except:
         print(COLOR.ERR, "  提交失败！", COLOR.END)
         log_fp.write("  提交失败！" + '\n')
         return str(flags.chapter) + '-' + str(flags.section)
-    # sleep(1)
+    sleep(5)
     # driver.switch_to_alert().accept()
 
     return 0
@@ -768,6 +792,7 @@ def perform(driver, menu_url, course_name):
     print(COLOR.WARN, '未完成任务章节：', COLOR.END, str(ch_se_lt))
     log_fp.write('未完成任务章节：' + str(ch_se_lt) + '\n')
     error_lt = []
+    last_time=time.time()-300
     if pattern == 1:
         chapter = eval(input(COLOR.NOTE + "please select which chapter:" + COLOR.END))
         section = eval(input(COLOR.NOTE + "please select which section:" + COLOR.END))
@@ -775,11 +800,17 @@ def perform(driver, menu_url, course_name):
         flags.getvalue(chapter, section, subsection, 0, 0, pattern)
         while 1:
             play_video(driver, menu_url)
-            if flags.flag > 0:
+            if flags.flag > 0 or flags.flag2 > 0:
                 print(COLOR.ERR, 'unfinished! Retry…', COLOR.END)
                 continue
             elif flags.end > 0:
+                flags.section += 1
                 continue
+            now_time=time.time()
+            #print(now_time-last_time)
+            if now_time-last_time<300:
+                sleep(300-(now_time-last_time))
+            last_time=time.time()
             if flags.end == 2:
                 print(COLOR.OK, 'finish the lesson! quit! ', COLOR.END)
             err_section = ans_question(driver, course_name)
@@ -797,10 +828,17 @@ def perform(driver, menu_url, course_name):
             flags.subsection = ch_se[2] if len(ch_se) == 3 else 0
             while 1:
                 play_video(driver, menu_url)
-                if flags.flag > 0:
+                if flags.flag > 0 or flags.flag2 > 0:
                     print(COLOR.ERR, 'unfinished! Retry…', COLOR.END)
                 else:
                     break
+                
+            now_time=time.time()
+            #print(now_time-last_time)
+            if now_time-last_time<300:
+                sleep(300-(now_time-last_time))
+            last_time=time.time()
+
             err_section = ans_question(driver, course_name)
             if err_section != 0:
                 print(COLOR.ERR, 'unfinished!', COLOR.END)
@@ -815,7 +853,7 @@ def perform(driver, menu_url, course_name):
 
 def main():
     driver = init()
-    print(COLOR.DISPLAY, 'Lauching…', COLOR.END)
+    print('\n\n'+COLOR.DISPLAY, 'Lauching…', COLOR.END)
     login(driver)
     # print(driver.current_url)
     ret = choose_course(driver)
