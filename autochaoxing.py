@@ -21,6 +21,7 @@ from ast import literal_eval
 import re
 from time import sleep
 import time
+from sys import argv
 
 
 class color:
@@ -138,8 +139,7 @@ def choose_course(driver):
     iframe = driver.find_element_by_xpath('//iframe')
     driver.switch_to.frame(iframe)
     wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '.ulDiv')))
-    courses_num = len(
-        driver.find_elements_by_xpath('//div[@class="ulDiv"]/ul/li'))
+    courses_num = len(driver.find_elements_by_xpath('//div[@class="ulDiv"]/ul/li'))
     courses_lt = []
     valid_i = 1
     for i in range(1, courses_num):
@@ -288,30 +288,26 @@ def play_video(driver, menu_url):
     try:
         wait.until(EC.presence_of_element_located(
             (By.XPATH, '//div[@class="left"]/div/div[@class="main"]/div[@class="tabtags"]')))
-    except:
-        print(COLOR.NOTE, ' no videos,continue~', COLOR.END)
-        log_fp.write(' no videos,continue~\n')
-        return
-
-    try:
-        bt = driver.find_element_by_xpath(
-            '//div[@class="left"]/div/div[@class="main"]/div[@class="tabtags"]/span[@title="视频"]')
-    except:
         try:
             bt = driver.find_element_by_xpath(
-                '//div[@class="left"]/div/div[@class="main"]/div[@class="tabtags"]/span[@title="视频 "]')
+                '//div[@class="left"]/div/div[@class="main"]/div[@class="tabtags"]/span[@title="视频"]')
         except:
-            try:  # 无标题视频
+            try:
                 bt = driver.find_element_by_xpath(
-                    '//div[@class="left"]/div/div[@class="main"]/div[@class="tabtags"]/span[last()-1]')
+                    '//div[@class="left"]/div/div[@class="main"]/div[@class="tabtags"]/span[@title="视频 "]')
             except:
-                pass
-    sleep(7)
-    try:
+                try:  # 无标题视频
+                    bt = driver.find_element_by_xpath(
+                    '//div[@class="left"]/div/div[@class="main"]/div[@class="tabtags"]/span[@title="微课"]')
+                except:
+                    bt = driver.find_element_by_xpath(
+                        '//div[@class="left"]/div/div[@class="main"]/div[@class="tabtags"]/span[last()-1]')
+        sleep(7)
         action_chains.move_to_element(bt)
         bt.click()
-    except:
+    except:#可能会有没有标签栏的情况
         pass
+    
     # action_chains.click_and_hold(bt)
     # action_chains.release(bt)
 
@@ -359,7 +355,7 @@ def play_video(driver, menu_url):
         log_fp.write(' go ' + str(v_num) + ':\n')
         driver.execute_script("window.scrollTo(0,arguments[0])", 400 + 700 * (v_num - 1))
         sleep(2)
-        try:
+        try:#查看是否有任务点标识并查看是或否已经完成该任务点
             #flag = driver.find_element_by_xpath('//div[@class="ans-cc"]/p['+str(p_index[v_num-1])+']/div')
             # print(first_road+video_road[v_num-1])
             flag = driver.find_element_by_xpath(first_road + video_road[v_num - 1])
@@ -384,16 +380,22 @@ def play_video(driver, menu_url):
             iframe = driver.find_element_by_xpath(first_road + video_road[v_num - 1] + '/iframe')
             driver.switch_to.frame(iframe)
 
-            wait.until(EC.presence_of_element_located(
-                (By.XPATH, '//div[@id="reader"]/div/button[@class="vjs-big-play-button"]')))
-            bt = driver.find_element_by_xpath('//div[@id="reader"]/div/button[@class="vjs-big-play-button"]')
-            action_chains.move_to_element_with_offset(bt, 0, 0)
-            # action_chains.click(bt)
-            sleep(5)
-            bt.click()  # 点击播放
-            print(COLOR.OK+' start play '+COLOR.END)
-            log_fp.write(' start play \n')
-            flags.flag2 = 0
+            try:
+                wait.until(EC.presence_of_element_located(
+                    (By.XPATH, '//div[@id="reader"]/div/button[@class="vjs-big-play-button"]')))
+                bt = driver.find_element_by_xpath('//div[@id="reader"]/div/button[@class="vjs-big-play-button"]')
+                action_chains.move_to_element_with_offset(bt, 0, 0)
+                # action_chains.click(bt)
+                sleep(5)
+                bt.click()  # 点击播放
+                print(COLOR.OK+' start play '+COLOR.END)
+                log_fp.write(' start play \n')
+                flags.flag2 = 0
+            except:
+                driver.switch_to.parent_frame()
+                print(COLOR.DISPLAY+' this is not a video, go ahead!'+COLOR.END)
+                log_fp.write(" this is not a video, go ahead!\n")
+                continue
         except:
             # 找的到视频但无法播放
             log_fp.write(' failed to start,Retry \n')
@@ -697,10 +699,15 @@ def ans_question(driver, course_name):
         log_fp.write("  答题失败！" + '\n')
         return str(flags.chapter) + '-' + str(flags.section)
 
-    for i in range(2):
-        wait.until(EC.presence_of_element_located((By.XPATH, '//iframe[1]')))
-        iframe = driver.find_element_by_xpath('//iframe[1]')
-        driver.switch_to.frame(iframe)
+    try:
+        for i in range(2):
+            wait.until(EC.presence_of_element_located((By.XPATH, '//iframe[1]')))
+            iframe = driver.find_element_by_xpath('//iframe[1]')
+            driver.switch_to.frame(iframe)
+    except:
+        print(COLOR.NOTE, ' no questions,continue~', COLOR.END)  # 未找到章节测验
+        log_fp.write(' no questions,continue~\n')
+        return 0
     # print(driver.page_source)
     sleep(3)
 
@@ -782,74 +789,83 @@ def ans_question(driver, course_name):
 
     return 0
 
+def perform_model0(driver,menu_url,course_name):
+    ch_se_lt = get_chapter_section(driver, menu_url)
+    print(COLOR.WARN, '未完成任务章节：', COLOR.END, str(ch_se_lt))
+    log_fp.write('未完成任务章节：' + str(ch_se_lt) + '\n')
+    error_lt = []
+    last_time=time.time()-300
+    flags.getvalue(0, 0, 0, 0, 0, pattern)
+    for ch_se in ch_se_lt:
+        flags.chapter = ch_se[0]
+        flags.section = ch_se[1]
+        flags.subsection = ch_se[2] if len(ch_se) == 3 else 0
+        while 1:
+            play_video(driver, menu_url)
+            if flags.flag > 0 or flags.flag2 > 0:
+                print(COLOR.ERR, 'unfinished! Retry…', COLOR.END)
+            else:
+                break
+            
+        now_time=time.time()
+        #print(now_time-last_time)
+        if now_time-last_time<300:
+            sleep(300-(now_time-last_time))
+        last_time=time.time()
+
+        err_section = ans_question(driver, course_name)
+        if err_section != 0:
+            print(COLOR.ERR, 'unfinished!', COLOR.END)
+            error_lt.append(err_section)  # 记录答题提交失败的章节
+        else:
+            print(COLOR.OK, 'finished!', COLOR.END)
+    print(COLOR.OK, 'finish the lesson! quit! ', COLOR.END)
+    log_fp.write("err_lt:" + str(error_lt) + '\n')
+
+
+def perform_model1(driver,menu_url,course_name):
+    ch_se_lt = get_chapter_section(driver, menu_url)
+    print(COLOR.WARN, '未完成任务章节：', COLOR.END, str(ch_se_lt))
+    log_fp.write('未完成任务章节：' + str(ch_se_lt) + '\n')
+    error_lt = []
+    last_time = time.time()-300
+    chapter = eval(input(COLOR.NOTE + "please select which chapter:" + COLOR.END))
+    section = eval(input(COLOR.NOTE + "please select which section:" + COLOR.END))
+    subsection = eval(input(COLOR.NOTE + "please select which subsection(if not input 0):" + COLOR.END))
+    flags.getvalue(chapter, section, subsection, 0, 0, pattern)
+    while 1:
+        play_video(driver, menu_url)
+        if flags.flag > 0 or flags.flag2 > 0:
+            print(COLOR.ERR, 'unfinished! Retry…', COLOR.END)
+            continue
+        elif flags.end > 0:
+            flags.section += 1
+            continue
+        now_time=time.time()
+        #print(now_time-last_time)
+        if now_time-last_time<300:
+            sleep(300-(now_time-last_time))
+        last_time=time.time()
+        if flags.end == 2:
+            print(COLOR.OK, 'finish the lesson! quit! ', COLOR.END)
+        err_section = ans_question(driver, course_name)
+        if err_section != 0:
+            print(COLOR.ERR, 'unfinished!', COLOR.END)
+            error_lt.append(err_section)  # 记录答题提交失败的章节
+        else:
+            print(COLOR.OK, 'finished!', COLOR.END)
+        flags.section += 1
+    log_fp.write("err_lt:" + str(error_lt) + '\n')
 
 def perform(driver, menu_url, course_name):
     while 1:
         pattern = eval(input(COLOR.NOTE + "please select the pattern(0 is auto,1 is manual):" + COLOR.END))
         if pattern in [0, 1]:
             break
-    ch_se_lt = get_chapter_section(driver, menu_url)
-    print(COLOR.WARN, '未完成任务章节：', COLOR.END, str(ch_se_lt))
-    log_fp.write('未完成任务章节：' + str(ch_se_lt) + '\n')
-    error_lt = []
-    last_time=time.time()-300
     if pattern == 1:
-        chapter = eval(input(COLOR.NOTE + "please select which chapter:" + COLOR.END))
-        section = eval(input(COLOR.NOTE + "please select which section:" + COLOR.END))
-        subsection = eval(input(COLOR.NOTE + "please select which subsection(if not input 0):" + COLOR.END))
-        flags.getvalue(chapter, section, subsection, 0, 0, pattern)
-        while 1:
-            play_video(driver, menu_url)
-            if flags.flag > 0 or flags.flag2 > 0:
-                print(COLOR.ERR, 'unfinished! Retry…', COLOR.END)
-                continue
-            elif flags.end > 0:
-                flags.section += 1
-                continue
-            now_time=time.time()
-            #print(now_time-last_time)
-            if now_time-last_time<300:
-                sleep(300-(now_time-last_time))
-            last_time=time.time()
-            if flags.end == 2:
-                print(COLOR.OK, 'finish the lesson! quit! ', COLOR.END)
-            err_section = ans_question(driver, course_name)
-            if err_section != 0:
-                print(COLOR.ERR, 'unfinished!', COLOR.END)
-                error_lt.append(err_section)  # 记录答题提交失败的章节
-            else:
-                print(COLOR.OK, 'finished!', COLOR.END)
-            flags.section += 1
+        perform_model1(driver,menu_url,course_name)#debug模式
     else:
-        flags.getvalue(0, 0, 0, 0, 0, pattern)
-        for ch_se in ch_se_lt:
-            flags.chapter = ch_se[0]
-            flags.section = ch_se[1]
-            flags.subsection = ch_se[2] if len(ch_se) == 3 else 0
-            while 1:
-                play_video(driver, menu_url)
-                if flags.flag > 0 or flags.flag2 > 0:
-                    print(COLOR.ERR, 'unfinished! Retry…', COLOR.END)
-                else:
-                    break
-                
-            now_time=time.time()
-            #print(now_time-last_time)
-            if now_time-last_time<300:
-                sleep(300-(now_time-last_time))
-            last_time=time.time()
-
-            err_section = ans_question(driver, course_name)
-            if err_section != 0:
-                print(COLOR.ERR, 'unfinished!', COLOR.END)
-                error_lt.append(err_section)  # 记录答题提交失败的章节
-            else:
-                print(COLOR.OK, 'finished!', COLOR.END)
-        print(COLOR.OK, 'finish the lesson! quit! ', COLOR.END)
-
-    log_fp.write("err_lt:" + str(error_lt) + '\n')
-    driver.quit()
-
+        perform_model0(driver,menu_url,course_name)#auto模式
 
 def main():
     driver = init()
@@ -858,11 +874,14 @@ def main():
     # print(driver.current_url)
     ret = choose_course(driver)
     perform(driver, ret[0], ret[1])
+    driver.quit()
 
 
+COLOR = color()
+flags = FLAG()
 if __name__ == "__main__":
-    COLOR = color()
-    flags = FLAG()
     log_fp = open(r'./chaoxing.txt', 'a+', encoding='utf-8')
     main()
     log_fp.close()
+else:
+    log_fp = open(r'./chaoxing.txt', 'a+', encoding='utf-8')

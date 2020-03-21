@@ -25,12 +25,12 @@
 
 ## 关于autocx(Docker)
 
-autocx是autochaoxing的==**Docker**==版本，主要由[KimJungWha](https://github.com/KimJungWha)制作了这个开箱即用的镜像
+autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.com/KimJungWha)制作了这个开箱即用的镜像
 
-##### 当您pull镜像后，只需进行以下几步：
+### 当您pull镜像后，只需进行以下几步：
 
 - 以特权模式运行容器  
-  `docker run -it --name autocx --privileged autocx bash`
+  `docker run -it --name autocx --privileged kimjungwha/autocx bash`
 - 按照提示修改logindata.txt里的信息   
   `vim logindata.txt`
 - 运行脚本  
