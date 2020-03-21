@@ -13,4 +13,4 @@ debug.log
 FAQ*
 *pycache*/
 test.bat
-logindatabat.txt
+!logindata.txt
