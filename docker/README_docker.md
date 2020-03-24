@@ -5,7 +5,7 @@ autocx是autochaoxing的Docker版本，是在作者[@Luoofan](https://github.com
 ### 当您pull镜像后，只需进行以下几步：
 
 - 以特权模式运行容器  
-  `docker run -it --name autocx --privileged autocx bash`
+  `docker run -it --name autocx --privileged kimjungwha/autocx bash`
 - 按照提示修改logindata.txt里的信息   
   `vim logindata.txt`
 - 运行脚本  
