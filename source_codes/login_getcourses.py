@@ -17,9 +17,20 @@ def getlogindata():
 
 
 def getschool(name):
-    text = get(url='https://passport2.chaoxing.com/org/searchUnis?filter=' + quote(name)+'&product=44').text  # type:str
+    data = {
+        "filter": quote(name),
+        "pid": -1,
+        "allowjoin": 0
+    }
+    # searchUnis?filter='+quote(name)).text  # type:str
+    text = post(url='http://passport2.chaoxing.com/org/searchforms?filter='+quote(name)+'&allowjoin=0&pid=-1').text
+    #print(text)
     dic = loads(text)  # 把字符串转化为字典
-    return dic['froms'][0]['schoolid'], dic['froms'][0]['name']  # 取第一个匹配的信息作为登录选项
+    try:
+        return dic['froms'][0]['id'], dic['froms'][0]['name']  # 取第一个匹配的信息作为登录选项
+    except:
+        print(COLOR.ERR, ' get school_id failed', COLOR.END)
+        exit(1)
 
 
 def getcourses(mysession):
@@ -33,7 +44,7 @@ def getcourses(mysession):
                }
     mysession.get(url="http://i.mooc.chaoxing.com/space/index").text
     courses = mysession.get(url='http://mooc1-2.chaoxing.com/visit/courses', headers=headers).text
-    #print(courses)
+    # print(courses)
     # 正则处理
     courses = sub(r'[ \t\n]', '', courses)
     info = findall(r'<ahref=[\'\"](/mycourse.+?)[\'\"]target="_blank"title="(.+?)">', courses)
@@ -100,7 +111,7 @@ def login_by_phone(phonenum, password):
         'vercode': password
     }
     res = mysession.post(url, data=data).text  # str
-    #print(res)
+    # print(res)
     msg = loads(res)
     if(msg['status'] == 'false'):
         print(COLOR.ERR, msg['mes'], end="")
@@ -134,7 +145,8 @@ def perform(logindata):
     if(len(logindata) == 2):
         courses_lt, cookies = login_by_phone(logindata[0].strip(' \t\n'), logindata[1].strip(' \t\n'))
     else:
-        courses_lt, cookies = login(logindata[0].strip(' \t\n'), logindata[1].strip(' \t\n'), logindata[2].strip(' \t\n'))
+        courses_lt, cookies = login(logindata[0].strip(
+            ' \t\n'), logindata[1].strip(' \t\n'), logindata[2].strip(' \t\n'))
     driver = autocx.init()  # 配置chrome启动参数并启动
     base_url = 'https://mooc1-1.chaoxing.com'
     driver.get(base_url)
