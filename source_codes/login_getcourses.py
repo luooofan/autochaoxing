@@ -1,4 +1,32 @@
+# coding=utf-8
+##
+# brief    执行单一账号的刷课前准备工作
+# details  通过账号信息登录、获取课程信息并输出、用户选择课程信息 并 调用autochaoxing中执行函数执行刷课
+#          执行文件时可带参数：形式为：机构名,学号,密码 或者 手机号,密码  执行该账号刷课
+#          不带参数：获取logindata.txt中的第一个账号信息开始刷课
+# author   Luoofan
+# date     2020-03-27 21:01:12
+# FilePath\source_codes\login_getcourses.py
+# 
+
+
+
+#登录类
+#   子类：网页请求登录；chrome模拟登录
+
+#增加管理控制方式启动 -control
+#网页请求登录方式失败情况下自动调用模拟登录方式
+#增加全自动模式启动 -fullauto
+#增加全局倍速方式启动   -videorate rate 
+
+#传送字典数据
+
+
+
+
+
 import autochaoxing as autocx
+#import autotest as autocx
 from requests import post, Session, get
 from urllib.parse import quote
 from json import loads
@@ -44,13 +72,19 @@ def getcourses(mysession):
                }
     mysession.get(url="http://i.mooc.chaoxing.com/space/index").text
     courses = mysession.get(url='http://mooc1-2.chaoxing.com/visit/courses', headers=headers).text
-    # print(courses)
+    #print(courses)
     # 正则处理
     courses = sub(r'[ \t\n]', '', courses)
-    info = findall(r'<ahref=[\'\"](/mycourse.+?)[\'\"]target="_blank"title="(.+?)">', courses)
+    info = findall(r'<ahref=[\'\"](/mycourse.+?)[\'\"]target="_blank"title="(.+?)">(.+?)</p>', courses)
+    del_lt=[]
     for i in range(len(info)):
         info[i] = list(info[i])
-        info[i][0] = info[i][0][0:info[i][0].find('\'')]
+        if "结课模式" in info[i][2]:#去掉有结课模式的课程
+            del_lt.append(i)
+        info[i][0] = info[i][0][0:info[i][0].find('\'')]#获取课程主页url
+        del info[i][2]
+    for i in range(len(del_lt)):  # 去掉有结课模式的课程
+        del info[del_lt[i]-i]
     return info, utils.dict_from_cookiejar(mysession.cookies)
 
 
@@ -80,14 +114,19 @@ def login(school, username, password):
                 'uname': username,
                 't': 'true'
             }
+            #print(data)
             w = mysession.post(url='https://passport2.chaoxing.com/unitlogin', data=data).text
             msg = loads(w)
-            if (msg['type'] == 1):  # 验证码错误 用户名或密码错误
+            #print(w)
+            if (msg['type']==0):
+                return getcourses(mysession)
+            elif (msg['type'] == 1):  # 验证码错误 用户名或密码错误
                 print(COLOR.ERR, msg['mes'], end="")
                 print(' login failed,', COLOR.END, 'please check your login_info and retry')
                 continue
-            else:
-                return getcourses(mysession)
+            #else:#采用备用方案登录
+                
+                
         # 验证码获取失败
         else:
             continue
@@ -147,7 +186,8 @@ def perform(logindata):
     else:
         courses_lt, cookies = login(logindata[0].strip(
             ' \t\n'), logindata[1].strip(' \t\n'), logindata[2].strip(' \t\n'))
-    driver = autocx.init()  # 配置chrome启动参数并启动
+    driver = autocx.init()
+    #'--remote-debugging-port=9222') # 配置chrome启动参数并启动
     base_url = 'https://mooc1-1.chaoxing.com'
     driver.get(base_url)
     driver.delete_all_cookies()
@@ -163,6 +203,11 @@ def perform(logindata):
     autocx.log_fp.close()
 
 
+##
+# brief    执行单一账号的刷课前准备工作
+# details  通过账号信息登录、获取课程信息并输出、用户选择课程信息 并 调用autochaoxing中执行函数执行刷课
+#          执行文件时可带参数：形式为：机构名,学号,密码 或者 手机号,密码  执行该账号刷课
+#          不带参数：获取logindata.txt中的第一个账号信息开始刷课
 COLOR = autocx.color()
 if __name__ == "__main__":
     if len(argv) == 1:
