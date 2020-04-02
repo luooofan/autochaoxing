@@ -6,14 +6,15 @@
 
 ## 使用
 
-- 安装chrome浏览器以及相对应的chromedriver，并**将chromedriver复制到source_codes目录下**
-    - [chrome浏览器下载地址](https://www.google.cn/chrome/)，[chromedriver下载地址](http://npm.taobao.org/mirrors/chromedriver/)或者[这里](http://chromedriver.storage.googleapis.com/index.html)
-    - 版本要对应，版本号前三个数应一致，第四个可以更换着尝试
+- 安装chrome浏览器以及相对应的chromedriver，并**将chromedriver复制到source_code目录下**
+    - [chrome浏览器下载地址](https://www.google.cn/chrome/)，[chromedriver下载地址](http://npm.taobao.org/mirrors/chromedriver/)或者[这里](http://chromedriver.storage.googleapis.com/index.html)，注意版本对应
 - 安装python3和pip，[python官网](https://www.python.org)
 - 命令行执行`pip install selenium pillow requests beautifulsoup4 colorama`
 - 在**logindata_phone.txt**或**logindata.txt**中按提示填写登录信息，并把提示信息删除（推荐使用前者）
-- `python multi_autocx.py`开始刷课
-- PS：**Linux用户**可以配环境运行py，也可以使用**docker⬇⬇⬇**
+- 查看帮助信息 `python autocx.py -h`     选择合适的参数开始刷课
+
+- 如果有帮到你的话请赏颗:star:吧
+- **Linux用户**可以配环境运行py，也可以使用**docker**:point_down:
 
 
 
@@ -21,7 +22,7 @@
 
 autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.com/KimJungWha)制作了这个开箱即用的镜像
 
-### 当您pull镜像后，只需进行以下几步：
+#### 当您pull镜像后，只需进行以下几步：
 
 - 以特权模式运行容器  
   `docker run -it --name autocx --privileged kimjungwha/autocx bash`
@@ -30,29 +31,21 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
 - 运行脚本  
   `python3 autocx_docker.py`
 
-详细信息请见[README_docker.md](https://github.com/Luoofan/autochaoxing/blob/multi-autocx/docker/README_docker.md) 或者[移步项目地址](https://hub.docker.com/r/kimjungwha/autocx)
+详细信息请见[README_docker.md](https://github.com/Luoofan/autochaoxing/blob/master/docker/README_docker.md) 或者[移步项目地址](https://hub.docker.com/r/kimjungwha/autocx)
 
 
 
 ## 功能支持
 
-- [x] 支持所有机构用户登录运行
-- [x] 自动刷视频(包括页面内多视频)，静音播放，解决视频弹出的试题
-- [x] 自动答章节测试题（单选、多选、判断）
 - [x] **无浏览器界面**，只有控制台执行界面
-- [x] 充分的**输出和日志记录**
-- [x] *多开（需谨慎）*
-
-
-
-## 写给愿意学习交流、开发以及遇到问题的小伙伴
-
-- 程序在运行一次后，会在当前目录下生成以下几个文件：
-  1. login_vercode.png：登录时需要输入的验证码图片，会自动弹出，记住验证码后关闭，在执行窗口填写即可(docker下直接显示在终端)(手机登录方式不需要验证码)
-  2. chaoxing.txt：日志记录（暂时先用写文件的方式记录日志）
-  3. record.txt：题库文件，里面包含题目，选项，答案
-  4. ans_vercode.png：答章节测试题时需要确认提交的验证码（几乎不会弹出）
-- 如果程序运行中出现bug，异常退出，可以截图报错信息、查看chaoxing.txt记录，来与我们交流解决
+- [x] 充分的**交互**
+- [x] 支持所有机构用户登录运行
+- [x] 自动刷视频(包括页面内多视频)，静音播放
+- [x] 解决视频内弹出的试题
+- [x] 自动答章节测试题（单选、多选、判断）
+- [x] **多种模式：全自动，单课程自动，控制模式**
+- [x] 支持倍速
+- [x] ***多开***
 
 
 
@@ -66,13 +59,37 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
 
 
 
+## 如果想亲手写刷课脚本 或者遇到问题 可以先来[FAQ](https://github.com/Luoofan/autochaoxing/blob/master/FAQ.md)看看哦:blush:
+
+
+
 ## 关于题库与考试
+
  - 题库是直接访问的前辈维护的题库服务器；考试因为考虑到直接无界面完成会不放心，所以暂未提供支持，考试时可参考record.txt或者使用**查题程序**，当然你也可以来[这里get查题软件](https://github.com/yanyongyu/CXmoocSearchTool)或者直接使用以下的脚本
  - 题库服务器来源：[js脚本刷课项目](https://github.com/CodFrm/cxmooc-tools),[greasyfork](https://greasyfork.org/zh-CN/scripts/369625-%E8%B6%85%E6%98%9F%E7%BD%91%E8%AF%BE%E5%8A%A9%E6%89%8B),十分感谢！
 
 
 
 ## 更新
+
+- **2020-4-2**：:star:
+
+  - **发布了2.0版本**
+  - 新增**模式选择**：`-m(--mode)`
+    - `single`:      单课程自动模式——选择课程,自动完成该课程(默认启动参数，可不填写)
+    - `fullauto`:  全自动模式——自动遍历全部课程,无需输入
+    - `control`:    单课程控制模式——选择课程并选择控制章节,自动完成选定章节前的任务点
+  - 新增**视频倍速**：`-r(--rate)`  默认1倍速
+    - $[0.625,16]$   全局倍速设置——在选定模式的全局范围内开启该倍速
+  - 代码简单**重构**，执行**优化**：将原有功能封装，想*亲自写脚本*的童鞋可以关注这点哦 :point_left:
+  - 提高**容错率**(遇到未完成的任务点会暂时跳过,登录异常采用备用登录方案)
+  - 更改原播放视频部分的模拟操作为js操作，提高程序运行稳定性
+  - 可以通过 `-h(--help)`选项查看帮助信息，`-v(--version)`选项查看版本信息
+  - 运行异常提交服务器—以便尽快debug
+  - 分支合并到`master`，**执行文件更改为`autocx.py`** (以后只会增加参数，不会变更主执行文件)
+
+  -------------------------------------------------------------------------------------------------------------------------------------
+
 - 2020-3-22:
   - **multi_autocx**分支下新增了**手机号登录**模式，无需输入验证码即可登录，推荐使用该方式
   - 整理了项目文件结构，工作目录调整到**source_codes**
@@ -112,5 +129,6 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
 
 ## 写在最后
 
-本脚本主要用来学习，欢迎大家一起前来交流（*QQ群:1075080181*）
+本脚本主要用来学习，欢迎大家前来一起交流:grinning:（*QQ群:1075080181*）
 
+如果有帮到你的话请赏颗:star:吧
