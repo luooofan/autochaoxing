@@ -6,7 +6,7 @@
 #         Linux（docker）环境下：待定
 # author  Luoofan
 # date    2020-03-27 20:38:15
-# FilePath\source_codes\autocx.py
+# FilePath\source_code\autocx.py
 # 
 from subprocess import Popen
 from time import sleep
@@ -15,7 +15,7 @@ from colorama import init as colorinit
 from sys import argv
 from getopt import gnu_getopt
 from requests import post
-from platform import platform,architecture
+from platform import platform,architecture,system
 
 class Color(object):
     END = Fore.RESET
@@ -37,6 +37,7 @@ class Color(object):
         #print(self)
 
 COLOR = Color()
+SYSTEM = 0 if system()=='Windows' else 0
 
 def getlogindata():
     return open(r'./logindata.txt', 'r', encoding='utf-8').readlines()
@@ -50,7 +51,7 @@ def send_err(err_info):
         'arch': str(architecture()),
         'errorinfo': err_info
     }
-    post('http://39.98.127.46/index.php', data=data)
+    post('http://39.98.127.46/', data=data)
 
 def perform(mode,rate):
     #处理账号信息

@@ -1,22 +1,22 @@
 # autochaoxing
 
 无界面超星刷课脚本，通过selenium库+bs4库+正则处理，实现看视频+章节测试全自动，无需打开浏览器即可刷课（还支持多开哦:smile:）
-
-
+<hr/><br/>
 
 ## 使用
 
 - 安装chrome浏览器以及相对应的chromedriver，并**将chromedriver复制到source_code目录下**
     - [chrome浏览器下载地址](https://www.google.cn/chrome/)，[chromedriver下载地址](http://npm.taobao.org/mirrors/chromedriver/)或者[这里](http://chromedriver.storage.googleapis.com/index.html)，注意版本对应
 - 安装python3和pip，[python官网](https://www.python.org)
-- 命令行执行`pip install selenium pillow requests beautifulsoup4 colorama`
+- 命令行执行`pip install -r requirements.txt`
 - 在**logindata_phone.txt**或**logindata.txt**中按提示填写登录信息，并把提示信息删除（推荐使用前者）
 - 查看帮助信息 `python autocx.py -h`     选择合适的参数开始刷课
 
-- 如果有帮到你的话请赏颗:star:吧
+- [懒人通道](https://github.com/Luoofan/autochaoxing/releases):win10x64环境下可直接使用打包的exe
 - **Linux用户**可以配环境运行py，也可以使用**docker**:point_down:
+- 如果有帮到你的话请赏颗:star:吧
 
-
+<br/>
 
 ## 关于autocx(Docker)
 
@@ -33,7 +33,7 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
 
 详细信息请见[README_docker.md](https://github.com/Luoofan/autochaoxing/blob/master/docker/README_docker.md) 或者[移步项目地址](https://hub.docker.com/r/kimjungwha/autocx)
 
-
+<br/>
 
 ## 功能支持
 
@@ -48,7 +48,7 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
 - [x] ***多开***
 
 
-
+<br/>
 
 ## 暂不支持&ToDo
  - [ ] 非视频、章节测试的任务点
@@ -57,18 +57,18 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
  - [ ] ~~自动填写登录验证码~~（手机登录不需要填写）
  - [ ] ~~多账号多开~~（初步完成）
 
-
+<br/>
 
 ## 如果想亲手写刷课脚本 或者遇到问题 可以先来[FAQ](https://github.com/Luoofan/autochaoxing/blob/master/FAQ.md)看看哦:blush:
 
-
+<br/>
 
 ## 关于题库与考试
 
  - 题库是直接访问的前辈维护的题库服务器；考试因为考虑到直接无界面完成会不放心，所以暂未提供支持，考试时可参考record.txt或者使用**查题程序**，当然你也可以来[这里get查题软件](https://github.com/yanyongyu/CXmoocSearchTool)或者直接使用以下的脚本
  - 题库服务器来源：[js脚本刷课项目](https://github.com/CodFrm/cxmooc-tools),[greasyfork](https://greasyfork.org/zh-CN/scripts/369625-%E8%B6%85%E6%98%9F%E7%BD%91%E8%AF%BE%E5%8A%A9%E6%89%8B),十分感谢！
 
-
+<br/>
 
 ## 更新
 
@@ -80,7 +80,7 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
     - `fullauto`:  全自动模式——自动遍历全部课程,无需输入
     - `control`:    单课程控制模式——选择课程并选择控制章节,自动完成选定章节前的任务点
   - 新增**视频倍速**：`-r(--rate)`  默认1倍速
-    - $[0.625,16]$   全局倍速设置——在选定模式的全局范围内开启该倍速
+    - [0.625,16]   全局倍速设置——在选定模式的全局范围内开启该倍速
   - 代码简单**重构**，执行**优化**：将原有功能封装，想*亲自写脚本*的童鞋可以关注这点哦 :point_left:
   - 提高**容错率**(遇到未完成的任务点会暂时跳过,登录异常采用备用登录方案)
   - 更改原播放视频部分的模拟操作为js操作，提高程序运行稳定性
@@ -102,6 +102,7 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
   - 更改了登录和获取课程的模式，**减少了等待时间**，原来的模式保留作为备用方案
   - 修复了其他任务点影响视频任务点无法执行的bug，修复了部分视频无法获取的bug
 - 2020-3-16:
+  
   - 由[KimJungWha](https://github.com/KimJungWha)制作了**Docker版本**，并发布到了[DockerHub](https://hub.docker.com/r/kimjungwha/autocx)
 - 2020-3-15：
   - 增加了短时间内多次答题的时间限制，**减少答题验证码的弹出**
@@ -125,7 +126,7 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
   - 新增了查题程序，分命令行执行和窗口执行两种，配套刷课脚本用来考试查询
   - 发布了win10x64下的打包程序1.0，可直接运行exe开始刷课
 
-
+<br/>
 
 ## 写在最后
 

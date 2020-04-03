@@ -1,10 +1,10 @@
 # coding=utf-8
 ##
 # brief   单账号下单课程任务类
-# author  Luoofan
-# date    2020-03-15 15:40:43
-# FilePath\source_codes\singlecourse.py
-#
+# author Luoofan
+# date   2020-04-03 10:11:02
+# FilePath\source_code\singlecourse.py
+# 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.wait import WebDriverWait
