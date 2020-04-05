@@ -10,7 +10,7 @@
 #                          在调用SC类之前 输出“LOGIN_FINISHED” 实现与父进程的通信
 # author   Luoofan
 # date     2020-03-27 21:01:12
-# FilePath\source_code\login_courses.py
+# FilePath\login_courses.py
 #
 from requests import post, Session, get
 from urllib.parse import quote
@@ -75,7 +75,7 @@ class Login_courses(object):
         if SYSTEM==1:
             if os_path.exists('./AccountInfo')==False:
                 mkdir('./AccountInfo')
-            self._sc_out_fp=open(r'/AccountInfo/'+self.account+r'.txt','w+',encoding="utf-8")  
+            self._sc_out_fp=open(r'./AccountInfo/'+self.account+r'.txt','a+',encoding="utf-8")  
         else:
             self._sc_out_fp=None
 
