@@ -1,6 +1,8 @@
 # coding=utf-8
 ##
 # brief   单账号下单课程任务类
+#          DOCKER:不用PIL显示图像，采用viu在终端显示
+#                 输出到文件,不输出到终端(保证ssh情况下的可行性)
 # author Luoofan
 # date   2020-04-03 10:11:02
 # FilePath\source_code\singlecourse.py
@@ -24,7 +26,9 @@ import time
 from colorama import Fore
 from colorama import init as colorinit
 import traceback
-from autocx import Color,send_err
+from subprocess import Popen
+from publicfunc import Color,send_err,SYSTEM
+from sys import stdout
 
 COLOR = Color()
 
@@ -34,7 +38,7 @@ que_type = ['单选题', '多选题', '填空题', '判断题', '简答题', '�
 # 单账号单课程自动化
 class SingleCourse(object):
     # 实例化该类需传入3-5个参数：已经登录的driver，章节名称及对应的url，运行模式以及视频速率
-    def __init__(self, driver, menu_url, course_name, pattern=0, rate=1):
+    def __init__(self, driver, menu_url, course_name, pattern=0, rate=1, out_fp=stdout):
         self.driver = driver
         self.menu_url = menu_url
         self.course_name = course_name
@@ -42,6 +46,8 @@ class SingleCourse(object):
         self.rate=rate
         self.retry_dic={}
         self._setflag()
+        self._out_fp= out_fp if out_fp!=None else stdout
+        #self._out_fp=open(course_name+'.txt', 'w+', encoding="utf-8") if SYSTEM==1 else stdout
 
     def _setflag(self):
         self._chapter = 0
@@ -56,6 +62,7 @@ class SingleCourse(object):
             self._perform_model2()  # control模式
         else:
             self._perform_model1()  # debug模式
+        self._out_fp.flush()
 
     ##
     # brief  处理单个章节下的三级标题
@@ -119,9 +126,9 @@ class SingleCourse(object):
             except:
                 end += 1
 
-        print(COLOR.WARN, '未完成任务章节：', COLOR.END, str(ch_se_lt),COLOR.END)
-        if self.retry_dic=={}:
-            for item in ch_se_lt:
+        print(COLOR.WARN, '未完成任务章节：', COLOR.END, str(ch_se_lt), file=self._out_fp)
+        for item in ch_se_lt:
+            if str(item) not in self.retry_dic:
                 self.retry_dic[str(item)]=0
         #log_fp.write('未完成任务章节：' + str(ch_se_lt) + '\n')
         return ch_se_lt
@@ -178,7 +185,7 @@ class SingleCourse(object):
                 i = i+1
                 sleep(i)
         if i == 10:
-            print(COLOR.ERR+" no menus list,continue"+COLOR.END)
+            print(COLOR.ERR+" no menus list,continue"+COLOR.END, file=self._out_fp)
             return
 
         try:
@@ -196,11 +203,11 @@ class SingleCourse(object):
                 self._end += 1
             return
 
-        print(COLOR.DISPLAY + 'now turns to ' + COLOR.END, str(self._chapter) + '-' + str(self._section), end="")
+        print(COLOR.DISPLAY + 'now turns to ' + COLOR.END, str(self._chapter) + '-' + str(self._section), end="", file=self._out_fp)
         if self._subsection == 0:
-            print()
+            print(file=self._out_fp)
         else:
-            print('-'+str(self._subsection))
+            print('-'+str(self._subsection), file=self._out_fp)
         #log_fp.write('now turns to ' + str(self._chapter) + '-' + str(self._section) + '-'+str(self._subsection) + '\n')
 
         # 点击视频确保进入视频界面（若出现问题增多可以改换bs4或者re分析）
@@ -232,7 +239,7 @@ class SingleCourse(object):
             self.driver.switch_to.frame(iframe)
             sleep(1)
         except:
-            print(COLOR.NOTE, ' no videos,continue~', COLOR.END)
+            print(COLOR.NOTE, ' no videos,continue~', COLOR.END, file=self._out_fp)
             #log_fp.write(' no videos,continue~\n')
             return
 
@@ -258,7 +265,7 @@ class SingleCourse(object):
                 pass
         video_road = self._get_road(h5_text, video_num)  # bs4处理得到各个视频路径
 
-        print(COLOR.DISPLAY, ' there are ' + str(video_num) + ' video in this section:', COLOR.END)
+        print(COLOR.DISPLAY, ' there are ' + str(video_num) + ' video in this section:', COLOR.END, file=self._out_fp)
         #log_fp.write(' there are ' + str(video_num) + ' videos in this section:\n')
 
         # 开始播放所有视频
@@ -277,7 +284,7 @@ class SingleCourse(object):
                 except:
                     sleep(i+0.5)
             
-            print(COLOR.DISPLAY, ' go ' + str(v_num) + ':', COLOR.END)
+            print(COLOR.DISPLAY, ' go ' + str(v_num) + ':', COLOR.END, file=self._out_fp)
             #log_fp.write(' go ' + str(v_num) + ':\n')
             # 拖动滚动条
             #self.driver.execute_script("window.scrollTo(0,arguments[0])", 400 + 700 * (v_num - 1))
@@ -293,7 +300,7 @@ class SingleCourse(object):
                 icon_flag = 1
                 nowflag = flag.get_attribute('class')
                 if 'finished' in nowflag:
-                    print(COLOR.OK + ' Well! the video is already finished! continue~' + COLOR.END)
+                    print(COLOR.OK + ' Well! the video is already finished! continue~' + COLOR.END, file=self._out_fp)
                     #log_fp.write(' Well! the video is already finished! continue~' + '\n')
                     self._end = 0
                     # 如果视频任务已完成,访问下一个视频
@@ -317,7 +324,7 @@ class SingleCourse(object):
                     # log
                     sleep(i+1)
             if iframe_flag == 0:
-                print(COLOR.ERR+"  can't into the video,continue"+COLOR.END)
+                print(COLOR.ERR+"  can't into the video,continue"+COLOR.END, file=self._out_fp)
                 continue
 
             # 通过js代码开始视频播放
@@ -336,7 +343,7 @@ class SingleCourse(object):
             if play_ok == 0:
                 # 未播放成功
                 self.driver.switch_to.parent_frame()
-                print(COLOR.DISPLAY+' this is not a video, go ahead!'+COLOR.END)
+                print(COLOR.DISPLAY+' this is not a video, go ahead!'+COLOR.END, file=self._out_fp)
                 #log_fp.write(" this is not a video, go ahead!\n")
                 continue
             else:
@@ -356,9 +363,11 @@ class SingleCourse(object):
                 total_tm = int(total_tm)
                 now_tm = int(now_tm)
                 need_tm = total_tm-now_tm
-                print("   now_tm:", now_tm, '\t', "total_tm:", total_tm, '\t', "need_tm:", need_tm)
+                print("   now_tm:", now_tm, '\t', "total_tm:", total_tm, '\t', "need_tm:", need_tm, file=self._out_fp)
 
+            real_time=0
             while 1:
+                real_time+=10
                 try:
                     now_tm = self.driver.execute_script("return document.querySelector('video').currentTime")
                     need_tm=total_tm-int(now_tm)
@@ -366,7 +375,8 @@ class SingleCourse(object):
                     pass
                 # 交互
                 progress = (total_tm-need_tm)*100/total_tm
-                print(COLOR.OK+"   progress:{0:.2f}%\trest:{1}         ".format(progress, need_tm)+COLOR.END, end="\r")
+                print(COLOR.OK+"   progress:{0:.2f}%\trest:{1}         ".format(progress, need_tm)+COLOR.END, file=self._out_fp, end="\r")
+                self._out_fp.flush()
 
                 # 剩余时间<5min则间隔性检验任务是否已完成
                 if (icon_flag == 1 and need_tm <= 300):
@@ -375,13 +385,13 @@ class SingleCourse(object):
                     nowflag = flag.get_attribute('class')
                     self.driver.switch_to.frame(self.driver.find_element_by_xpath(goal_road + '/iframe'))
                     if 'finished' in nowflag:
-                        print(COLOR.OK, ' Well！the video is finished ahead of time! continue~', COLOR.END)
+                        print(COLOR.OK, ' Well！the video is finished ahead of time! continue~', COLOR.END, file=self._out_fp)
                         #log_fp.write(' Well！the video is finished ahead of time! continue~' + '\n')
                         sleep(10)
                         break
                 
-                if need_tm<=2:
-                    print(COLOR.OK, ' Well！the video is finished! continue~', COLOR.END)
+                if need_tm<=2 or real_time>(total_tm+100) :
+                    print(COLOR.OK, ' Well！the video is finished! continue~', COLOR.END, file=self._out_fp)
                     #log_fp.write(' Well！the video is finished! continue~' + '\n')
                     sleep(10)
                     break
@@ -399,36 +409,43 @@ class SingleCourse(object):
                     if "多选题" in que_type:
                         # print(uls.find_elements_by_xpath('//li[@class="ans-videoquiz-opt"]'))
                         opt_num = len(uls.find_elements_by_xpath('//li[@class="ans-videoquiz-opt"]'))  # 选项个数
-                        # print(opt_num)
+                        #print(opt_num,file=self._out_fp)
                         for opt_i in range(2, opt_num + 1):  # 选择个数2，3，4,……
                             fin_que = 1
                             for opt_j in range(1, opt_num - opt_i + 2):  # 起始位置
-                                #log_fp.write('      select:')
+                                #print('      select:',file=self._out_fp)
                                 for opt_k in range(0, opt_i):  # 个数
                                     option = uls.find_element_by_xpath('//li[' + str(opt_j + opt_k) + ']/label/input')
                                     self.driver.execute_script("arguments[0].click();", option)
-                                    # action_chains.move_to_element(option)
-                                    # option.click()
-                                    #log_fp.write(chr(pre + 64) + ' ')
-                                #log_fp.write('\n')
+                                sleep(5)
                                 bn = self.driver.find_element_by_xpath(
                                     '//div[@class="x-container ans-timelineobjects x-container-default"]/span/div/div/div[2]')
                                 self.driver.execute_script("arguments[0].click();", bn)
-
-                                # action_chains.move_to_element(bn)
-                                # bn.click()
-                                # action_chains.click(bn)
                                 try:
                                     self.driver.switch_to_alert().accept()
                                 except:
                                     fin_que = 0
                                     break
-                                # 到这里说明答题错误
                                 try:
                                     while 1:  # 多选题答错会弹出不止一个alert
                                         self.driver.switch_to_alert().accept()
                                 except:
-                                    sleep(0.3)
+                                    sleep(0.5)
+                                
+                                for opt_k in range(0, opt_i):  # 个数
+                                    option = uls.find_element_by_xpath('//li[' + str(opt_j + opt_k) + ']/label/input')
+                                    self.driver.execute_script("arguments[0].click();", option)
+                                sleep(5)
+                                bn = self.driver.find_element_by_xpath(
+                                    '//div[@class="x-container ans-timelineobjects x-container-default"]/span/div/div/div[2]')
+                                self.driver.execute_script("arguments[0].click();", bn)
+                                try:
+                                    while 1:  # 多选题答错会弹出不止一个alert
+                                        self.driver.switch_to_alert().accept()
+                                except:
+                                    sleep(0.5)
+                                sleep(0.5)
+                                
                             if fin_que == 0:
                                 break
                         #log_fp.write('      solve the question\n')
@@ -460,7 +477,7 @@ class SingleCourse(object):
                 except:  # 10s延时
                     sleep(10)
 
-            print(COLOR.OK+' finish the video                     '+COLOR.END)
+            print(COLOR.OK+' finish the video                     '+COLOR.END, file=self._out_fp)
             #log_fp.write(' finish the video: ' + str(self._chapter) +
                          #'-' + str(self._section) + '-' + str(v_num) + '\n')
 
@@ -606,7 +623,7 @@ class SingleCourse(object):
 
     def _ans_question(self):
         # 点击章节测验
-        action_chains = ActionChains(self.driver)
+        #action_chains = ActionChains(self.driver)
         self.driver.switch_to.default_content()
         sleep(2)
         try:
@@ -634,11 +651,11 @@ class SingleCourse(object):
             wait.until(EC.presence_of_element_located((By.XPATH, '//iframe[1]')))
             iframe = self.driver.find_element_by_xpath('//iframe[1]')
             self.driver.switch_to.frame(iframe)
-            print(COLOR.NOTE+' now go to question '+COLOR.END)
+            print(COLOR.NOTE+' now go to question '+COLOR.END, file=self._out_fp)
             #log_fp.write(' now go to question \n')
             #print(7, end=" ")
         except:
-            print(COLOR.NOTE, ' no questions,continue~', COLOR.END)  # 未找到章节测验
+            print(COLOR.NOTE, ' no questions,continue~', COLOR.END, file=self._out_fp)  # 未找到章节测验
             #log_fp.write(' no questions,continue~\n')
             return 0
 
@@ -664,12 +681,12 @@ class SingleCourse(object):
                 sleep(1)
         task_road = self._get_road(h5_text, task_num)  # bs4处理得到各个任务点路径
 
-        print(COLOR.DISPLAY, ' there are ' + str(task_num) + ' task in this section:', COLOR.END)
+        print(COLOR.DISPLAY, ' there are ' + str(task_num) + ' task in this section:', COLOR.END, file=self._out_fp)
         #log_fp.write(' there are ' + str(task_num) + ' task in this section:\n')
 
         first_road = '//div[@class="ans-cc"]'
         for v_num in range(1, task_num + 1):
-            print(COLOR.DISPLAY, ' go ' + str(v_num) + ':', COLOR.END)
+            print(COLOR.DISPLAY, ' go ' + str(v_num) + ':', COLOR.END, file=self._out_fp)
             #log_fp.write(' go ' + str(v_num) + ':\n')
             sleep(2)
             try:  # 查看是否有任务点标识并查看是或否已经完成该任务点
@@ -682,7 +699,7 @@ class SingleCourse(object):
                 nowflag = flag.get_attribute('class')
                 #print(nowflag, end=" ")
                 if 'finished' in nowflag:
-                    print(COLOR.OK + ' Well! the task is already finished! continue~' + COLOR.END)
+                    print(COLOR.OK + ' Well! the task is already finished! continue~' + COLOR.END, file=self._out_fp)
                     #log_fp.write(' Well! the task is already finished! continue~' + '\n')
                     continue
             except:
@@ -698,12 +715,12 @@ class SingleCourse(object):
             #    nowflag = flag.get_attribute('class')
             #    # print(nowflag)
             #    if 'finished' in nowflag:
-            #        print(COLOR.OK, 'questions of the section is already finished! continue~', COLOR.END)
+            #        print(COLOR.OK, 'questions of the section is already finished! continue~', COLOR.END, file=self._out_fp)
             #        #log_fp.write(' questions of the section is already finished! continue~' + '\n')
             #        return 0
             # except:
             #    # 定位到题目页元素但无法查看完成状态
-            #    print(COLOR.ERR, "  答题失败！", COLOR.END)
+            #    print(COLOR.ERR, "  答题失败！", COLOR.END, file=self._out_fp)
             #    #log_fp.write("  答题失败！" + '\n')
             #    return str(self._chapter) + '-' + str(self._section)
 
@@ -715,7 +732,7 @@ class SingleCourse(object):
                 iframe = self.driver.find_element_by_xpath('//iframe[1]')
                 self.driver.switch_to.frame(iframe)
             except:
-                print(COLOR.NOTE, ' no questions,continue~', COLOR.END)  # 未找到章节测验
+                print(COLOR.NOTE, ' no questions,continue~', COLOR.END, file=self._out_fp)  # 未找到章节测验
                 #log_fp.write(' no questions,continue~\n')
                 self.driver.switch_to.default_content()
                 wait.until(EC.presence_of_element_located((By.XPATH, '//iframe[1]')))
@@ -749,9 +766,9 @@ class SingleCourse(object):
                         # radio.click()
                         sleep(1)
             except:
-                print('==========')
-                print(traceback.format_exc())
-                print(COLOR.ERR, "  答题失败！", COLOR.END)
+                print('==========', file=self._out_fp)
+                print(traceback.format_exc(), file=self._out_fp)
+                print(COLOR.ERR, "  答题失败！", COLOR.END, file=self._out_fp)
                 #log_fp.write("  答题失败！" + '\n')
                 sleep(200)
                 return str(self._chapter) + '-' + str(self._section)
@@ -778,9 +795,14 @@ class SingleCourse(object):
                 while 1:
                     img = self.driver.find_element_by_id('imgVerCode')
                     img.screenshot('ans_vercode.png')
-                    img = Image.open('ans_vercode.png')
-                    img.show()
-                    numVerCode = input(COLOR.NOTE + "  please input the ans_vercode:" + COLOR.END)
+                    if SYSTEM==0:
+                        img = Image.open('ans_vercode.png')
+                        img.show()
+                    else:
+                        p=Popen(['./viu', 'ans_vercode.png'])
+                        p.communicate()
+                        sleep(1.5)
+                    numVerCode = input(COLOR.NOTE + "  please input the ans_vercode:" + COLOR.END, file=self._out_fp)
                     #log_fp.write('  input the ans_vercode\n')
                     # self.driver.find_element_by_id('code').send_keys(numVerCode)
                     self.driver.find_element_by_xpath('//input[@id="code"]').send_keys(numVerCode)
@@ -804,12 +826,12 @@ class SingleCourse(object):
             try:
                 # bn.click()
                 self.driver.execute_script("arguments[0].click();", bn)
-                print(COLOR.OK, 'questions of the section is finished! continue~', COLOR.END)
+                print(COLOR.OK, 'questions of the section is finished! continue~', COLOR.END, file=self._out_fp)
                 #log_fp.write(' finish the questions ' + '\n')
             except:
-                print('=======')
-                print(traceback.format_exc())
-                print(COLOR.ERR, "  提交失败！", COLOR.END)
+                print('=======', file=self._out_fp)
+                print(traceback.format_exc(), file=self._out_fp)
+                print(COLOR.ERR, "  提交失败！", COLOR.END, file=self._out_fp)
                 #log_fp.write("  提交失败！" + '\n')
                 return str(self._chapter) + '-' + str(self._section)
             self.driver.switch_to.parent_frame()
@@ -828,8 +850,9 @@ class SingleCourse(object):
         ch_se_lt = self._g2p_chapter_section()
 
         if len(ch_se_lt) == 0:
-            print(COLOR.OK, 'finish the lesson! quit! ', COLOR.END)
+            print(COLOR.OK, 'finish the lesson! quit! ', COLOR.END, file=self._out_fp)
             return
+        self._out_fp.flush()
 
         error_lt = []  # 错误章节列表
         last_time = time.time()-120  # 答题间隔控制,减少答题验证码的弹出
@@ -862,10 +885,10 @@ class SingleCourse(object):
                 err_section = self._ans_question()
 
                 if err_section != 0:
-                    print(COLOR.ERR, 'unfinished!', COLOR.END)
+                    print(COLOR.ERR, 'unfinished!', COLOR.END, file=self._out_fp)
                     error_lt.append(err_section)  # 记录答题提交失败的章节
                 else:
-                    print(COLOR.OK, 'finished!', COLOR.END)
+                    print(COLOR.OK, 'finished!', COLOR.END, file=self._out_fp)
             except:
                 try:
                     send_err(traceback.format_exc())
@@ -873,7 +896,7 @@ class SingleCourse(object):
                     pass
 
         if end_flag==1:
-            print(COLOR.OK, 'finish the lesson! quit! ', COLOR.END)
+            print(COLOR.OK, 'finish the lesson! quit! ', COLOR.END, file=self._out_fp)
             return
         #log_fp.write("err_lt:" + str(error_lt) + '\n')
         # 递归调用
@@ -883,13 +906,13 @@ class SingleCourse(object):
     # brief    单课程手动模式
     # details  需要输入 开始章节信息 ，用于debug(未设定递归)
     def _perform_model1(self):
-        ch_se_lt = self._g2p_chapter_section()
+        self._g2p_chapter_section()
 
         error_lt = []
         last_time = time.time()-300
-        chapter = eval(input(COLOR.NOTE + "please select which chapter:" + COLOR.END))
-        section = eval(input(COLOR.NOTE + "please select which section:" + COLOR.END))
-        subsection = eval(input(COLOR.NOTE + "please select which subsection(if not input 0):" + COLOR.END))
+        self._chapter = eval(input(COLOR.NOTE + "please select which chapter:" + COLOR.END, file=self._out_fp))
+        self._section = eval(input(COLOR.NOTE + "please select which section:" + COLOR.END, file=self._out_fp))
+        self._subsection = eval(input(COLOR.NOTE + "please select which subsection(if not input 0):" + COLOR.END, file=self._out_fp))
         while 1:
             self._play_video()
             if self._end > 0:
@@ -901,13 +924,13 @@ class SingleCourse(object):
                 sleep(300-(now_time-last_time))
             last_time = time.time()
             if self._end == 2:
-                print(COLOR.OK, 'finish the lesson! quit! ', COLOR.END)
+                print(COLOR.OK, 'finish the lesson! quit! ', COLOR.END, file=self._out_fp)
             err_section = self._ans_question()
             if err_section != 0:
-                print(COLOR.ERR, 'unfinished!', COLOR.END)
+                print(COLOR.ERR, 'unfinished!', COLOR.END, file=self._out_fp)
                 error_lt.append(err_section)  # 记录答题提交失败的章节
             else:
-                print(COLOR.OK, 'finished!', COLOR.END)
+                print(COLOR.OK, 'finished!', COLOR.END, file=self._out_fp)
             self._section += 1
         #log_fp.write("err_lt:" + str(error_lt) + '\n')
 
@@ -921,9 +944,10 @@ class SingleCourse(object):
         chapter = eval(input("please select the end chapter(from unfinished list):"))
         section = eval(input("please select which section:"))
         subsection = eval(input("please select which subsection(if not input 0):"))
-
+        
+        self._out_fp.flush()
         error_lt = []  # 错误章节列表
-        last_time = time.time()-300  # 答题间隔控制,减少答题验证码的弹出
+        last_time = time.time()-150  # 答题间隔控制,减少答题验证码的弹出
 
         # 遍历每个未完成章节
         for ch_se in ch_se_lt:
@@ -933,8 +957,8 @@ class SingleCourse(object):
             self._subsection = ch_se[2] if len(ch_se) == 3 else 0
 
             if self._chapter == chapter and self._section == section and self._subsection == subsection:
-                print(COLOR.OK, "OK! finish your task!", COLOR.END)
-                print(COLOR.DISPLAY, "now check your unfinished tasks:", COLOR.END)
+                print(COLOR.OK, "OK! finish your task!", COLOR.END, file=self._out_fp)
+                print(COLOR.DISPLAY, "now check your unfinished tasks:", COLOR.END, file=self._out_fp)
                 self._g2p_chapter_section()
                 break
 
@@ -947,18 +971,18 @@ class SingleCourse(object):
                     pass
             # 答题间隔控制
             now_time = time.time()
-            if now_time-last_time < 300:
-                sleep(300-(now_time-last_time))
+            if now_time-last_time < 150:
+                sleep(150-(now_time-last_time))
             last_time = time.time()
 
             try:
                 err_section = self._ans_question()
 
                 if err_section != 0:
-                    print(COLOR.ERR, 'unfinished!', COLOR.END)
+                    print(COLOR.ERR, 'unfinished!', COLOR.END, file=self._out_fp)
                     error_lt.append(err_section)  # 记录答题提交失败的章节
                 else:
-                    print(COLOR.OK, 'finished!', COLOR.END)
+                    print(COLOR.OK, 'finished!', COLOR.END, file=self._out_fp)
             except:
                 try:
                     send_err(traceback.format_exc())

@@ -8,9 +8,13 @@
 - 安装chrome浏览器以及相对应的chromedriver，并**将chromedriver复制到source_code目录下**
     - [chrome浏览器下载地址](https://www.google.cn/chrome/)，[chromedriver下载地址](http://npm.taobao.org/mirrors/chromedriver/)或者[这里](http://chromedriver.storage.googleapis.com/index.html)，注意版本对应
 - 安装python3和pip，[python官网](https://www.python.org)
-- 命令行执行`pip install -r requirements.txt`
+- 安装依赖：命令行执行
+    `pip install -r requirements.txt`
 - 在**logindata_phone.txt**或**logindata.txt**中按提示填写登录信息，并把提示信息删除（推荐使用前者）
-- 查看帮助信息 `python autocx.py -h`     选择合适的参数开始刷课
+- 查看帮助信息 ，选择合适的参数开始刷课
+    `python autocx.py -h`     
+- 示例：以16倍速全自动模式运行脚本
+    `python autocx.py -m fullauto -r 16`
 
 - [懒人通道](https://github.com/Luoofan/autochaoxing/releases):win10x64环境下可直接使用打包的exe
 - **Linux用户**可以配环境运行py，也可以使用**docker**:point_down:
@@ -24,14 +28,20 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
 
 #### 当您pull镜像后，只需进行以下几步：
 
-- 以特权模式运行容器  
-  `docker run -it --name autocx --privileged kimjungwha/autocx bash`
-- 按照提示修改logindata.txt里的信息   
-  `vim logindata.txt`
-- 运行脚本  
-  `python3 autocx_docker.py`
+- 以守护模式创建容器
+  `docker run -id --name autocx kimjungwha/autocx bash`
 
-详细信息请见[README_docker.md](https://github.com/Luoofan/autochaoxing/blob/master/docker/README_docker.md) 或者[移步项目地址](https://hub.docker.com/r/kimjungwha/autocx)
+- 进入容器
+  `docker exec -it autocx bash`
+
+- 按照提示修改logindata.txt或logindata_phone.txt里的信息 (并清空提示信息)
+  `vim logindata_phone.txt`
+
+- 运行脚本
+  `python3 autocx.py`
+
+
+详细信息和说明请[移步项目地址](https://hub.docker.com/r/kimjungwha/autocx)
 
 <br/>
 
@@ -72,6 +82,10 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
 
 ## 更新
 
+- 2020-4-6：
+
+  - **发布了Docker2.0版本**（有docker的小伙伴可以直接在docker里多开sk啦）
+
 - **2020-4-2**：:star:
 
   - **发布了2.0版本**
@@ -94,6 +108,7 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
   - **multi_autocx**分支下新增了**手机号登录**模式，无需输入验证码即可登录，推荐使用该方式
   - 整理了项目文件结构，工作目录调整到**source_codes**
   - 修复了同页面内多项章节测试无法完成的bug、修复了输出信息颜色显示不稳定的bug
+  
 - 2020-3-21：
   - 添加了分支**multi_autocx**，可以方便地**多开**刷课（同ip）
     - 在`logindata.txt`中每三行填写一份账户信息
@@ -101,25 +116,31 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
   
   - 更改了登录和获取课程的模式，**减少了等待时间**，原来的模式保留作为备用方案
   - 修复了其他任务点影响视频任务点无法执行的bug，修复了部分视频无法获取的bug
+  
 - 2020-3-16:
   
   - 由[KimJungWha](https://github.com/KimJungWha)制作了**Docker版本**，并发布到了[DockerHub](https://hub.docker.com/r/kimjungwha/autocx)
+  
 - 2020-3-15：
   - 增加了短时间内多次答题的时间限制，**减少答题验证码的弹出**
   - 修复了部分未完成任务点无法获取的bug
   - 新增了在**无图形界面的linux终端**下运行的脚本，需要工作目录下有`viu`，[viu:终端显示图片](https://github.com/atanunq/viu)
   - 发布了win10x64下的打包程序1.2
+  
 - 2020-3-13：
   
   - 新增了**查题程序**，使用的服务器与脚本自动答题所使用的不同，可以在题目输入不完整时搜索答案，但不能保证服务器始终有效
+  
 - 2020-3-11：
   - **规范了查题接口的使用**
   - 删去了查题程序，如果有查题需要可以移步*题库与考试下的链接*
   - 修复了程序在linux编码错误和执行路径错误的bug
   - 发布了win10x64下的打包程序1.1
+  
 - 2020-3-10：
 
   - 修复了部分页面无法获取课程的bug、修复了普通章节下的子章节无法获取的bug
+  
 - 2020-3-9：
 
   - 修复了部分视频检测错误的bug、修复了有些页面无法打开视频页面和章节测试的bug
