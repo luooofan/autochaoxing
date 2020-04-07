@@ -82,6 +82,10 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
 
 ## 更新
 
+- 2020-4-7：
+
+  - 上传2.0版win10x64打包程序,[通道](https://github.com/Luoofan/autochaoxing/releases)
+
 - 2020-4-6：
 
   - **发布了Docker2.0版本**（有docker的小伙伴可以直接在docker里多开sk啦）
