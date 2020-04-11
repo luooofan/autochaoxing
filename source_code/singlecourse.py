@@ -144,6 +144,8 @@ class SingleCourse(object):
         # video_lt = soup.find_all('iframe')#视频不一定全部有效
         video_lt = soup.find_all(class_='ans-job-icon')
         road_lt = []
+        if len(video_lt)<num:
+            num=len(video_lt)
         for i in range(0, num):
             road = ''
             for parent in video_lt[i].parents:
