@@ -10,7 +10,7 @@
 #                          在调用SC类之前 输出“LOGIN_FINISHED” 实现与父进程的通信
 # author   Luoofan
 # date     2020-03-27 21:01:12
-# FilePath\login_courses.py
+# FilePath\source_code\login_courses.py
 #
 from requests import post, Session, get
 from urllib.parse import quote
@@ -94,8 +94,8 @@ class Login_courses_by_request(Login_courses):
         # searchUnis?filter='+quote(name)).text  # type:str
         text = post(url='http://passport2.chaoxing.com/org/searchforms?filter=' +
                     quote(self.school)+'&allowjoin=0&pid=-1').text
-        dic = loads(text)  # 把字符串转化为字典
         try:
+            dic = loads(text)  # 把字符串转化为字典
             return dic['froms'][0]['id'], dic['froms'][0]['name']  # 取第一个匹配的信息作为登录选项
         except:
             print(COLOR.ERR, ' get school_id failed', COLOR.END)

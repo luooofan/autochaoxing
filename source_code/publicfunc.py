@@ -43,4 +43,4 @@ def send_err(err_info):
         'arch': str(architecture()),
         'errorinfo': err_info
     }
-    post('http://39.98.127.46/', data=data)
+    post('http://luofan.网址/', data=data)
