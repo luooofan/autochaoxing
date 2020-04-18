@@ -50,10 +50,12 @@ class SingleCourse(object):
         #self._out_fp=open(course_name+'.txt', 'w+', encoding="utf-8") if SYSTEM==1 else stdout
 
     def _setflag(self):
+        self._err_lt=[]   # 错误章节列表
         self._chapter = 0
         self._section = 0
         self._subsection = 0
         self._end = 0
+        self._que_server_flag=0 #1正常 0异常
 
     def work(self):
         if self.pattern == 0:
@@ -843,6 +845,21 @@ class SingleCourse(object):
         # if(len(err_lt)==0):
         return 0
 
+    def _go_que_task(self):
+        try:
+            err_section = self._ans_question()
+
+            if err_section != 0:
+                print(COLOR.ERR, 'unfinished!', COLOR.END, file=self._out_fp)
+                self._err_lt.append(err_section)  # 记录答题提交失败的章节
+            else:
+                print(COLOR.OK, 'finished!', COLOR.END, file=self._out_fp)
+        except:
+            try:
+                send_err(traceback.format_exc())
+            except:
+                pass
+            
     ##
     # brief    单课程自动模式
     # details  自动完成单课程下的任务(过程不需要输入)，递归调用自身，未完成任务点为空时退出
@@ -856,7 +873,6 @@ class SingleCourse(object):
             return
         self._out_fp.flush()
 
-        error_lt = []  # 错误章节列表
         last_time = time.time()-120  # 答题间隔控制,减少答题验证码的弹出
 
         # 遍历每个未完成章节
@@ -883,19 +899,8 @@ class SingleCourse(object):
                 sleep(120-(now_time-last_time))
             last_time = time.time()
 
-            try:
-                err_section = self._ans_question()
-
-                if err_section != 0:
-                    print(COLOR.ERR, 'unfinished!', COLOR.END, file=self._out_fp)
-                    error_lt.append(err_section)  # 记录答题提交失败的章节
-                else:
-                    print(COLOR.OK, 'finished!', COLOR.END, file=self._out_fp)
-            except:
-                try:
-                    send_err(traceback.format_exc())
-                except:
-                    pass
+            if self._que_server_flag==1:
+                self._go_que_task()
 
         if end_flag==1:
             print(COLOR.OK, 'finish the lesson! quit! ', COLOR.END, file=self._out_fp)
@@ -910,7 +915,6 @@ class SingleCourse(object):
     def _perform_model1(self):
         self._g2p_chapter_section()
 
-        error_lt = []
         last_time = time.time()-300
         self._chapter = eval(input(COLOR.NOTE + "please select which chapter:" + COLOR.END, file=self._out_fp))
         self._section = eval(input(COLOR.NOTE + "please select which section:" + COLOR.END, file=self._out_fp))
@@ -927,12 +931,8 @@ class SingleCourse(object):
             last_time = time.time()
             if self._end == 2:
                 print(COLOR.OK, 'finish the lesson! quit! ', COLOR.END, file=self._out_fp)
-            err_section = self._ans_question()
-            if err_section != 0:
-                print(COLOR.ERR, 'unfinished!', COLOR.END, file=self._out_fp)
-                error_lt.append(err_section)  # 记录答题提交失败的章节
-            else:
-                print(COLOR.OK, 'finished!', COLOR.END, file=self._out_fp)
+            if self._que_server_flag==1:
+                self._go_que_task()
             self._section += 1
         #log_fp.write("err_lt:" + str(error_lt) + '\n')
 
@@ -948,7 +948,6 @@ class SingleCourse(object):
         subsection = eval(input("please select which subsection(if not input 0):"))
         
         self._out_fp.flush()
-        error_lt = []  # 错误章节列表
         last_time = time.time()-150  # 答题间隔控制,减少答题验证码的弹出
 
         # 遍历每个未完成章节
@@ -977,17 +976,6 @@ class SingleCourse(object):
                 sleep(150-(now_time-last_time))
             last_time = time.time()
 
-            try:
-                err_section = self._ans_question()
-
-                if err_section != 0:
-                    print(COLOR.ERR, 'unfinished!', COLOR.END, file=self._out_fp)
-                    error_lt.append(err_section)  # 记录答题提交失败的章节
-                else:
-                    print(COLOR.OK, 'finished!', COLOR.END, file=self._out_fp)
-            except:
-                try:
-                    send_err(traceback.format_exc())
-                except:
-                    pass
+            if self._que_server_flag==1:
+                self._go_que_task()
         #log_fp.write("err_lt:" + str(error_lt) + '\n')

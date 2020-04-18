@@ -82,6 +82,11 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
 
 ## 更新
 
+- 2020-4-18：
+
+  - **题库服务器停止维护并暂时关闭，脚本目前将不再进行自动答题**
+  - **项目停止维护**
+
 - 2020-4-7：
 
   - 上传2.0版win10x64打包程序,[通道](https://github.com/Luoofan/autochaoxing/releases)
@@ -153,8 +158,14 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
 
 <br/>
 
-## 写在最后
 
-本脚本主要用来学习，欢迎大家前来一起交流:grinning:（*QQ群:1075080181*）
 
-如果有帮到你的话请赏颗:star:吧
+## 免责声明
+
+本项目完全开源，免费，仅供技术学习和交流，**开发者团队并未授权任何组织、机构以及个人将其用于商业或者盈利性质的活动。也从未使用本项目进行任何盈利性活动。未来也不会将其用于开展营利性业务。个人或者组织，机构如果使用本项目产生的各类纠纷，法律问题，均由其本人承担。**
+
+如果您开始使用本项目，即视为同意项目免责声明中的一切条款，条款更新不再另行通知。
+
+The project is completely open source, free, and is for technical learning and communication only. **The developer team does not authorize any organization, organization, or individual to use it for commercial or profitable activities. Never use this project for any profitable activities. It will not be used for profit-making business in the future. Individuals or organizations and organizations that use the various disputes arising from the project and legal issues shall be borne by themselves.**
+
+If you start using this project, you are deemed to agree to all the terms in the project disclaimer, and the terms are updated without further notice. 
