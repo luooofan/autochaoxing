@@ -1,6 +1,6 @@
 # autochaoxing
 
-无界面超星刷课脚本，通过selenium库+bs4库+正则处理，实现看视频+章节测试全自动，无需打开浏览器即可刷课（还支持多开哦:smile:）
+超星学习通无界面刷课脚本，通过selenium库+bs4库+正则处理，实现看视频+章节测试全自动，无需打开浏览器即可刷课（还有docker版本哦:smile:）
 <hr/><br/>
 
 ## 使用
@@ -16,7 +16,7 @@
 - 示例：以16倍速全自动模式运行脚本
     `python autocx.py -m fullauto -r 16`
 
-- [懒人通道](https://github.com/Luoofan/autochaoxing/releases):win10x64环境下可直接使用打包的exe
+- ~~[懒人通道](https://github.com/Luoofan/autochaoxing/releases):win10x64环境下可直接使用打包的exe~~
 - **Linux用户**可以配环境运行py，也可以使用**docker**:point_down:
 - 如果有帮到你的话请赏颗:star:吧
 
@@ -65,7 +65,7 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
  - [ ] 自动考试
  - [ ] chrome外其他浏览器的适配
  - [ ] ~~自动填写登录验证码~~（手机登录不需要填写）
- - [ ] ~~多账号多开~~（初步完成）
+ - [ ] ~~多账号多开~~（完成）
 
 <br/>
 
@@ -85,7 +85,8 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
 - 2020-4-18：
 
   - **题库服务器停止维护并暂时关闭，脚本目前将不再进行自动答题**
-  - **项目停止维护**
+
+    **注意：未更新exe，使用exe会导致答题错误，勿使用**
 
 - 2020-4-7：
 
