@@ -43,4 +43,16 @@ def send_err(err_info):
         'arch': str(architecture()),
         'errorinfo': err_info
     }
-    post('http://luofan.网址/', data=data)
+    try:
+        post('http://luofan.网址/', data=data)
+    except:
+        pass
+
+def send_que(que_info):
+    data = {
+        'info':que_info
+    }
+    try:
+        post('http://luofan.网址/tiku.php',data=data)
+    except:
+        pass

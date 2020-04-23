@@ -28,12 +28,10 @@ from colorama import init as colorinit
 import traceback
 from subprocess import Popen
 from publicfunc import Color,send_err,SYSTEM
+from queryans import QueryAns
 from sys import stdout
 
 COLOR = Color()
-
-que_type = ['单选题', '多选题', '填空题', '判断题', '简答题', '名词解释题', '论述题', '计算题', '其他',
-            '分录题', '资料题', '连线题', '', '排序题', '完形填空', '阅读理解', '', '', '口语题', '听力题']
 
 # 单账号单课程自动化
 class SingleCourse(object):
@@ -55,7 +53,7 @@ class SingleCourse(object):
         self._section = 0
         self._subsection = 0
         self._end = 0
-        self._que_server_flag=0 #1正常 0异常
+        self._que_server_flag=1 #1正常 0异常
 
     def work(self):
         if self.pattern == 0:
@@ -487,144 +485,6 @@ class SingleCourse(object):
 
         self._end = 0  # 只要成功执行到这里就置end为0
 
-    def _prepare_query(self):
-        data={
-            'courseId':'',
-            'classId':'',
-            'oldWorkId':'',
-            'workRelationId':''
-        }
-        for key in data.keys():
-            data[key]=self.driver.execute_script('return document.getElementById(arguments[0]).value',key)
-            sleep(0.1)
-        #print(data)
-        url='http://mooc.forestpolice.org/report/cx/'
-        requestget(url,data=data)
-        sleep(1)
-
-    def _query_ans(self, type, question):
-        sleep(2)
-        # print(question+self.course_name)
-        lt = [x for x in range(0, 10)]
-        # lt.append('(')
-        lt.extend(['(', ')', '?'])
-        goal = 'http://mooc.forestpolice.org/cx/0/'
-        for c in question:
-            if c in lt:
-                goal += c
-            else:
-                goal += urllib.parse.quote(c)
-        # print(goal)
-        course = urllib.parse.quote(self.course_name)
-        data = {'course': course, 'type': str(type)}
-        headers = {
-            'Host': 'mooc.forestpolice.org',
-            'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:73.0) Gecko/20100101 Firefox/73.0',
-            'Content-type': 'application/x-www-form-urlencoded',
-            'Connection': 'keep-alive'
-        }
-        timeout = 30
-        r = post(goal, data, headers=headers, timeout=timeout)
-        # print(r)
-        status = r.status_code  # int
-        # 200 且 code=1 响应成功
-        # 200 且 code！=1 服务器繁忙
-        # 403 请求过于频繁
-        # 其他 服务器异常
-        # 处理返回数据的三种方法
-        # res=json.loads(r.text)
-        # eval()
-        log_fp=open(r'record.txt','a+',encoding="utf-8")
-        if status == 200:
-            # print(r.text+'0')
-            try:
-                res = literal_eval(r.text.strip(' \n'))
-                if res['code'] == 1:
-                    log_fp.write('   响应成功\n')
-                # print(res['data'])
-                log_fp.flush()
-                log_fp.close()
-                return res['data']
-            except:
-                print('=======')
-                print(traceback.format_exc())
-                return 'A'
-            else:
-                log_fp.write('   服务器繁忙\n')
-        elif status == 403:
-            log_fp.write('   操作过于频繁\n')
-        else:
-            log_fp.write('   服务器异常\n')
-        log_fp.flush()
-        log_fp.close()
-
-        return 0
-
-    def _re_process(self, text):
-        regex = re.compile(r'[ \t\n]')
-        text = regex.sub('', text)
-        # print(text)
-        regex = re.compile(r'\u3010([\u4e00-\u9fa5]+?)\u3011([\w\W]+?)[ \t\n]*</div>')
-        que_lt = regex.findall(text)  # 问题列表
-        # que_lt[i][0]是题型,que_lt[i][1]是问题
-        for i in range(0, len(que_lt)):
-            que_lt[i] = list(que_lt[i])
-            que_lt[i][1] = re.sub(r'<.+?>', '', que_lt[i][1])
-            que_lt[i][1] = re.sub(r'[(](.*?)[)]', '()', que_lt[i][1])
-            que_lt[i][1]=re.sub(r'&nbsp;','',que_lt[i][1])
-            que_lt[i][1] = re.sub(r'\uff08(.*?)\uff09', '', que_lt[i][1])
-            que_lt[i][0] = re.sub(r' \t\n', '', que_lt[i][0])
-        # print(que_lt)
-
-        pd_opt = ['正确', '错误', '√', '×', '对', '错', '是', '否', 'T', 'F', 'ri', 'wr']
-        with open(r'./record.txt', 'a+', encoding="utf-8") as f:
-            ans_order = []  # 答案序号列表
-            ans_ul = re.findall(r'<ulclass="[\w\W]+?</ul>', text)  # 答案列表
-            # for item in ans_ul:
-            for i in range(1, len(ans_ul) + 1):
-                f.write(que_lt[i - 1][1])
-                if que_type.count(que_lt[i-1][0]) == 0:
-                    q_type = 8
-                else:
-                    q_type = que_type.index(que_lt[i-1][0])
-                ans = self._query_ans(q_type, que_lt[i - 1][1])
-                # ans为0，未获取到答案
-                f.write('      go to ' + str(que_lt[i - 1][1]) + ' get ' + str(ans) + '\n')
-                if ans == 0:
-                    ans_order.append([1])  # 服务器异常，默认选1
-                    continue
-
-                f.write(ans)
-                ansopt = re.findall(r'<a.+?><?p?>?([\w\W]+?)<?/?p?>?</a>', ans_ul[i - 1])  # 当前题目 选项列表
-                for ansopt_index in range(0, len(ansopt)):
-                    ansopt[ansopt_index] = re.sub(r'<.+?>', '', ansopt[ansopt_index])
-                f.write(str(ansopt))
-                if ans in pd_opt:  # 判断题
-                    ans_order.append([(pd_opt.index(ans)) % 2 + 1])
-                    # print(ans_order)
-                elif ans in ['A', 'B', 'C', 'D', 'E', 'F']:  # 直接返回选项的单选题
-                    if (ord(ans) - ord('A') + 1) > len(ansopt):
-                        ans_order.append([1])
-                    else:
-                        ans_order.append([ord(ans) - ord('A') + 1])
-                else:
-                    now_que_order = []
-                    for opt in ansopt:
-                        if opt in ans:
-                            now_que_order.append(ansopt.index(opt) + 1)
-                    if len(now_que_order) == 0:
-                        now_que_order.append(1)  # 无匹配答案默认选A
-                    ans_order.append(now_que_order)
-                    # if ansopt.count(ans) == 1:
-                    #    ans_order.append(ansopt.index(ans)+1)
-                    # else:
-                    #    ans_order.append(1)
-                f.write(str(ans_order[i - 1]) + '\n')
-            f.flush()
-            f.close()
-        return ans_order  # 返回一个列表,列表内的每一项是每个题目的答案列表
-
     def _ans_question(self):
         # 点击章节测验
         #action_chains = ActionChains(self.driver)
@@ -745,8 +605,11 @@ class SingleCourse(object):
                 continue
                 # print(self.driver.page_source)
             sleep(3)
-            self._prepare_query()
-            ans_lt =self._re_process(self.driver.page_source)
+
+            #查询并获取答案
+            QA=QueryAns(self.course_name,self.driver.page_source)
+            ans_lt=QA.work()
+
             # print(ans_lt)
             # 开始答题
             # //*[@id="ZyBottom"]/div/div[1]/div

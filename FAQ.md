@@ -14,9 +14,9 @@
 
 - 实例：
 
-  ![image-20200403014324816](D:\文档\音视频图片\照片图片\typoraphoto\FAQ\image-20200403014324816.png)
+  ![image-20200403014324816](https://github.com/Luoofan/Images/tree/master/AutoCX/image-20200403014324816.png)
 
-
+<br/>
 
 ## About chrome&chromedriver
 
@@ -33,7 +33,7 @@
 | 80.0.3987.132/149 | 80.0.3987.106 |
 | 76.0.3809.132 | 76.0.3809.126 |
 
-
+<br/>
 
 ## About login info
 
@@ -58,21 +58,21 @@
 
   - 有的windows默认的utf-8编码其实是`utf-8 BOM`编码，如果是这种情况，可按如下方式修改`autocx.py`:
 
-    ![image-20200403015518283](D:\文档\音视频图片\照片图片\typoraphoto\FAQ\image-20200403015518283.png)
+    ![image-20200403015518283](https://github.com/Luoofan/Images/tree/master/AutoCX/image-20200403015518283.png)
 
     **怎样判断是带BOM的编码**：如果你的第一个check的信息最前面是个小方块，那很有可能是utf-8 BOM
 
-
+<br/>
 
 ## About Files after run
 
 程序在运行一次后，可能会在当前目录下生成以下文件：
 
 1. login_vercode.png：登录时需要输入的验证码图片，会自动弹出，记住验证码后关闭，在执行窗口填写即可(docker下直接显示在终端)**(手机登录方式不需要验证码)**
-2. record.txt：题库文件，里面包含题目，选项，答案
 3. ans_vercode.png：答章节测试题时需要确认提交的验证码**(几乎不会弹出)**
+3. docker下会生成`AccountInfo`目录，目录下有针对账号生成的刷课记录文件
 
-
+<br/>
 
 ## About Docker
 
@@ -81,19 +81,19 @@
 - 这样的模式导致的**交互性**远远不如有界面下的执行，用户需要在当前目录的`AccountInfo`目录下找到相应的账号文件查看sk过程及结果
 - 当然，选用这种模式不仅成功实现了单终端无界面下的多开，更棒的是**不必担心ssh不稳定断开所带来的程序中断**，换句话说，只要您的服务器(or your pc)没有出现异常，sk将持续进行下去直到完成它的任务。
 
-
+<br/>
 
 ## About requests
 
 - 在完成章节的测试的时候，会发送课程和题目信息到题库服务器
-- 如果程序运行出现异常，会发送报错(traceback……error……)到我的服务器，以便更快地debug，来给大家提供更好的体验~~
+- 如果程序运行出现异常，会发送报错(traceback……error……)到服务器，以便更快地debug，来给大家提供更好的体验~~
 - 可以检查`query_ans(type, question)`和`send_err(err_info)`函数来调整您发送的信息
 
-
+<br/>
 
 ## How to develop？
 
-- 如果想知道代码做了些什么，可以在`source_code\login_courses.py`中第38行（查找`headless`所在行）前加`#`注释，再次运行会展示浏览器窗口
+- 如果想知道代码做了些什么，可以在`source_code\login_courses.py`中第44行（查找`headless`所在行）前加`#`注释，再次运行会展示浏览器窗口
 
 - 代码经过简单重构后已经 将功能封装，可以参照注释直接使用or开发
 

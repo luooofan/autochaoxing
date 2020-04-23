@@ -2,10 +2,10 @@
 ##
 # Author       : Luoofan
 # Date         : 2020-03-11 09:15:44
-# LastEditors: Luoofan
-# LastEditTime: 2020-03-13 16:26:14
+# LastEditorsPlease set LastEditors
+# LastEditTime2020-04-23 21:02:24
 # Description  :SearchAns
-# FilePath     : \SearchAns.py
+# FilePath\source_code\SearchAns.py
 #
 
 import tkinter as tk
@@ -15,6 +15,7 @@ from re import sub
 from urllib.parse import quote
 from requests import post
 from requests import get
+from queryans import QueryAns
 
 win = tk.Tk()
 win.title("SearchAns")
@@ -40,14 +41,27 @@ queText = tk.Text(monty, font=('Arial', 12), width=40, height=3)
 queText.grid(column=1, row=0, rowspan=2)  # ,sticky='W')
 # tab1 button
 
-
+'''
 def query_ans_normal(ev=None):
     global res
     q = quote(queText.get('0.0', 'end'))
     url = 'http://api.xmlm8.com/tk.php?t='+q
     ret_da = literal_eval(get(url).text)
     res.set("que:"+ret_da['tm']+'\n'+"ans:"+ret_da['da'])
+    queText.delete('1.0', 'end')'''
+
+def query_ans_normal(ev=None):
+    global res
+    course=''
+    infodic = {
+        'question': str(queText.get('0.0', 'end')),
+        'type': '其他'
+    }
+    QA=QueryAns(course,**infodic)
+    res.set(str(QA.work()))
     queText.delete('1.0', 'end')
+
+
 
 
 queText.bind("<Return>", query_ans_normal)
@@ -62,5 +76,5 @@ tk.Label(monty, height=5, textvariable=res, font=('Arial', 12), width=45, wraple
 #    child.grid_configure(padx=5, pady=1)
 
 
-#win.iconbitmap('./searchans.ico')
+#win.iconbitmap('../img/searchans.ico')
 win.mainloop()

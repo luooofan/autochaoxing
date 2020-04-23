@@ -16,7 +16,7 @@
 - 示例：以16倍速全自动模式运行脚本
     `python autocx.py -m fullauto -r 16`
 
-- ~~[懒人通道](https://github.com/Luoofan/autochaoxing/releases):win10x64环境下可直接使用打包的exe~~
+- ~~[懒人通道](https://github.com/Luoofan/autochaoxing/releases):win10x64环境下可直接使用打包的exe~~（暂未更新到最新版）
 - **Linux用户**可以配环境运行py，也可以使用**docker**:point_down:
 - 如果有帮到你的话请赏颗:star:吧
 
@@ -61,6 +61,7 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
 <br/>
 
 ## 暂不支持&ToDo
+
  - [ ] 非视频、章节测试的任务点
  - [ ] 自动考试
  - [ ] chrome外其他浏览器的适配
@@ -75,16 +76,24 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
 
 ## 关于题库与考试
 
- - 题库是直接访问的前辈维护的题库服务器；考试因为考虑到直接无界面完成会不放心，所以暂未提供支持，考试时可参考record.txt或者使用**查题程序**，当然你也可以来[这里get查题软件](https://github.com/yanyongyu/CXmoocSearchTool)或者直接使用以下的脚本
- - 题库服务器来源：[js脚本刷课项目](https://github.com/CodFrm/cxmooc-tools),[greasyfork](https://greasyfork.org/zh-CN/scripts/369625-%E8%B6%85%E6%98%9F%E7%BD%91%E8%AF%BE%E5%8A%A9%E6%89%8B),十分感谢！
+ - 考试因为考虑到直接无界面完成会不放心，所以暂未提供支持，考试时可使用**查题程序**辅助
 
-<br/>
+ - 原先的题库服务器来源于GreasyFork上**wyn大佬**，非常感谢！
 
-## 更新
+ - 现在的题库接口源于多方，仍在增加中，在此也表示十分感谢！
 
+   <br/>
+
+## 更新（**如果有帮到你的话请赏颗:star:吧**）
+
+- 2020-4-23：
+
+  - 脚本答题功能恢复，请使用最新脚本（exe暂时仍无法使用）
+- **封装答题功能**，原来**单题库变为多题库**，答题正确率依赖于题库。
+  
 - 2020-4-18：
 
-  - **题库服务器停止维护并暂时关闭，脚本目前将不再进行自动答题**
+  - 题库服务器停止维护并暂时关闭，脚本目前将不再进行自动答题
 
     **注意：未更新exe，使用exe会导致答题错误，勿使用**
 
