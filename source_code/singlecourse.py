@@ -40,6 +40,7 @@ class SingleCourse(object):
         self.driver = driver
         self.menu_url = menu_url
         self.course_name = course_name
+        self.courseID=''
         self.pattern = pattern
         self.rate=rate
         self.retry_dic={}
@@ -607,7 +608,20 @@ class SingleCourse(object):
             sleep(3)
 
             #查询并获取答案
-            QA=QueryAns(self.course_name,self.driver.page_source)
+            data = {
+                'courseId': '',
+                'classId': '',
+                #'oldWorkId': '',
+                #'workRelationId': ''
+            }
+            try:
+                for key in data.keys():
+                    data[key] = self.driver.execute_script('return document.getElementById(arguments[0]).value', key)
+                    sleep(0.1)
+                self.courseID=data['courseId']+' '+data['classId'] 
+            except:
+                self.courseID=""
+            QA=QueryAns(self.driver.page_source,course=self.course_name,courseID=self.courseID)
             ans_lt=QA.work()
 
             # print(ans_lt)

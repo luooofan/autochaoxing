@@ -3,7 +3,7 @@
 # Author       : Luoofan
 # Date         : 2020-03-11 09:15:44
 # LastEditorsPlease set LastEditors
-# LastEditTime2020-04-23 21:02:24
+# LastEditTime2020-04-24 09:26:56
 # Description  :SearchAns
 # FilePath\source_code\SearchAns.py
 #
@@ -52,12 +52,13 @@ def query_ans_normal(ev=None):
 
 def query_ans_normal(ev=None):
     global res
-    course=''
     infodic = {
         'question': str(queText.get('0.0', 'end')),
-        'type': '其他'
+        'type': '其他',
+        'course':'',
+        'courseID': ''
     }
-    QA=QueryAns(course,**infodic)
+    QA=QueryAns(**infodic)
     res.set(str(QA.work()))
     queText.delete('1.0', 'end')
 

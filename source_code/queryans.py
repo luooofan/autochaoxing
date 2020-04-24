@@ -12,10 +12,11 @@ class QueryAns(object):
                 '分录题', '资料题', '连线题', '', '排序题', '完形填空', '阅读理解', '', '', '口语题', '听力题']
     pd_opt = ['正确', '错误', '√', '×', '对', '错', '是', '否', 'T', 'F', 'ri', 'wr', 'true', 'false']
 
-    def __init__(self, course, h5page='', *, question='', type=''):
+    def __init__(self, h5page='', *, question='', type='',  course='', courseID=''):
         # 实例化方式:QueryAns(course,h5page)页面源码        操作:将处理源码内全部题目
         #           QueryAns(course,**info)课程-题目-类型       将处理单个题目
         self.course = course
+        self.courseID=courseID
         self.que_lt = []
         self.ans_ul = []
         self.que = ""
@@ -101,7 +102,8 @@ class QueryAns(object):
                 res=self.SearchAns_GUI_API()
                 if res=='':
                     res=0
-        send_que('course:'+self.course + ' que:' + self.que + '  ans:' + res + '\n')
+        if res!=0:
+            send_que('courseID:'+self.courseID+' course:'+self.course + ' que:' + self.que + '  ans:' + str(res) + '\n')
         return res
 
     def SearchAns_GUI_API(self):
