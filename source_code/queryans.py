@@ -11,8 +11,17 @@ class QueryAns(object):
     que_type = ['单选题', '多选题', '填空题', '判断题', '简答题', '名词解释题', '论述题', '计算题', '其他',
                 '分录题', '资料题', '连线题', '', '排序题', '完形填空', '阅读理解', '', '', '口语题', '听力题']
     pd_opt = ['正确', '错误', '√', '×', '对', '错', '是', '否', 'T', 'F', 'ri', 'wr', 'true', 'false']
-    noans_num = 5
     instance = None
+
+    api_priority={
+        'api.xmlm8.com': 4,
+        'blog.vcing.top': 3,
+        'greasyfork': 1,
+        'wangketiku.com': 2
+    }
+
+    noans_num = 5
+    noans_flag=['暂未搜到','暂无答案','奋力撰写','收录中','明日再来']
 
     def __new__(cls, *args, **kwargs):
         if cls.instance is None:
@@ -106,13 +115,30 @@ class QueryAns(object):
             return 1,ans_order  # 返回一个列表,列表内的每一项是每个题目的答案列表
 
     def _query_ans(self):
-        res = self.GreasyFork_Group_API()
-        if res == 0 or res == '' or '暂未搜到' in res:
-            res = self.WangKeTiKu_API()
-            if res == '' or res == 0:
-                res = self.SearchAns_GUI_API()
-                if res == '':
-                    res = 0
+        #根据api优先级排序，然后访问获取答案
+        api_dic = {
+            'api.xmlm8.com': self.SearchAns_GUI_API,
+            'blog.vcing.top': self.BlogVCing_API,
+            'greasyfork': self.GreasyFork_Group_API,
+            'wangketiku.com': self.WangKeTiKu_API
+        }
+        url_order=sorted(QueryAns.api_priority.items(),key=lambda x:x[1],reverse=True)
+        res=""
+        for index in range(0,len(url_order)):
+            res=api_dic[url_order[index][0]]()
+            if res==0 or res=='':
+                res=0
+                continue
+            flag=1
+            for item in QueryAns.noans_flag:
+                if item in str(res):
+                    flag=0
+                    res=0
+                    break
+            if flag==0:
+                continue
+            else:
+                break
         if res != 0:
             send_que('courseID:'+self.courseID+' course:'+self.course + ' que:' + self.que + '  ans:' + str(res) + '\n')
         else:
@@ -121,7 +147,7 @@ class QueryAns(object):
 
     def SearchAns_GUI_API(self):
         # 以原问题访问准确率更高___h5源码实例化的时候尽量不使用该方式
-        url = 'http://api.xmlm8.com/tk.php?t='+parse.quote(self.que_ori)
+        url = 'http://api.xmlm8.com/tk.php?t='+parse.quote(re.sub(r'[ \t\n]','',self.que_ori))
         try:
             ret_da = literal_eval(requestget(url).text)
             # print("que:"+ret_da['tm']+'\n'+"ans:"+ret_da['da'])
@@ -214,7 +240,7 @@ class QueryAns(object):
 
     def WangKeTiKu_API(self):
         # print(self.que)
-        url = 'http://www.wangketiku.com/getquestion.php?question='+self.que_ori
+        url = 'http://www.wangketiku.com/getquestion.php?question='+re.sub(r'[ \t\n]', '', self.que_ori)
         headers = {
             'Host': 'www.wangketiku.com',
             'Referer': 'http://www.wangketiku.com/?',
@@ -237,6 +263,18 @@ class QueryAns(object):
                 else:
                     ans += item+'#'
             return ans
+        except:
+            return 0
+
+    def BlogVCing_API(self):
+        url = 'http://blog.vcing.top/api.php?key=chaoxing&q='+re.sub(r'[ \t\n]','',self.que_ori)
+        try:
+            ret=requestget(url).text
+            index=ret.find('答案')
+            if index!=-1:
+                return ret[index+2:]
+            else:
+                return 0
         except:
             return 0
 
