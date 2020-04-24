@@ -649,11 +649,11 @@ class SingleCourse(object):
                         # radio.click()
                         sleep(1)
             except:
-                print('==========', file=self._out_fp)
-                print(traceback.format_exc(), file=self._out_fp)
+                #print('==========', file=self._out_fp)
+                #print(traceback.format_exc(), file=self._out_fp)
                 print(COLOR.ERR, "  答题失败！", COLOR.END, file=self._out_fp)
                 #log_fp.write("  答题失败！" + '\n')
-                sleep(200)
+                sleep(5)
                 return str(self._chapter) + '-' + str(self._section)
                 
             # 点击提交并确定，检测验证码

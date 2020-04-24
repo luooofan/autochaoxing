@@ -72,6 +72,8 @@ class QueryAns(object):
                 self.que_type = 8
             else:
                 self.que_type = QueryAns.que_type.index(self.que_lt[i-1][0])
+            if self.que_type not in [0,1,3]:#非单选、多选、判断题的话只保存不作答
+                self.no_ans_num=QueryAns.noans_num
 
             # 访问查题接口获取答案
             self.que = self.que_lt[i - 1][1]
