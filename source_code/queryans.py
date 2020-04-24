@@ -13,10 +13,10 @@ class QueryAns(object):
     pd_opt = ['正确', '错误', '√', '×', '对', '错', '是', '否', 'T', 'F', 'ri', 'wr', 'true', 'false']
     instance = None
 
-    api_priority={
+    api_priority={#越低越前
         'api.xmlm8.com': 4,
         'blog.vcing.top': 3,
-        'greasyfork': 1,
+        'greasyfork': 1,  
         'wangketiku.com': 2
     }
 
@@ -122,7 +122,7 @@ class QueryAns(object):
             'greasyfork': self.GreasyFork_Group_API,
             'wangketiku.com': self.WangKeTiKu_API
         }
-        url_order=sorted(QueryAns.api_priority.items(),key=lambda x:x[1],reverse=True)
+        url_order=sorted(QueryAns.api_priority.items(),key=lambda x:x[1],reverse=False)
         res=""
         for index in range(0,len(url_order)):
             res=api_dic[url_order[index][0]]()
