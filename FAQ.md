@@ -1,31 +1,51 @@
 # FAQ
 
-## How to run (v2.0)
+## How to run (v2.0)-怎样运行
 
-- 新增**模式选择**：`-m(--mode)`   默认single模式
+- **模式选择**：`-m(--mode)`   默认single模式
 
   - `single`:      单课程自动模式——选择课程,自动完成该课程(默认启动参数，可不填写)
   - `fullauto`:  全自动模式——自动遍历全部课程,无需输入
   - `control`:    单课程控制模式——选择课程并选择控制章节,自动完成选定章节前的任务点
 
-- 新增**视频倍速**：`-r(--rate)`   默认1倍速
+- **视频倍速**：`-r(--rate)`   默认1倍速
 
   - [0.625,16]​   全局倍速设置——在选定模式的全局范围内开启该倍速
+
+- **全局答题设置**选项`-n(--num)`  默认值为5
+
+  - 可选值：0，1，2 ......
+  - 自动答题时,如果 未找到答案的题目数量 达到num值,则暂时保存答案,不进行自动提交
 
 - 实例：
 
   ![image-20200403014324816](https://github.com/Luoofan/Images/tree/master/AutoCX/image-20200403014324816.png)
+  
+- PS：Linux环境下：请用python3执行
+          Windows环境下：请把python3环境配置为系统默认python，或者更改代码执行
 
 <br/>
 
-## About chrome&chromedriver
+
+
+## About Query-Questions-关于查题
+
+- 脚本使用多个API接口查题，正确率取决于接口题库
+- 查题逻辑：找到第一个脚本认为的合理答案即停止，不再访问其他查题接口
+- 用户可自定义：
+  - 自动提交限制：参见运行参数**-n（--num）**
+  - API查询优先级：基于查题逻辑，用户可自定义API查询顺序
+
+<br/>
+
+
+
+## About chrome&chromedriver-该如何选择版本
 
 - 要把`chromedriver.exe`放在**source_code目录**下
-
+- 必须是**可执行**的chromedriver，如果双击exe不可执行，说明环境没搭好
 - 需要注意的是版本要对应：chromedriverV2.9之前的版本可以进notes.txt查看对应chrome版本，之后的70及以上到80都是直接和chrome对应的
-
 - **版本号前三个数应一致，第四个可以更换着尝试**
-
 - 附：已经测试过的可以正常运行的版本对应关系：
 
 | chrome | chromedriver |
@@ -35,7 +55,9 @@
 
 <br/>
 
-## About login info
+
+
+## About login info-登录信息怎样正确填写
 
 - 在`logindata_phone.txt或logindata.txt`中按提示填写登录信息，并把提示信息删除
 
@@ -64,7 +86,9 @@
 
 <br/>
 
-## About Files after run
+
+
+## About Files after run-脚本运行后会生成什么文件
 
 程序在运行一次后，可能会在当前目录下生成以下文件：
 
@@ -74,7 +98,9 @@
 
 <br/>
 
-## About Docker
+
+
+## About Docker-关于Docker版
 
 - 具体使用教程请[移步项目地址](https://hub.docker.com/r/kimjungwha/autocx)
 - docker版的源码只有autocx.py与普通版不同，通过**进程之间的通信**实现了在**无界面单终端**下的**多开刷课**，用户需按序填写每个账号的信息 (fullauto模式不必输入) ，然后每个账号的sk将在后台进行
@@ -83,7 +109,9 @@
 
 <br/>
 
-## About requests
+
+
+## About requests-关于访问请求
 
 - 在完成章节的测试的时候，会发送课程和题目信息到题库服务器
 - 如果程序运行出现异常，会发送报错(traceback……error……)到服务器，以便更快地debug，来给大家提供更好的体验~~
@@ -91,9 +119,11 @@
 
 <br/>
 
-## How to develop？
+
+
+## How to develop？-怎样开发
 
 - 如果想知道代码做了些什么，可以在`source_code\login_courses.py`中第44行（查找`headless`所在行）前加`#`注释，再次运行会展示浏览器窗口
 
-- 代码经过简单重构后已经 将功能封装，可以参照注释直接使用or开发
+- 代码经过简单重构后已经 **将功能封装**，可以参照注释直接使用or开发
 

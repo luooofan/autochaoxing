@@ -26,20 +26,6 @@
 
 autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.com/KimJungWha)制作了这个开箱即用的镜像
 
-#### 当您pull镜像后，只需进行以下几步：
-
-- 以守护模式创建容器
-  `docker run -id --name autocx kimjungwha/autocx bash`
-
-- 进入容器
-  `docker exec -it autocx bash`
-
-- 按照提示修改logindata.txt或logindata_phone.txt里的信息 (并清空提示信息)
-  `vim logindata_phone.txt`
-
-- 运行脚本
-  `python3 autocx.py`
-
 
 详细信息和说明请[移步项目地址](https://hub.docker.com/r/kimjungwha/autocx)
 
@@ -72,6 +58,8 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
 
 ## 如果想亲手写刷课脚本 或者遇到问题 可以先来[FAQ](https://github.com/Luoofan/autochaoxing/blob/master/FAQ.md)看看哦:blush:
 
+遇到问题**请先查看FAQ是否有对应问题**，提issue时请附：**工作目录截图，运行情况截图**，并尽可能描述详细
+
 <br/>
 
 ## 关于题库与考试
@@ -91,6 +79,8 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
   - 新增**全局答题设置**选项`-n(--num)`  默认值为5
     - 可选值：0，1，2 ......
     - 自动答题时,如果 未找到答案的题目数量 达到num值,则暂时保存答案,不进行自动提交
+  - 查题接口+1
+  - 支持**自定义查题API优先级** more information please go to  [FAQ](https://github.com/Luoofan/autochaoxing/blob/master/FAQ.md)
   
 - 2020-4-23：
 

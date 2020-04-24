@@ -56,7 +56,7 @@ class StartAutoCX(object):
             self.process.stdin.flush()
 
 
-def perform(mode, rate):
+def perform(mode, rate,noans_num):
     #处理账号信息
     print(COLOR.DISPLAY+'Welcome To Multi-Autocx!'+COLOR.END)
 
@@ -72,7 +72,7 @@ def perform(mode, rate):
             break
         # print(logindata)
         # args_lt = 'python3 ./login_courses.py '+logindata[0:-1]+' '+str(mode)+' '+str(rate)+' &'
-        args_lt=['python3','login_courses.py',logindata[0:-1],str(mode),str(rate),'&']
+        args_lt = ['python3', 'login_courses.py', logindata[0:-1], str(mode), str(rate),str(noans_num), '&']
         sub_ps = StartAutoCX(args_lt)
         sub_ps.work()
         sleep(2)
@@ -88,7 +88,7 @@ def perform(mode, rate):
             print(' Sorry,no info')
             break
         # print(logindata)
-        args_lt=['python3','login_courses.py',logindata[0:-1],str(mode),str(rate),'&']
+        args_lt = ['python3', 'login_courses.py', logindata[0:-1], str(mode), str(rate), str(noans_num),'&']
         sub_ps = StartAutoCX(args_lt)
         sub_ps.work()
         sleep(2)
@@ -100,42 +100,52 @@ def perform(mode, rate):
 def main():
     #参数处理
     try:
-        opts, args = gnu_getopt(argv[1:], '-m:-r:-v-h', ['mode=', 'rate=', 'version', 'help'])
+        opts,args=gnu_getopt(argv[1:],'-m:-r:-n:-v-h',['mode=','rate=','num=','version','help'])
     except:
         print(COLOR.ERR+'Invalid args, Try -h or --help for more information'+COLOR.END)
         exit()
     #print(opts)
     #print(args)
-    rate = 1
-    mode = "single"
+    rate=1
+    mode="single"
+    noans_num=5
     opt_mode = ['single', 'fullauto', 'control']
-    for opt_name, opt_value in opts:
-        if opt_name in ('-h', '--help'):
+    for opt_name,opt_value in opts:
+        if opt_name in ('-h','--help'):
             print('''
 -m(--mode) single     单课程自动模式: 选择课程,自动完成该课程(默认启动参数)
            fullauto   全自动模式:     自动遍历全部课程,无需输入(除了机构登录方式下需要输入验证码)
            control    单课程控制模式: 选择课程并选择控制章节,自动完成[该课程第一个未完成章节,选定章节)范围内章节
--r(--rate) [0.625,16] 全局倍速设置:   在选定模式的全局范围内开启该倍速
+-r(--rate) [0.625,16] 全局倍速设置:   在选定模式的全局范围内开启该倍速   默认值:1
+-n(--num)  0,1,2,3... 全局答题设置:   自动答题时,如果未找到答案的题目数量达到num,则暂时保存答案,不进行自动提交   默认值:5
 -h(--help)     usage
 -v(--version)  version
             ''')
             exit()
-        if opt_name in ('-v', '--version'):
-            print('2.0docker')
+        if opt_name in ('-v','--version'):
+            print('2.0')
             exit()
-        if opt_name in ('-r', '--rate'):
-            rate = eval(opt_value)
-            if rate > 16 or rate < 0.625:
+        if opt_name in ('-r','--rate'):
+            rate=eval(opt_value)
+            if rate>16 or rate<0.625:
                 print(COLOR.ERR+'Invalid rate range, Try -h or --help for more information'+COLOR.END)
                 exit()
-        if opt_name in ('-m', '--mode'):
-            mode = opt_value
+        if opt_name in ('-m','--mode'):
+            mode=opt_value
             if mode not in opt_mode:
                 print(COLOR.ERR+'Invalid args, Try -h or --help for more information'+COLOR.END)
                 exit()
+        if opt_name in ('-n','--num'):
+            try:
+                noans_num=int(eval(opt_value))
+                if noans_num<0:
+                    raise Exception
+            except:
+                print(COLOR.ERR+'Invalid args, Try -h or --help for more information'+COLOR.END)
+                exit()
     #调用 执行 mode & rate
-    print(COLOR.DISPLAY+'Set the mode: %s and the rate: %.2f' % (mode, rate)+COLOR.END)
-    perform(opt_mode.index(mode), rate)
+    print(COLOR.DISPLAY+'Set mode: %s\trate: %.2f\tnoans_num:%d'%(mode,rate,noans_num)+COLOR.END)
+    perform(opt_mode.index(mode),rate,noans_num)
 
 
 if __name__ == '__main__':
