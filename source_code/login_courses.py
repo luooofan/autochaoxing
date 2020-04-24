@@ -32,6 +32,7 @@ from sys import argv,exit
 from os import system as os_system,path as os_path,mkdir
 from singlecourse import SingleCourse as SC
 from publicfunc import Color, getlogindata, getlogindata_phone, send_err, SYSTEM
+from queryans import QueryAns
 COLOR = Color()
 
 # 启动chrome
@@ -416,10 +417,14 @@ if __name__ == "__main__":
         logindata = getlogindata_phone()[0:2]
         mode = 0
         rate = 1
+        noans_num = 5
     else:
         logindata = (argv[1]).split(',')
         mode = int(argv[2])
         rate = eval(argv[3])
+        noans_num = eval(argv[4])
+    QA=QueryAns()
+    QA.noans_num=noans_num
     try:
         process = Login_courses_by_request(logindata, mode, rate)
         # process = Login_courses_by_chrome(logindata,mode,rate)  #备用登录选项

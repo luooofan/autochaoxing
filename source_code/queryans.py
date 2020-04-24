@@ -11,12 +11,20 @@ class QueryAns(object):
     que_type = ['单选题', '多选题', '填空题', '判断题', '简答题', '名词解释题', '论述题', '计算题', '其他',
                 '分录题', '资料题', '连线题', '', '排序题', '完形填空', '阅读理解', '', '', '口语题', '听力题']
     pd_opt = ['正确', '错误', '√', '×', '对', '错', '是', '否', 'T', 'F', 'ri', 'wr', 'true', 'false']
+    noans_num = 5
+    instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls.instance is None:
+            cls.instance = super().__new__(cls)
+        return cls.instance
 
     def __init__(self, h5page='', *, question='', type='',  course='', courseID=''):
         # 实例化方式:QueryAns(course,h5page)页面源码        操作:将处理源码内全部题目
         #           QueryAns(course,**info)课程-题目-类型       将处理单个题目
         self.course = course
-        self.courseID=courseID
+        self.courseID = courseID
+        self.no_ans_num = 0
         self.que_lt = []
         self.ans_ul = []
         self.que = ""
@@ -62,7 +70,7 @@ class QueryAns(object):
             sleep(3)
             # ans为0，未获取到答案
             if ans == 0:
-                ans_order.append([1])  # 服务器异常，默认选1
+                ans_order.append([0])  # 服务器异常，默认选1
                 continue
 
             ansopt = re.findall(r'<a.+?><?p?>?([\w\W]+?)<?/?p?>?</a>', self.ans_ul[i - 1])  # 当前题目 选项列表
@@ -89,39 +97,44 @@ class QueryAns(object):
                 # else:
                 #    ans_order.append(1)
 
-            #f.write(str(ans_order[i - 1]) + '\n')
-        #f.flush()
-        #f.close()
-        return ans_order  # 返回一个列表,列表内的每一项是每个题目的答案列表
+        if self.no_ans_num < QueryAns.noans_num:
+            for index in range(0,len(ans_order)):
+                if ans_order[index]==[0]:
+                    ans_order[index]==[1]
+            return 2,ans_order
+        else:
+            return 1,ans_order  # 返回一个列表,列表内的每一项是每个题目的答案列表
 
     def _query_ans(self):
-        res= self.GreasyFork_Group_API()
-        if res==0 or res=='' or '暂未搜到' in res:
+        res = self.GreasyFork_Group_API()
+        if res == 0 or res == '' or '暂未搜到' in res:
             res = self.WangKeTiKu_API()
-            if res=='' or res==0:
-                res=self.SearchAns_GUI_API()
-                if res=='':
-                    res=0
-        if res!=0:
+            if res == '' or res == 0:
+                res = self.SearchAns_GUI_API()
+                if res == '':
+                    res = 0
+        if res != 0:
             send_que('courseID:'+self.courseID+' course:'+self.course + ' que:' + self.que + '  ans:' + str(res) + '\n')
+        else:
+            self.no_ans_num += 1
         return res
 
     def SearchAns_GUI_API(self):
-        #以原问题访问准确率更高___h5源码实例化的时候尽量不使用该方式
+        # 以原问题访问准确率更高___h5源码实例化的时候尽量不使用该方式
         url = 'http://api.xmlm8.com/tk.php?t='+parse.quote(self.que_ori)
         try:
             ret_da = literal_eval(requestget(url).text)
-            #print("que:"+ret_da['tm']+'\n'+"ans:"+ret_da['da'])
+            # print("que:"+ret_da['tm']+'\n'+"ans:"+ret_da['da'])
             return ret_da['da']
         except:
             return 0
 
     def GreasyFork_Group_API(self):
-        #url = 'http://mooc.forestpolice.org/cx/0/' #WYN
+        # url = 'http://mooc.forestpolice.org/cx/0/' #WYN
         url2 = 'http://voice.fafads.cn/xxt/api.php'
         url1 = 'http://129.204.175.209/cha_xin.php'
 
-        #def _prepare_query(index):
+        # def _prepare_query(index):
         #    data = {
         #        'courseId': '',
         #        'classId': '',
@@ -157,13 +170,13 @@ class QueryAns(object):
             'content': self.que
         }
 
-        def post_url(url,data):
+        def post_url(url, data):
             headers = {
                 'Content-type': 'application/x-www-form-urlencoded',
             }
             timeout = 30
             r = post(url, data, headers=headers, timeout=timeout)
-            #print(r.text)
+            # print(r.text)
             status = r.status_code  # int
             # 200 且 code=1 响应成功
             # 200 且 code！=1 服务器繁忙
@@ -172,7 +185,7 @@ class QueryAns(object):
             if status == 200:
                 try:
                     res = literal_eval(r.text.strip(' \n'))
-                    #if res['code'] == 1:
+                    # if res['code'] == 1:
                     #    print('   响应成功\n')
                     # print(res['data'])
                     try:
@@ -187,42 +200,42 @@ class QueryAns(object):
             #        return 0
             #    else:
             #        print('   服务器繁忙\n')
-            #elif status == 403:
+            # elif status == 403:
             #    print('   操作过于频繁\n')
-            #else:
+            # else:
             #    print('   服务器异常\n')
             return 0
-        
-        res=post_url(url1,data1)
-        if res==0:
-            return post_url(url2,data2)
+
+        res = post_url(url1, data1)
+        if res == 0:
+            return post_url(url2, data2)
         else:
             return res
 
     def WangKeTiKu_API(self):
-        #print(self.que)
-        url='http://www.wangketiku.com/getquestion.php?question='+self.que_ori
-        headers={
+        # print(self.que)
+        url = 'http://www.wangketiku.com/getquestion.php?question='+self.que_ori
+        headers = {
             'Host': 'www.wangketiku.com',
-            'Referer':'http://www.wangketiku.com/?',
-            'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36'
+            'Referer': 'http://www.wangketiku.com/?',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36'
         }
         try:
-            ret = literal_eval(requestget(url,headers=headers).text)['answer']
-            #print(ret)
-            ret=re.sub('[ \t\n\：]','',ret)
-            ret=re.sub(r'题目(.+?)答案','',ret) 
-            index=ret.rfind('选项')
-            if index!=-1:
-                ret=ret[:index]
-            ret_lt=ret.split('备选')
+            ret = literal_eval(requestget(url, headers=headers).text)['answer']
+            # print(ret)
+            ret = re.sub('[ \t\n\：]', '', ret)
+            ret = re.sub(r'题目(.+?)答案', '', ret)
+            index = ret.rfind('选项')
+            if index != -1:
+                ret = ret[:index]
+            ret_lt = ret.split('备选')
             del ret_lt[0]
-            ans =""
+            ans = ""
             for item in ret_lt:
                 if '李恒道不会做这道题' in item or '暂无答案' in item:
                     continue
                 else:
-                    ans+=item+'#'
+                    ans += item+'#'
             return ans
         except:
             return 0
@@ -258,6 +271,7 @@ def test():
     }
     QA = QueryAns('course_name', **infodic)
     print(QA.work())
+
 
 if __name__ == "__main__":
     test()

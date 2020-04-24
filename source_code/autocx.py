@@ -18,7 +18,7 @@ from platform import platform,architecture,system
 from publicfunc import Color, getlogindata, getlogindata_phone, send_err, SYSTEM
 COLOR=Color()
 
-def perform(mode,rate):
+def perform(mode,rate,noans_num):
     #处理账号信息
     print(COLOR.DISPLAY+'Welcome To Multi-Autocx!'+COLOR.END)
 
@@ -33,7 +33,7 @@ def perform(mode,rate):
             print(' Sorry,no info')
             break
         # print(logindata)
-        Popen('start cmd /k python login_courses.py '+logindata[0:-1]+' '+str(mode)+' '+str(rate), shell=True)
+        Popen('start cmd /k python login_courses.py '+logindata[0:-1]+' '+str(mode)+' '+str(rate)+' '+str(noans_num), shell=True)
         sleep(2)
 
     # 读取 机构账号 需要输入验证码 每次处理一个 按任意键后处理下一个
@@ -47,7 +47,7 @@ def perform(mode,rate):
             print(' Sorry,no info')
             break
         # print(logindata)
-        Popen('start cmd /k python login_courses.py '+logindata[0:-1]+' '+str(mode)+' '+str(rate), shell=True)
+        Popen('start cmd /k python login_courses.py '+logindata[0:-1]+' '+str(mode)+' '+str(rate)+' '+str(noans_num), shell=True)
         input(COLOR.OK+' please press any key to continue'+COLOR.END)
 
     print(COLOR.DISPLAY+'Now you can exit this program! Good luck!'+COLOR.END)
@@ -56,7 +56,7 @@ def perform(mode,rate):
 def main():
     #参数处理
     try:
-        opts,args=gnu_getopt(argv[1:],'-m:-r:-v-h',['mode=','rate=','version','help'])
+        opts,args=gnu_getopt(argv[1:],'-m:-r:-n:-v-h',['mode=','rate=','num=','version','help'])
     except:
         print(COLOR.ERR+'Invalid args, Try -h or --help for more information'+COLOR.END)
         exit()
@@ -64,6 +64,7 @@ def main():
     #print(args)
     rate=1
     mode="single"
+    noans_num=5
     opt_mode = ['single', 'fullauto', 'control']
     for opt_name,opt_value in opts:
         if opt_name in ('-h','--help'):
@@ -71,7 +72,8 @@ def main():
 -m(--mode) single     单课程自动模式: 选择课程,自动完成该课程(默认启动参数)
            fullauto   全自动模式:     自动遍历全部课程,无需输入(除了机构登录方式下需要输入验证码)
            control    单课程控制模式: 选择课程并选择控制章节,自动完成[该课程第一个未完成章节,选定章节)范围内章节
--r(--rate) [0.625,16] 全局倍速设置:   在选定模式的全局范围内开启该倍速
+-r(--rate) [0.625,16] 全局倍速设置:   在选定模式的全局范围内开启该倍速   默认值:1
+-n(--num)  0,1,2,3... 全局答题设置:   自动答题时,如果未找到答案的题目数量达到num,则暂时保存答案,不进行自动提交   默认值:5
 -h(--help)     usage
 -v(--version)  version
             ''')
@@ -89,9 +91,17 @@ def main():
             if mode not in opt_mode:
                 print(COLOR.ERR+'Invalid args, Try -h or --help for more information'+COLOR.END)
                 exit()
+        if opt_name in ('-n','--num'):
+            try:
+                noans_num=int(eval(opt_value))
+                if noans_num<0:
+                    raise Exception
+            except:
+                print(COLOR.ERR+'Invalid args, Try -h or --help for more information'+COLOR.END)
+                exit()
     #调用 执行 mode & rate
-    print(COLOR.DISPLAY+'Set the mode: %s and the rate: %.2f'%(mode,rate)+COLOR.END)
-    perform(opt_mode.index(mode),rate)
+    print(COLOR.DISPLAY+'Set mode: %s\trate: %.2f\tnoans_num:%d'%(mode,rate,noans_num)+COLOR.END)
+    perform(opt_mode.index(mode),rate,noans_num)
         
 if __name__=='__main__':
     main()

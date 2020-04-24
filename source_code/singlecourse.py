@@ -622,7 +622,7 @@ class SingleCourse(object):
             except:
                 self.courseID=""
             QA=QueryAns(self.driver.page_source,course=self.course_name,courseID=self.courseID)
-            ans_lt=QA.work()
+            ans_flag,ans_lt=QA.work()
 
             # print(ans_lt)
             # 开始答题
@@ -635,6 +635,8 @@ class SingleCourse(object):
             try:
                 for i in range(0, len(ans_lt)):
                     for j in range(0, len(ans_lt[i])):
+                        if ans_lt[i][j]==0:
+                            continue
                         try:
                             # print(i,j,ans_lt[i][j])
                             radio = self.driver.find_element_by_xpath(
@@ -653,8 +655,7 @@ class SingleCourse(object):
                 #log_fp.write("  答题失败！" + '\n')
                 sleep(200)
                 return str(self._chapter) + '-' + str(self._section)
-
-            # sleep(60)
+                
             # 点击提交并确定，检测验证码
             # //*[@id="tempsave"]
             # //*[@id="ZyBottom"]/div/div[4]/div[4]/div[4]/div[5]/a[1]
@@ -663,9 +664,9 @@ class SingleCourse(object):
             # //*[@id="ZyBottom"]/div[2]/a[2]/span
             try:
                 bn = self.driver.find_element_by_xpath('//*[@id="ZyBottom"]/div' + '/div[4]' *
-                                                       (len(ans_lt) - 2) + '/div[5]/a[2]')  # 多个题目
+                                                       (len(ans_lt) - 2) + '/div[5]/a['+str(ans_flag)+']')  # 多个题目
             except:
-                bn = self.driver.find_element_by_xpath('//*[@id="ZyBottom"]/div[2]/a[2]')  # 只有一个题
+                bn = self.driver.find_element_by_xpath('//*[@id="ZyBottom"]/div[2]/a['+str(ans_flag)+']')  # 只有一个题
             # action_chains.move_to_element(bn)
             # bn.click()
             self.driver.execute_script("arguments[0].scrollIntoView();arguments[0].click();", bn)
