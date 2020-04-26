@@ -13,16 +13,16 @@
     
 - 安装python3和pip，[python官网](https://www.python.org)
 
-- 安装依赖：命令行执行
-  `pip install -r requirements.txt`
+- 安装依赖：命令行执行<br/>
+`pip install -r requirements.txt`
     
 - 在**logindata_phone.txt**或**logindata.txt**中按提示填写登录信息，并把提示信息删除（推荐使用前者）
 
-- 查看帮助信息 ，选择合适的参数开始刷课
+- 查看帮助信息 ，选择合适的参数开始刷课<br/>
   `python autocx.py -h`     
     
-- 示例：以16倍速(-r)全自动模式(-m)运行脚本，并指定自动提交限制(-n)为2
-  `python autocx.py -m fullauto -r 16 -n 2`
+- 示例：以16倍速(-r)全自动模式(-m)运行脚本，并指定自动提交限制(-n)为2<br/>
+`python autocx.py -m fullauto -r 16 -n 2`
 
 - ~~[懒人通道](https://github.com/Luoofan/autochaoxing/releases):win10x64环境下可直接使用打包的exe~~（暂未更新到最新版）
 
