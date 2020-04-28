@@ -3,20 +3,29 @@
 # brief   选择模式启动刷课
 # details 先后读取logindata_phone.txt(2行一个账号)和logindata.txt(3行一个账号)的全部账号信息
 #         windows环境下：对于每一份账号信息启动一个cmd命令行来执行刷课操作
+#         Linux(docker)环境下：通过Popen启动多个后台子进程，通过管道实现与子进程通信，从而有序输出
 # author  Luoofan
 # date    2020-03-27 20:38:15
-# FilePath\source_code\autocx.py
 # 
-from subprocess import Popen
+from subprocess import Popen, PIPE, STDOUT
 from time import sleep
 from colorama import Fore
 from colorama import init as colorinit
-from sys import argv
+from sys import argv,path as sys_path
 from getopt import gnu_getopt
 from requests import post
 from platform import platform,architecture,system
+#from os import getcwd
+
+#cur_path=getcwd()
+sys_path.append('./src/')#(cur_path+'/src/')
 from publicfunc import Color, getlogindata, getlogindata_phone, send_err, SYSTEM
 COLOR=Color()
+
+if SYSTEM == 1:  # not windows
+    from docker import StartAutoCX
+    from os import O_NONBLOCK
+    import fcntl
 
 def perform(mode,rate,noans_num):
     #处理账号信息
@@ -33,7 +42,12 @@ def perform(mode,rate,noans_num):
             print(' Sorry,no info')
             break
         # print(logindata)
-        Popen('start cmd /k python login_courses.py '+logindata[0:-1]+' '+str(mode)+' '+str(rate)+' '+str(noans_num), shell=True)
+        if SYSTEM==0:
+            Popen('start cmd /k python ./src/login_courses.py '+logindata[0:-1]+' '+str(mode)+' '+str(rate)+' '+str(noans_num), shell=True)
+        else:
+            args_lt = ['python3', './src/login_courses.py', logindata[0:-1], str(mode), str(rate), str(noans_num), '&']
+            sub_ps = StartAutoCX(args_lt)
+            sub_ps.work()
         sleep(2)
 
     # 读取 机构账号 需要输入验证码 每次处理一个 按任意键后处理下一个
@@ -47,8 +61,14 @@ def perform(mode,rate,noans_num):
             print(' Sorry,no info')
             break
         # print(logindata)
-        Popen('start cmd /k python login_courses.py '+logindata[0:-1]+' '+str(mode)+' '+str(rate)+' '+str(noans_num), shell=True)
-        input(COLOR.OK+' please press any key to continue'+COLOR.END)
+        if SYSTEM==0:
+            Popen('start cmd /k python ./src/login_courses.py '+logindata[0:-1]+' '+str(mode)+' '+str(rate)+' '+str(noans_num), shell=True)
+            input(COLOR.OK+' please press any key to continue'+COLOR.END)
+        else:
+            args_lt = ['python3', './src/login_courses.py', logindata[0:-1], str(mode), str(rate), str(noans_num), '&']
+            sub_ps = StartAutoCX(args_lt)
+            sub_ps.work()
+            sleep(2)
 
     print(COLOR.DISPLAY+'Now you can exit this program! Good luck!'+COLOR.END)
     sleep(1.5)

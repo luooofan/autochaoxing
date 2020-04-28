@@ -10,7 +10,7 @@
 #                          在调用SC类之前 输出“LOGIN_FINISHED” 实现与父进程的通信
 # author   Luoofan
 # date     2020-03-27 21:01:12
-# FilePath\source_code\login_courses.py
+# FilePath\src\login_courses.py
 #
 from requests import post, Session, get
 from urllib.parse import quote
@@ -62,6 +62,7 @@ def startchrome(debugarg=''):
     ##  LOG_FATAL = 3
     ##  default is 0
     return webdriver.Chrome(options=chrome_options, executable_path=r"./chromedriver")
+    #在哪个目录执行就要在该目录下有chromedriver
 
 
 class Login_courses(object):
@@ -199,7 +200,7 @@ class Login_courses_by_request(Login_courses):
                     img = Image.open('login_vercode.png')
                     img.show()
                 else:
-                    p=Popen(['./viu', 'login_vercode.png'])
+                    p=Popen(['./src/viu', 'login_vercode.png'])
                     p.communicate()
                     sleep(1.5)
 
@@ -343,7 +344,7 @@ class Login_courses_by_chrome(Login_courses):
                 img = Image.open('login_vercode.png')
                 img.show()
             else:
-                p=Popen(['./viu', 'login_vercode.png'])
+                p=Popen(['./src/viu', 'login_vercode.png'])
                 p.communicate()
                 sleep(1.5)
 

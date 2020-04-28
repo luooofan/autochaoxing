@@ -5,7 +5,7 @@
 #                 输出到文件,不输出到终端(保证ssh情况下的可行性)
 # author Luoofan
 # date   2020-04-03 10:11:02
-# FilePath\source_code\singlecourse.py
+# FilePath\src\singlecourse.py
 # 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -681,7 +681,7 @@ class SingleCourse(object):
                         img = Image.open('ans_vercode.png')
                         img.show()
                     else:
-                        p=Popen(['./viu', 'ans_vercode.png'])
+                        p=Popen(['./src/viu', 'ans_vercode.png'])
                         p.communicate()
                         sleep(1.5)
                     numVerCode = input(COLOR.NOTE + "  please input the ans_vercode:" + COLOR.END, file=self._out_fp)
