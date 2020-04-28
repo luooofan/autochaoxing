@@ -741,7 +741,7 @@ class SingleCourse(object):
     ##
     # brief    单课程自动模式
     # details  自动完成单课程下的任务(过程不需要输入)，递归调用自身，未完成任务点为空时退出
-    #          (todo：单章节设定重试次数，超过次数则退出，避免死循环)
+    #          (单章节设定重试次数，超过次数则退出，避免死循环)
     def _perform_model0(self):
         # 获取未完成章节列表并输出
         ch_se_lt = self._g2p_chapter_section()
@@ -771,13 +771,13 @@ class SingleCourse(object):
                     send_err(traceback.format_exc())
                 except:
                     pass
-            # 答题间隔控制
-            now_time = time.time()
-            if now_time-last_time < 120:
-                sleep(120-(now_time-last_time))
-            last_time = time.time()
 
             if self._que_server_flag==1:
+                # 答题间隔控制
+                now_time = time.time()
+                if now_time-last_time < 120:
+                    sleep(120-(now_time-last_time))
+                last_time = time.time()
                 self._go_que_task()
 
         if end_flag==1:
@@ -848,12 +848,12 @@ class SingleCourse(object):
                     send_err(traceback.format_exc())
                 except:
                     pass
-            # 答题间隔控制
-            now_time = time.time()
-            if now_time-last_time < 150:
-                sleep(150-(now_time-last_time))
-            last_time = time.time()
 
-            if self._que_server_flag==1:
+            if self._que_server_flag == 1:
+                # 答题间隔控制
+                now_time = time.time()
+                if now_time-last_time < 150:
+                    sleep(150-(now_time-last_time))
+                last_time = time.time()
                 self._go_que_task()
         #log_fp.write("err_lt:" + str(error_lt) + '\n')
