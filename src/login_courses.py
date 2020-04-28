@@ -15,7 +15,6 @@
 from requests import post, Session, get
 from urllib.parse import quote
 from json import loads
-from PIL import Image
 import base64
 from re import sub, findall
 from requests import utils, post
@@ -34,6 +33,9 @@ from singlecourse import SingleCourse as SC
 from publicfunc import Color, getlogindata, getlogindata_phone, send_err, SYSTEM
 from queryans import QueryAns
 COLOR = Color()
+
+if SYSTEM==0:
+    from PIL import Image
 
 # 启动chrome
 # debugarg:拓展启动选项

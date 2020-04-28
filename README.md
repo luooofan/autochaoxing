@@ -46,6 +46,7 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
 - [x] 支持所有机构用户登录运行
 - [x] 自动刷视频(包括页面内**多视频**)，静音播放
 - [x] 解决视频内弹出的试题（单选、多选）
+- [x] 支持ppt、音频任务点
 - [x] 自动答章节测试题（**单选、多选、判断**）
 - [x] **多种模式：全自动，单课程自动，控制模式**
 - [x] **倍速**
@@ -80,18 +81,16 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
 ## 更新（**如果有帮到你的话请赏颗:star:吧**）
 
 - More information about update please go to  [FAQ](https://github.com/Luoofan/autochaoxing/blob/master/doc/FAQ.md)
-
+- 2020-4-29：
+- 支持ppt、音频任务点
 - 2020-4-24：
-
-  - 新增**全局答题设置**选项`-n(--num)`  
+- 新增**全局答题设置**选项`-n(--num)`  
     - 默认值：5                                  可选值：0，1，2 ......
     - 自动答题时,如果 未找到答案的题目数量 达到num值,则暂时保存答案,不进行自动提交
   - 支持**自定义查题API优先级** 
-  
 - 2020-4-6：
 
   - 发布了Docker2.0版本（有docker的小伙伴可以直接在docker里多开sk啦）
-
 - **2020-4-2**：:star:
 
   - **发布了2.0版本**

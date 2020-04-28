@@ -16,7 +16,6 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import StaleElementReferenceException as SERException
 from bs4 import BeautifulSoup
-from PIL import Image
 from requests import post,get as requestget
 import urllib.parse
 from ast import literal_eval
@@ -32,6 +31,9 @@ from queryans import QueryAns
 from sys import stdout
 
 COLOR = Color()
+
+if SYSTEM==0:
+    from PIL import Image
 
 # 单账号单课程自动化
 class SingleCourse(object):
@@ -74,11 +76,15 @@ class SingleCourse(object):
         soup = BeautifulSoup(text, 'html.parser')
         titles = []
         icons = soup.find_all(class_='icon')
-        # print(icons)
+        #print(icons)
         for i in range(1, len(icons)+1):
             flag = icons[i-1].find('em')
-            if 'orange' in flag['class']:  # or 'blank' in flag['class']:
-                titles.append(i)
+            try:
+                if 'orange' in flag['class'] or 'blank' in flag['class']:
+                    titles.append(i)
+            except:
+                pass
+        #print(titles)
         return titles
 
     ##
@@ -312,6 +318,7 @@ class SingleCourse(object):
                 #print(traceback.format_exc())
                 icon_flag = 0
 
+            #print(1)
             # try:
             iframe_flag = 0
             for i in range(10):
@@ -329,10 +336,23 @@ class SingleCourse(object):
             if iframe_flag == 0:
                 print(COLOR.ERR+"  can't into the video,continue"+COLOR.END, file=self._out_fp)
                 continue
+            
+            #print(2)
+
+            try:
+                ppt_num=eval(self.driver.execute_script("return document.getElementsByClassName('all')[0].innerText"))
+                for i in range(0,ppt_num):
+                    self.driver.execute_script("document.getElementsByClassName('mkeRbtn')[0].click()")
+                    sleep(1)
+                continue
+            except:
+                pass   
+        
+            #print(2.5)
 
             # 通过js代码开始视频播放
             play_ok = 0
-            for i in range(4):
+            for i in range(3):
                 try:
                     self.driver.execute_script(
                             "var video=document.querySelector('video');video.scrollIntoView();video.play();video.onmouseout=function(){return false;}")
@@ -343,6 +363,30 @@ class SingleCourse(object):
                     break
                 except:
                     sleep(i+1)
+
+            #print(3)
+            
+            audio=0
+            if play_ok == 0:
+                for i in range(3):
+                    try:
+                        self.driver.execute_script(
+                                "var audio=document.querySelector('audio');audio.scrollIntoView();audio.play();audio.onmouseout=function(){return false;}")
+                        play_ok = 1
+                        audio=1
+                        self.driver.execute_script("document.querySelector('audio').autoplay=true;")
+                        self.driver.execute_script("document.querySelector('audio').playbackRate=arguments[0];document.querySelector('audio').defaultPlaybackRate=arguments[0]",self.rate)
+                        self.driver.execute_script("document.querySelector('audio').load();")
+                        break
+                    except:
+                        sleep(i+1)
+            if audio==1:
+                media_type='audio'
+            else:
+                media_type='video'
+
+            #print(media_type)
+            
             if play_ok == 0:
                 # 未播放成功
                 self.driver.switch_to.parent_frame()
@@ -353,12 +397,12 @@ class SingleCourse(object):
                 # 开倍速 & 获取时间信息
                 sleep(2)
                 for i in range(5):
-                    total_tm = self.driver.execute_script("return document.querySelector('video').duration")
+                    total_tm = self.driver.execute_script("return document.querySelector(arguments[0]).duration",media_type)
                     #print(total_tm)
-                    now_tm = self.driver.execute_script("return document.querySelector('video').currentTime")
+                    now_tm = self.driver.execute_script("return document.querySelector(arguments[0]).currentTime",media_type)
                     #print(now_tm)
                     sleep(2)
-                    self.driver.execute_script("document.querySelector('video').play();")
+                    self.driver.execute_script("document.querySelector(arguments[0]).play();",media_type)
                     if total_tm != None and now_tm != None:
                         break
                     else:
@@ -367,12 +411,14 @@ class SingleCourse(object):
                 now_tm = int(now_tm)
                 need_tm = total_tm-now_tm
                 print("   now_tm:", now_tm, '\t', "total_tm:", total_tm, '\t', "need_tm:", need_tm, file=self._out_fp)
-
+            
+            #print(4)
+            
             real_time=0
             while 1:
                 real_time+=10
                 try:
-                    now_tm = self.driver.execute_script("return document.querySelector('video').currentTime")
+                    now_tm = self.driver.execute_script("return document.querySelector(arguments[0]).currentTime",media_type)
                     need_tm=total_tm-int(now_tm)
                 except:
                     pass

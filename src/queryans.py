@@ -21,7 +21,7 @@ class QueryAns(object):
     }
 
     noans_num = 5
-    noans_flag=['暂未搜到','暂无答案','奋力撰写','收录中','明日再来']
+    noans_flag=['暂未搜','暂无答案','奋力撰写','收录中','日再来','李恒道']
 
     def __new__(cls, *args, **kwargs):
         if cls.instance is None:
@@ -161,6 +161,7 @@ class QueryAns(object):
         # url = 'http://mooc.forestpolice.org/cx/0/' #WYN
         url2 = 'http://voice.fafads.cn/xxt/api.php'
         url1 = 'http://129.204.175.209/cha_xin.php'
+        url3 = 'http://cx.icodef.com/wyn-nb'
 
         # def _prepare_query(index):
         #    data = {
@@ -197,7 +198,9 @@ class QueryAns(object):
         data1 = {
             'content': self.que
         }
-
+        data3 = {
+            'question': self.que
+        }
         def post_url(url, data):
             headers = {
                 'Content-type': 'application/x-www-form-urlencoded',
@@ -234,11 +237,20 @@ class QueryAns(object):
             #    print('   服务器异常\n')
             return 0
 
-        res = post_url(url1, data1)
-        if res == 0:
-            return post_url(url2, data2)
-        else:
-            return res
+        dic = {
+            '2':(url1,data1),
+            '3':(url2,data2),
+            '1':(url3,data3)
+        }
+        for index in range(1,4):
+            res=post_url(dic[str(index)][0],dic[str(index)][1])
+            for item in QueryAns.noans_flag:
+                if item in str(res):
+                    res = 0
+                    break
+            if res!=0:
+                return res
+        return res
 
     def WangKeTiKu_API(self):
         # print(self.que)
