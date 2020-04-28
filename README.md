@@ -7,7 +7,7 @@
 
 **Windows**：
 
-- 安装chrome浏览器以及相对应的chromedriver，并**将chromedriver复制到source_code目录下**
+- 安装chrome浏览器以及相对应的chromedriver，并**将chromedriver放在项目目录下**
   
     - [chrome浏览器下载地址](https://www.google.cn/chrome/)，[chromedriver下载地址](http://npm.taobao.org/mirrors/chromedriver/)或者[这里](http://chromedriver.storage.googleapis.com/index.html)，注意版本对应
     
@@ -15,16 +15,15 @@
 
 - 安装依赖：命令行执行<br/>
 `pip install -r requirements.txt`
-    
+  
 - 在**logindata_phone.txt**或**logindata.txt**中按提示填写登录信息，并把提示信息删除（推荐使用前者）
 
 - 查看帮助信息 ，选择合适的参数开始刷课<br/>
   `python autocx.py -h`     
-    
+  
 - 示例：以16倍速(-r)全自动模式(-m)运行脚本，并指定自动提交限制(-n)为2<br/>
 `python autocx.py -m fullauto -r 16 -n 2`
 
-- ~~[懒人通道](https://github.com/Luoofan/autochaoxing/releases):win10x64环境下可直接使用打包的exe~~（暂未更新到最新版）
 
 **Linux**：可以配环境运行py，也可以使用**docker**:point_down:
 
@@ -51,7 +50,8 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
 - [x] **多种模式：全自动，单课程自动，控制模式**
 - [x] **倍速**
 - [x] 自定义查题API优先级
-- [x] 自动提交限制
+- [x] 自定义章节测试自动提交限制
+- [x] **只看视频不答题**
 
 <br/>
 
@@ -64,9 +64,7 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
 
 <br/>
 
-## 如果想亲手写刷课脚本 或者遇到问题 可以先来[FAQ](https://github.com/Luoofan/autochaoxing/blob/master/FAQ.md)看看哦:blush:
-
-遇到问题**请先查看FAQ是否有对应问题**，提issue时请附：**工作目录，运行情况，报错信息截图**，并尽可能描述准确、详细
+## 如果想亲手写刷课脚本 或者遇到问题 可以先来[FAQ](https://github.com/Luoofan/autochaoxing/blob/master/doc/FAQ.md)看看哦:blush:
 
 <br/>
 
@@ -74,40 +72,25 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
 
  - 考试因为考虑到直接无界面完成不放心，所以暂未提供支持，考试时可使用**查题程序**辅助
 
- - 原先的题库服务器来源于GreasyFork上**wyn大佬**，非常感谢！
+ - 原先的题库服务器来源于GreasyFork上**wyn大佬**，现在的题库接口源于多方，十分感谢！
 
- - 现在的题库接口源于多方，仍在增加中，在此也表示十分感谢！
 
 <br/>
 
-
 ## 更新（**如果有帮到你的话请赏颗:star:吧**）
+
+- More information about update please go to  [FAQ](https://github.com/Luoofan/autochaoxing/blob/master/doc/FAQ.md)
 
 - 2020-4-24：
 
-  - 新增**全局答题设置**选项`-n(--num)`  默认值为5
-    - 可选值：0，1，2 ......
+  - 新增**全局答题设置**选项`-n(--num)`  
+    - 默认值：5                                  可选值：0，1，2 ......
     - 自动答题时,如果 未找到答案的题目数量 达到num值,则暂时保存答案,不进行自动提交
-  - 查题接口+1
-  - 支持**自定义查题API优先级** more information please go to  [FAQ](https://github.com/Luoofan/autochaoxing/blob/master/FAQ.md)
-  - 修复了遇到【非选择判断类】题目空提交的bug，改为跳过这类题目继续执行
+  - 支持**自定义查题API优先级** 
   
-- 2020-4-23：
-
-  - 脚本答题功能恢复，请使用最新脚本（exe暂时仍无法使用）
-  - **封装答题功能**，原来**单题库变为多题库**，答题正确率依赖于题库。
-  
-- 2020-4-18：
-
-  - 题库服务器停止维护并暂时关闭，脚本目前将不再进行自动答题
-
-- 2020-4-7：
-
-  - 上传2.0版win10x64打包程序,[通道](https://github.com/Luoofan/autochaoxing/releases)
-
 - 2020-4-6：
 
-  - **发布了Docker2.0版本**（有docker的小伙伴可以直接在docker里多开sk啦）
+  - 发布了Docker2.0版本（有docker的小伙伴可以直接在docker里多开sk啦）
 
 - **2020-4-2**：:star:
 
@@ -123,26 +106,17 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
   - 更改原播放视频部分的模拟操作为js操作，提高程序运行稳定性
   - 可以通过 `-h(--help)`选项查看帮助信息，`-v(--version)`选项查看版本信息
   - 运行异常提交服务器—以便尽快debug
-  - **主执行文件更改为`autocx.py`** (以后只会增加参数，不会变更主执行文件)
-
-  -------------------------------------------------------------------------------------------------------------------------------------
-
-- 2020-3-22:
-
-  - 整理了项目文件结构，工作目录调整到**source_codes**
-
-- 2020-3-21：
-
-  - 更改了登录和获取课程的模式，**减少了等待时间**，原来的模式保留作为备用方案
+  
+----
 
 - 2020-3-16:
   
   - 由[KimJungWha](https://github.com/KimJungWha)制作了**Docker版本**，并发布到了[DockerHub](https://hub.docker.com/r/kimjungwha/autocx)
   
 - 2020-3-15：
-  - 增加了短时间内多次答题的时间限制，**减少答题验证码的弹出**
+
   - 新增了在**无图形界面的linux终端**下运行的脚本，需要工作目录下有`viu`，[viu:终端显示图片](https://github.com/atanunq/viu)
-  
+
 - 2020-3-5：
 
   - 发布1.0版本
