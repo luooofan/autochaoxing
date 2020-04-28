@@ -1,3 +1,7 @@
+from subprocess import Popen, PIPE, STDOUT
+from time import sleep
+from os import O_NONBLOCK
+import fcntl
 class StartAutoCX(object):
     def __init__(self, args_lt):
         # 子进程 来完成操作

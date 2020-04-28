@@ -231,12 +231,9 @@ class Login_courses_by_request(Login_courses):
                         print(' login failed,', COLOR.END, 'please check your login_info and retry')
                         continue
                     else:  # 采用备用方案登录
-                        work_bak = Login_courses_by_chrome([self.school, self.account, self.password], self.pattern, self.rate)
-                        work_bak.work()  # 会重新输入验证码
-
+                        raise Exception
                 except:
-                    work_bak = Login_courses_by_chrome(
-                        [self.school, self.account, self.password], self.pattern, self.rate)
+                    work_bak = Login_courses_by_chrome([self.school, self.account, self.password], self.pattern, self.rate)
                     work_bak.work()  # 会重新输入验证码
             # 验证码获取失败
             else:
@@ -302,7 +299,8 @@ class Login_courses_by_chrome(Login_courses):
 
     def _login(self):
         action_chains = ActionChains(self.driver)
-        logindata = getlogindata()
+        #logindata = getlogindata()
+        logindata=[self.school,self.account,self.password]
         #log_fp.write('\n' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())) + '\n')
         #log_fp.write('登录信息:' + logindata[0].strip(' \t\n') + logindata[1].strip(' \t\n') + '\n')
 

@@ -24,8 +24,6 @@ COLOR=Color()
 
 if SYSTEM == 1:  # not windows
     from docker import StartAutoCX
-    from os import O_NONBLOCK
-    import fcntl
 
 def perform(mode,rate,noans_num):
     #处理账号信息
