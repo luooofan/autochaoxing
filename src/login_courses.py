@@ -32,6 +32,7 @@ from os import system as os_system,path as os_path,mkdir
 from singlecourse import SingleCourse as SC
 from publicfunc import Color, getlogindata, getlogindata_phone, send_err, SYSTEM
 from queryans import QueryAns
+from playmedia import PlayMedia
 COLOR = Color()
 
 if SYSTEM==0:
@@ -63,19 +64,21 @@ def startchrome(debugarg=''):
     ##  LOG_ERROR = 2,
     ##  LOG_FATAL = 3
     ##  default is 0
-    return webdriver.Chrome(options=chrome_options, executable_path=r"./chromedriver")
+    if SYSTEM==0:
+        return webdriver.Chrome(options=chrome_options, executable_path=r"./chromedriver")
+    else:
+        return webdriver.Chrome(options=chrome_options)
     #在哪个目录执行就要在该目录下有chromedriver
 
 
 class Login_courses(object):
     # 登录基类,账户信息,刷课选项
-    def __init__(self, logindata, pattern=0, rate=1):
+    def __init__(self, logindata, pattern=0):
         self.mode = 1 if len(logindata) == 2 else 2  # 1:phone 2:school
         self.school = logindata[0].strip(' \t\n') if self.mode == 2 else ''
         self.account = logindata[self.mode-1].strip(' \t\n')
         self.password = logindata[self.mode].strip(' \t\n')
         self.pattern = pattern
-        self.rate = rate
         if SYSTEM==1:
             if os_path.exists('./AccountInfo')==False:
                 mkdir('./AccountInfo')
@@ -85,8 +88,8 @@ class Login_courses(object):
 
 
 class Login_courses_by_request(Login_courses):
-    def __init__(self, logindata, pattern=0, rate=1):
-        super().__init__(logindata, pattern, rate)
+    def __init__(self, logindata, pattern=0):
+        super().__init__(logindata, pattern)
         self.mysession = Session()
 
     def _getschool(self):
@@ -235,7 +238,7 @@ class Login_courses_by_request(Login_courses):
                     else:  # 采用备用方案登录
                         raise Exception
                 except:
-                    work_bak = Login_courses_by_chrome([self.school, self.account, self.password], self.pattern, self.rate)
+                    work_bak = Login_courses_by_chrome([self.school, self.account, self.password], self.pattern)
                     work_bak.work()  # 会重新输入验证码
             # 验证码获取失败
             else:
@@ -262,13 +265,13 @@ class Login_courses_by_request(Login_courses):
             print(COLOR.OK+' LOGIN_FINISHED'+COLOR.END)
             for url, name in courses_lt:
                 print(COLOR.NOTE+' Course:'+name+COLOR.END)
-                singlecourse = SC(driver, base_url+url, name, 0, self.rate,self._sc_out_fp)
+                singlecourse = SC(driver, base_url+url, name, 0, self._sc_out_fp)
                 singlecourse.work()
         else:
             while(1):
                 goal = self._choose_course(courses_lt)
                 print(COLOR.OK+' LOGIN_FINISHED'+COLOR.END)
-                singlecourse = SC(driver, base_url+goal[0], goal[1], self.pattern, self.rate, self._sc_out_fp)
+                singlecourse = SC(driver, base_url+goal[0], goal[1], self.pattern, self._sc_out_fp)
                 singlecourse.work()
         if self._sc_out_fp !=None:
             self._sc_out_fp.flush()
@@ -277,12 +280,12 @@ class Login_courses_by_request(Login_courses):
 
 class Login_courses_by_chrome(Login_courses):
     # 传入logindata列表参数：账号信息
-    # pattern和rate可选参数
+    # pattern可选参数
     # 调用实例化对象的work方法：login->choose_course->select_model->call SC开始单课程的刷课
     # 只能 以机构方式登录 ，在内部手动确定
 
-    def __init__(self, logindata ,pattern=0, rate=1):
-        super().__init__(logindata, pattern, rate)
+    def __init__(self, logindata ,pattern=0):
+        super().__init__(logindata, pattern)
         self.driver = None
         self.__wait = None
 
@@ -391,7 +394,7 @@ class Login_courses_by_chrome(Login_courses):
 
             for name, url in courses_lt:
                 print(COLOR.NOTE+' Course:'+name+COLOR.END)
-                singlecourse = SC(self.driver, url, name, 0, self.rate, self._sc_out_fp)
+                singlecourse = SC(self.driver, url, name, 0, self._sc_out_fp)
                 singlecourse.work()
         else:
             while 1:
@@ -408,7 +411,7 @@ class Login_courses_by_chrome(Login_courses):
 
             menu_url = courses_lt[course_id - 1][1]
             course_name = courses_lt[course_id - 1][0]
-            singlecourse = SC(self.driver, menu_url, course_name, self.pattern, self.rate, self._sc_out_fp)
+            singlecourse = SC(self.driver, menu_url, course_name, self.pattern, self._sc_out_fp)
             singlecourse.work()
 
 
@@ -424,11 +427,11 @@ if __name__ == "__main__":
         mode = int(argv[2])
         rate = eval(argv[3])
         noans_num = eval(argv[4])
-    QA=QueryAns()
-    QA.noans_num=noans_num
+    QueryAns.noans_num=noans_num
+    PlayMedia.rate=rate
     try:
-        process = Login_courses_by_request(logindata, mode, rate)
-        # process = Login_courses_by_chrome(logindata,mode,rate)  #备用登录选项
+        process = Login_courses_by_request(logindata, mode)
+        # process = Login_courses_by_chrome(logindata,mode)  #备用登录选项
         process.work()
     except SystemExit:
         print(COLOR.NOTE, "QUIT!", COLOR.END)
