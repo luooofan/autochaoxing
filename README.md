@@ -82,12 +82,12 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
 
 - More information about update please go to  [FAQ](https://github.com/Luoofan/autochaoxing/blob/master/doc/FAQ.md)
 - 2020-4-29：
-- 支持ppt、音频任务点
+    - 支持ppt、音频任务点
 - 2020-4-24：
-- 新增**全局答题设置**选项`-n(--num)`  
-    - 默认值：5                                  可选值：0，1，2 ......
-    - 自动答题时,如果 未找到答案的题目数量 达到num值,则暂时保存答案,不进行自动提交
-  - 支持**自定义查题API优先级** 
+    - 新增**全局答题设置**选项`-n(--num)`  
+        - 默认值：5                                  可选值：0，1，2 ......
+        - 自动答题时,如果 未找到答案的题目数量 达到num值,则暂时保存答案,不进行自动提交
+    - 支持**自定义查题API优先级** 
 - 2020-4-6：
 
   - 发布了Docker2.0版本（有docker的小伙伴可以直接在docker里多开sk啦）
