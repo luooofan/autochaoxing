@@ -12,11 +12,12 @@ class StartDriver(object):
     def __enter__(self):
         self.driver=StartDriver.startchrome()
         driver_pid = self.driver.service.process.pid
+        self.chrome_pid=driver_pid
         if SYSTEM==0:
             try:
                 self.chrome_pid=(psutil.Process(driver_pid)).children()[0].pid
             except:
-                self.chrome_pid=driver_pid
+                pass
         return self
 
     def __exit__(self,exc_type,exc_val,exc_tb):
