@@ -81,6 +81,8 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
 ## 更新（**如果有帮到你的话请赏颗:star:吧**）
 
 - More information about update please go to  [FAQ](https://github.com/Luoofan/autochaoxing/blob/master/doc/FAQ.md)
+- 2020-4-30:
+    - 修复了`Ctrl-C`方式中断程序导致的chrome后台进程残留
 - 2020-4-29：
     - 支持ppt、音频任务点
 - 2020-4-24：

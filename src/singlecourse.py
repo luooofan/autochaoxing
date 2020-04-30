@@ -37,6 +37,7 @@ if SYSTEM==0:
 
 # 单账号单课程自动化
 class SingleCourse(object):
+
     # 实例化该类需传入3-5个参数：已经登录的driver，章节名称及对应的url，运行模式以及视频速率
     def __init__(self, driver, menu_url, course_name, pattern=0, out_fp=stdout):
         self.driver = driver
@@ -71,6 +72,8 @@ class SingleCourse(object):
         try:
             self.driver.get(self.menu_url)
             self._bs4_menu_page()
+        except KeyboardInterrupt:
+            raise KeyboardInterrupt
         except:
             # 未读消息通知框
             self.driver.get(self.menu_url)
@@ -103,6 +106,8 @@ class SingleCourse(object):
                 try:
                     title = item.h2.a.attrs['title']
                     #print('units:'+title)
+                except KeyboardInterrupt:
+                    raise KeyboardInterrupt
                 except:
                     continue
             else:
@@ -115,8 +120,10 @@ class SingleCourse(object):
                     if 'orange' in icon or 'blank' in icon: #未完成
                         try:
                             self.ch_se_lt.append((title, item.find(class_='articlename').a.attrs['href']))
-                        except:
-                            pass
+                        except KeyboardInterrupt:
+                            raise KeyboardInterrupt
+                except KeyboardInterrupt:
+                    raise KeyboardInterrupt
                 except:
                     pass
             try:
@@ -127,6 +134,8 @@ class SingleCourse(object):
                     output_lt.append((title,self._midprocess(sub_lt,num+1)))
                 else:
                     raise Exception
+            except KeyboardInterrupt:
+                raise KeyboardInterrupt
             except:
                 if title!='':
                     output_lt.append((title,[]))
@@ -155,10 +164,14 @@ class SingleCourse(object):
         try:
             bt = self.driver.find_element_by_xpath(
                 '//div[@class="left"]/div/div[@class="main"]/div[@class="tabtags"]/span[@title="章节测验"]')
+        except KeyboardInterrupt:
+            raise KeyboardInterrupt
         except:
             try:
                 bt = self.driver.find_element_by_xpath(
                     '//div[@class="left"]/div/div[@class="main"]/div[@class="tabtags"]/span[last()]')
+            except KeyboardInterrupt:
+                raise KeyboardInterrupt
             except:  # 还可能没有标签页
                 pass
 
@@ -167,6 +180,8 @@ class SingleCourse(object):
             self.driver.execute_script("arguments[0].click();", bt)
             # action_chains.move_to_element(bt)
             # bt.click()
+        except KeyboardInterrupt:
+            raise KeyboardInterrupt
         except:
             pass
 
@@ -180,6 +195,8 @@ class SingleCourse(object):
             print(COLOR.NOTE+' now go to question '+COLOR.END, file=self._out_fp)
             #log_fp.write(' now go to question \n')
             #print(7, end=" ")
+        except KeyboardInterrupt:
+            raise KeyboardInterrupt
         except:
             print(COLOR.NOTE, ' no questions,continue~', COLOR.END, file=self._out_fp)  # 未找到章节测验
             #log_fp.write(' no questions,continue~\n')
@@ -190,12 +207,16 @@ class SingleCourse(object):
             try:
                 task_num = self.driver.execute_script(
                     "window.scrollTo(0,document.body.scrollHeight);return document.getElementsByClassName('ans-job-icon').length")
+            except KeyboardInterrupt:
+                raise KeyboardInterrupt
             except:
                 sleep(1)
                 # task_num = self.driver.execute_script(
                 #    "return document.getElementsByClassName('ans-job-icon').length")
         try:
             self.driver.execute_script("window.scrollTo(0,0)")
+        except KeyboardInterrupt:
+            raise KeyboardInterrupt
         except:
             pass
         wait.until(EC.presence_of_all_elements_located((By.XPATH, '//div[@class="ans-cc"]')))
@@ -203,6 +224,8 @@ class SingleCourse(object):
             try:
                 ans_cc = self.driver.find_element_by_xpath('//div[@class="ans-cc"]')
                 h5_text = ans_cc.get_attribute('innerHTML')
+            except KeyboardInterrupt:
+                raise KeyboardInterrupt
             except:
                 sleep(1)
         task_road = PlayMedia.get_road(h5_text, task_num)  # bs4处理得到各个任务点路径
@@ -228,6 +251,8 @@ class SingleCourse(object):
                     print(COLOR.OK + ' Well! the task is already finished! continue~' + COLOR.END, file=self._out_fp)
                     #log_fp.write(' Well! the task is already finished! continue~' + '\n')
                     continue
+            except KeyboardInterrupt:
+                raise KeyboardInterrupt
             except:
                 pass
                 #icon_flag = 0  # 有的无任务点标识
@@ -239,6 +264,8 @@ class SingleCourse(object):
                 wait.until(EC.presence_of_element_located((By.XPATH, '//iframe[1]')))
                 iframe = self.driver.find_element_by_xpath('//iframe[1]')
                 self.driver.switch_to.frame(iframe)
+            except KeyboardInterrupt:
+                raise KeyboardInterrupt
             except:
                 print(COLOR.NOTE, ' no questions,continue~', COLOR.END, file=self._out_fp)  # 未找到章节测验
                 #log_fp.write(' no questions,continue~\n')
@@ -262,6 +289,8 @@ class SingleCourse(object):
                     data[key] = self.driver.execute_script('return document.getElementById(arguments[0]).value', key)
                     sleep(0.1)
                 self.courseID=data['courseId']+' '+data['classId'] 
+            except KeyboardInterrupt:
+                raise KeyboardInterrupt
             except:
                 self.courseID=""
             QA=QueryAns(self.driver.page_source,course=self.course_name,courseID=self.courseID)
@@ -284,6 +313,8 @@ class SingleCourse(object):
                             # print(i,j,ans_lt[i][j])
                             radio = self.driver.find_element_by_xpath(
                                 '//*[@id="ZyBottom"]/div' + '/div[4]' * i + '/div[2]/ul/li[' + str(ans_lt[i][j]) + ']/label/input')
+                        except KeyboardInterrupt:
+                            raise KeyboardInterrupt
                         except:
                             radio = self.driver.find_element_by_xpath(
                                 '//*[@id="ZyBottom"]/div' + '/div[4]' * i + '/div[2]/div/ul/li[' + str(ans_lt[i][j]) + ']/label/input')
@@ -291,6 +322,8 @@ class SingleCourse(object):
                         # action_chains.move_to_element(radio)
                         # radio.click()
                         sleep(1)
+            except KeyboardInterrupt:
+                raise KeyboardInterrupt
             except:
                 #print('==========', file=self._out_fp)
                 #print(traceback.format_exc(), file=self._out_fp)
@@ -309,6 +342,8 @@ class SingleCourse(object):
             try:
                 bn = self.driver.find_element_by_xpath('//*[@id="ZyBottom"]/div' + '/div[4]' *
                                                        (len(ans_lt) - 2) + '/div[5]/a['+str(ans_flag)+']')  # 多个题目
+            except KeyboardInterrupt:
+                raise KeyboardInterrupt
             except:
                 bn = self.driver.find_element_by_xpath('//*[@id="ZyBottom"]/div[2]/a['+str(ans_flag)+']')  # 只有一个题
             # action_chains.move_to_element(bn)
@@ -334,6 +369,8 @@ class SingleCourse(object):
                     self.driver.find_element_by_xpath('//input[@id="code"]').send_keys(numVerCode)
                     self.driver.find_element_by_xpath('//a[@id="sub"]').click()
                     sleep(1)
+            except KeyboardInterrupt:
+                raise KeyboardInterrupt
             except:
                 wait.until(EC.presence_of_element_located((By.XPATH, '//iframe[1]')))
                 iframe = self.driver.find_element_by_xpath('//iframe[1]')
@@ -354,9 +391,12 @@ class SingleCourse(object):
                 self.driver.execute_script("arguments[0].click();", bn)
                 print(COLOR.OK, 'questions of the section is finished! continue~', COLOR.END, file=self._out_fp)
                 #log_fp.write(' finish the questions ' + '\n')
+            except KeyboardInterrupt:
+                raise KeyboardInterrupt
             except:
-                print('=======', file=self._out_fp)
-                print(traceback.format_exc(), file=self._out_fp)
+                #print('=======', file=self._out_fp)
+                #print(traceback.format_exc(), file=self._out_fp)
+                send_err(traceback.format_exc())
                 print(COLOR.ERR, "  提交失败！", COLOR.END, file=self._out_fp)
                 #log_fp.write("  提交失败！" + '\n')
                 return 1
@@ -376,6 +416,8 @@ class SingleCourse(object):
                 #self._err_lt.append()  # 记录答题提交失败的章节
             else:
                 print(COLOR.OK, 'finished!', COLOR.END, file=self._out_fp)
+        except KeyboardInterrupt:
+                raise KeyboardInterrupt
         except:
             send_err(traceback.format_exc())
 
@@ -407,6 +449,8 @@ class SingleCourse(object):
             try:
                 PM=PlayMedia(self.driver,self._out_fp)
                 PM.play_media('https://mooc1-1.chaoxing.com'+ch_se[1])
+            except KeyboardInterrupt:
+                raise KeyboardInterrupt
             except:
                 send_err(traceback.format_exc())
 
@@ -453,6 +497,8 @@ class SingleCourse(object):
             try:
                 PM=PlayMedia(self.driver,self._out_fp)
                 PM.play_media('https://mooc1-1.chaoxing.com'+ch_se[1])
+            except KeyboardInterrupt:
+                raise KeyboardInterrupt
             except:
                 send_err(traceback.format_exc())
 

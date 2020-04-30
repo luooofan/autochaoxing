@@ -128,6 +128,22 @@
 
 
 
+## About Exit-关于中止程序运行
+
+- **请以正常方式退出程序  或者 `ctrl+C`方式中断程序运行**
+- windows环境下尽量不要直接关闭命令行窗口(`cmd`)，会导致chrome后台进程残留<br/>
+  如果直接关闭了cmd，并且想终止残留进程，可以：
+  
+  - 命令行窗口执行：`taskkill /F /IM chrome.exe`  来关闭**所有的chrome进程**（注意是所有的）
+
+  - 任务管理器找到后台chrome进程关闭
+  
+    （当然，如果对几十M内存没特殊要求的话， 完全可以忽略）
+
+ <br/>
+
+
+
 ## About Docker-关于Docker版
 
 - 具体使用教程请[移步项目地址](https://hub.docker.com/r/kimjungwha/autocx)
@@ -161,6 +177,10 @@
 
 # UPDATE DETAILS
 
+- 2020-4-30：
+
+  - 修复了ctrl-C方式中断程序导致的chrome后台进程残留
+  
 - 2020-4-29：
 
   - 优化 获取未完成任务点 模块

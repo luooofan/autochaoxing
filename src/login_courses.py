@@ -12,6 +12,7 @@
 # date     2020-03-27 21:01:12
 # FilePath\src\login_courses.py
 #
+import psutil
 from requests import post, Session, get
 from urllib.parse import quote
 from json import loads
@@ -28,48 +29,23 @@ from traceback import format_exc
 from subprocess import Popen
 from time import sleep
 from sys import argv,exit
-from os import system as os_system,path as os_path,mkdir
+from os import system as os_system,path as os_path,mkdir,popen as os_popen
 from singlecourse import SingleCourse as SC
 from publicfunc import Color, getlogindata, getlogindata_phone, send_err, SYSTEM
 from queryans import QueryAns
 from playmedia import PlayMedia
+from signal import signal, SIGINT, SIGTERM
+from selenium.webdriver.chrome.service import Service
+from startdriver import StartDriver
+
 COLOR = Color()
 
 if SYSTEM==0:
     from PIL import Image
-
-# 启动chrome
-# debugarg:拓展启动选项
-
-
-def startchrome(debugarg=''):
-    # 初始化
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument('log-level=3')
-    chrome_options.add_argument('–incognito')  # 启动无痕/隐私模式
-    chrome_options.add_argument('--ignore-certificate-errors')
-    chrome_options.add_argument('--ignore-ssl-errors')
-    chrome_options.add_argument("--mute-audio")
-    chrome_options.add_argument('--disable-background-networking')
-    chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument('--disable-dev-shm-usage')
-    chrome_options.add_argument('blink-settings=imagesEnabled=false') #不加载图片, 提升速度
-    chrome_options.add_argument('--disable-gpu')
-    if debugarg != '':
-        chrome_options.add_argument(debugarg)
-    ##  INFO = 0,
-    ##  WARNING = 1,
-    ##  LOG_ERROR = 2,
-    ##  LOG_FATAL = 3
-    ##  default is 0
-    if SYSTEM==0:
-        return webdriver.Chrome(options=chrome_options, executable_path=r"./chromedriver")
-    else:
-        return webdriver.Chrome(options=chrome_options)
-    #在哪个目录执行就要在该目录下有chromedriver
-
+    #from signal import CTRL_BREAK_EVENT
+    #from win32con import CTRL_CLOSE_EVENT
+else:
+    from signal import SIGHUP
 
 class Login_courses(object):
     # 登录基类,账户信息,刷课选项
@@ -88,6 +64,9 @@ class Login_courses(object):
 
 
 class Login_courses_by_request(Login_courses):
+
+    #driver=None
+
     def __init__(self, logindata, pattern=0):
         super().__init__(logindata, pattern)
         self.mysession = Session()
@@ -177,12 +156,9 @@ class Login_courses_by_request(Login_courses):
                 if course_id > 0 and course_id <= len(courses_lt):
                     return courses_lt[course_id-1]
                 elif course_id == 0:
-                    sleep(2)
-                    exit(0)
+                    return 0
                 else:
                     print(COLOR.ERR, ' invalid course order, please reinput!', COLOR.END)
-            except SystemExit:
-                exit(0)
             except:
                 print(COLOR.ERR, ' invalid course order, please reinput!', COLOR.END)
 
@@ -251,28 +227,34 @@ class Login_courses_by_request(Login_courses):
             courses_lt = self._login()
         cookies = utils.dict_from_cookiejar(self.mysession.cookies)
         # utils.dict_from_cookiejar(cookies)把cookiejar对象转换为字典对象
-        driver = startchrome()
+
+        global chrome_pid
+        with StartDriver() as chrome_driver:
         # '--remote-debugging-port=9222') # 配置chrome启动参数并启动
-        base_url = 'https://mooc1-1.chaoxing.com'
-        driver.get(base_url)
-        driver.delete_all_cookies()
-        for k, v in cookies.items():
-            driver.add_cookie({'name': k, 'value': v})
-            # print(str(k),str(v))
-        # print(driver.get_cookies())
-        # driver.get(base_url+goal_url)
-        if self.pattern == 1:
-            print(COLOR.OK+' LOGIN_FINISHED'+COLOR.END)
-            for url, name in courses_lt:
-                print(COLOR.NOTE+' Course:'+name+COLOR.END)
-                singlecourse = SC(driver, base_url+url, name, 0, self._sc_out_fp)
-                singlecourse.work()
-        else:
-            while(1):
-                goal = self._choose_course(courses_lt)
+            driver = chrome_driver.driver
+            chrome_pid = chrome_driver.chrome_pid
+            base_url = 'https://mooc1-1.chaoxing.com'
+            driver.get(base_url)
+            driver.delete_all_cookies()
+            for k, v in cookies.items():
+                driver.add_cookie({'name': k, 'value': v})
+                # print(str(k),str(v))
+            # print(driver.get_cookies())
+            # driver.get(base_url+goal_url)
+            if self.pattern == 1:
                 print(COLOR.OK+' LOGIN_FINISHED'+COLOR.END)
-                singlecourse = SC(driver, base_url+goal[0], goal[1], self.pattern, self._sc_out_fp)
-                singlecourse.work()
+                for url, name in courses_lt:
+                    print(COLOR.NOTE+' Course:'+name+COLOR.END)
+                    singlecourse = SC(driver, base_url+url, name, 0, self._sc_out_fp)
+                    singlecourse.work()
+            else:
+                while(1):
+                    goal = self._choose_course(courses_lt)
+                    if goal==0:
+                        exit(0)
+                    print(COLOR.OK+' LOGIN_FINISHED'+COLOR.END)
+                    singlecourse = SC(driver, base_url+goal[0], goal[1], self.pattern, self._sc_out_fp)
+                    singlecourse.work()
         if self._sc_out_fp !=None:
             self._sc_out_fp.flush()
             self._sc_out_fp.close()
@@ -283,6 +265,7 @@ class Login_courses_by_chrome(Login_courses):
     # pattern可选参数
     # 调用实例化对象的work方法：login->choose_course->select_model->call SC开始单课程的刷课
     # 只能 以机构方式登录 ，在内部手动确定
+    #driver=None
 
     def __init__(self, logindata ,pattern=0):
         super().__init__(logindata, pattern)
@@ -290,14 +273,17 @@ class Login_courses_by_chrome(Login_courses):
         self.__wait = None
 
     def work(self):
-        self.driver = startchrome()
-        self.__wait = WebDriverWait(self.driver, 20)
-        print(COLOR.DISPLAY, 'Lauching…', COLOR.END)
-        self._login()
-        # print(self.driver.current_url)
-        courses_lt = self._choose_course()
-        self._call_SC(courses_lt)
-        self.driver.quit()
+        global chrome_pid
+        with StartDriver() as chrome_driver:
+        #self.driver = startchrome()
+            self.driver = chrome_driver.driver
+            chrome_pid = chrome_driver.chrome_pid
+            self.__wait = WebDriverWait(self.driver, 20)
+            print(COLOR.DISPLAY, 'Lauching…', COLOR.END)
+            self._login()
+            # print(self.driver.current_url)
+            courses_lt = self._choose_course()
+            self._call_SC(courses_lt)
         if self._sc_out_fp !=None:
             self._sc_out_fp.flush()
             self._sc_out_fp.close()
@@ -381,9 +367,9 @@ class Login_courses_by_chrome(Login_courses):
                 print(COLOR.DISPLAY + '\t', valid_i, '、', name + COLOR.END)
                 valid_i += 1
             except:
-                print('=======')
-                print(format_exc())
-                pass
+                #print('=======')
+                #print(format_exc())
+                send_err(format_exc())
         return courses_lt
         #log_fp.write("course:" + str([x[0] for x in courses_lt]) + '\n')
         #log_fp.write("choose:" + course_name + '\n')
@@ -414,10 +400,28 @@ class Login_courses_by_chrome(Login_courses):
             singlecourse = SC(self.driver, menu_url, course_name, self.pattern, self._sc_out_fp)
             singlecourse.work()
 
+chrome_pid=0
+
+def check_exit(signalnum,frame):
+    global chrome_pid
+    #if SYSTEM==0 and chrome_pid!=0:
+    #    if signalnum==CTRL_CLOSE_EVENT:
+    #        os_popen('taskkill /F /T /PID '+str(chrome_pid))
+    chrome_pid=0
+    raise KeyboardInterrupt
 
 if __name__ == "__main__":
+
+    signal(SIGINT,check_exit)
+    signal(SIGTERM,check_exit)
+    if SYSTEM==0:
+        pass
+        #signal(CTRL_BREAK_EVENT,check_exit)
+        #signal(CTRL_CLOSE_EVENT,check_exit)
+    else:
+        signal(SIGHUP,check_exit)
+
     if len(argv) == 1:
-        #logindata = getlogindata()
         logindata = getlogindata_phone()[0:2]
         mode = 0
         rate = 1
@@ -427,18 +431,17 @@ if __name__ == "__main__":
         mode = int(argv[2])
         rate = eval(argv[3])
         noans_num = eval(argv[4])
+        
     QueryAns.noans_num=noans_num
     PlayMedia.rate=rate
+
     try:
         process = Login_courses_by_request(logindata, mode)
         # process = Login_courses_by_chrome(logindata,mode)  #备用登录选项
         process.work()
-    except SystemExit:
-        print(COLOR.NOTE, "QUIT!", COLOR.END)
-    except:
-        try:
-            print(format_exc())
-            send_err(format_exc())
-        except:
-            print(COLOR.ERR, "ERROR! QUIT!", COLOR.END)
-    
+    except [SystemExit,KeyboardInterrupt]:
+        if chrome_pid!=0:
+            if SYSTEM == 0:
+                os_popen('taskkill /F /T /PID '+str(chrome_pid))
+            else:
+                os_popen('kill -9 chromium')

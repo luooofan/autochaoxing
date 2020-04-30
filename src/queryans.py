@@ -154,6 +154,8 @@ class QueryAns(object):
             ret_da = literal_eval(requestget(url).text)
             # print("que:"+ret_da['tm']+'\n'+"ans:"+ret_da['da'])
             return ret_da['da']
+        except KeyboardInterrupt:
+            raise KeyboardInterrupt
         except:
             return 0
 
@@ -221,8 +223,12 @@ class QueryAns(object):
                     # print(res['data'])
                     try:
                         return res['data']
+                    except KeyboardInterrupt:
+                        raise KeyboardInterrupt
                     except:
                         return res['answer']
+                except KeyboardInterrupt:
+                    raise KeyboardInterrupt
                 except:
                     return 0
             #    except:
@@ -277,6 +283,8 @@ class QueryAns(object):
                 else:
                     ans += item+'#'
             return ans
+        except KeyboardInterrupt:
+            raise KeyboardInterrupt
         except:
             return 0
 
@@ -289,6 +297,8 @@ class QueryAns(object):
                 return ret[index+2:]
             else:
                 return 0
+        except KeyboardInterrupt:
+            raise KeyboardInterrupt
         except:
             return 0
 

@@ -5,7 +5,7 @@ from selenium.webdriver.common.by import By
 from time import sleep
 from bs4 import BeautifulSoup
 from sys import stdout
-from publicfunc import Color
+from publicfunc import Color,send_err
 from re import search as re_search
 from traceback import format_exc
 
@@ -32,25 +32,23 @@ class PlayMedia(object):
 
         self.driver.get(url)
         # 点击视频确保进入视频界面（若出现问题增多可以改换bs4或者re分析）
+        media_tag = ['@title="视频"', '@title="视频 "', '@title="微课"', 'last()-1']
         try:
             wait.until(EC.presence_of_element_located(
                 (By.XPATH, '//div[@class="left"]/div/div[@class="main"]/div[@class="tabtags"]')))
-            try:
-                bt = self.driver.find_element_by_xpath(
-                    '//div[@class="left"]/div/div[@class="main"]/div[@class="tabtags"]/span[@title="视频"]')
-            except:
+            for tag in media_tag:
                 try:
                     bt = self.driver.find_element_by_xpath(
-                        '//div[@class="left"]/div/div[@class="main"]/div[@class="tabtags"]/span[@title="视频 "]')
+                        '//div[@class="left"]/div/div[@class="main"]/div[@class="tabtags"]/span['+tag+']')
+                    break
+                except KeyboardInterrupt:
+                    raise KeyboardInterrupt
                 except:
-                    try:  # 无标题视频
-                        bt = self.driver.find_element_by_xpath(
-                            '//div[@class="left"]/div/div[@class="main"]/div[@class="tabtags"]/span[@title="微课"]')
-                    except:
-                        bt = self.driver.find_element_by_xpath(
-                            '//div[@class="left"]/div/div[@class="main"]/div[@class="tabtags"]/span[last()-1]')
+                    pass
             sleep(5)
             self.driver.execute_script("arguments[0].scrollIntoView();arguments[0].click();", bt)
+        except KeyboardInterrupt:
+            raise KeyboardInterrupt
         except:
             pass
         
@@ -59,6 +57,8 @@ class PlayMedia(object):
             switch_btn=self.driver.find_element_by_xpath('//div[@class="switchbtn"]')
             action_chains.move_to_element(switch_btn)
             switch_btn.click()
+        except KeyboardInterrupt:
+            raise KeyboardInterrupt
         except:
             pass
 
@@ -67,6 +67,8 @@ class PlayMedia(object):
             iframe = self.driver.find_element_by_xpath('//iframe')
             self.driver.switch_to.frame(iframe)
             sleep(1)
+        except KeyboardInterrupt:
+            raise KeyboardInterrupt
         except:
             print(COLOR.NOTE, ' no videos,continue~', COLOR.END, file=self._out_fp)
             #log_fp.write(' no videos,continue~\n')
@@ -76,11 +78,15 @@ class PlayMedia(object):
         try:
             video_num = self.driver.execute_script(
                 "window.scrollTo(0,document.body.scrollHeight);return document.getElementsByClassName('ans-job-icon').length")
+        except KeyboardInterrupt:
+            raise KeyboardInterrupt
         except:
             video_num = self.driver.execute_script(
                 "return document.getElementsByClassName('ans-job-icon').length")
         try:
             self.driver.execute_script("window.scrollTo(0,0)")
+        except KeyboardInterrupt:
+            raise KeyboardInterrupt
         except:
             pass
 
@@ -89,9 +95,10 @@ class PlayMedia(object):
         for i in range(3):
             try:
                 h5_text = ans_cc.get_attribute('innerHTML')
+            except KeyboardInterrupt:
+                raise KeyboardInterrupt
             except:
                 sleep(1)
-                pass
         video_road = PlayMedia.get_road(h5_text, video_num)  # bs4处理得到各个视频路径
 
         print(COLOR.DISPLAY, ' there are ' + str(video_num) + ' media in this section:', COLOR.END, file=self._out_fp)
@@ -110,6 +117,8 @@ class PlayMedia(object):
                     iframe = self.driver.find_element_by_xpath('//iframe')
                     self.driver.switch_to.frame(iframe)
                     break
+                except KeyboardInterrupt:
+                    raise KeyboardInterrupt
                 except:
                     sleep(i+0.5)
 
@@ -134,6 +143,8 @@ class PlayMedia(object):
                     self._end = 0
                     # 如果视频任务已完成,访问下一个视频
                     continue
+            except KeyboardInterrupt:
+                raise KeyboardInterrupt
             except:
                 #print(traceback.format_exc())
                 icon_flag = 0
@@ -149,6 +160,8 @@ class PlayMedia(object):
                     iframe_flag = 1
                     sleep(2)
                     break
+                except KeyboardInterrupt:
+                    raise KeyboardInterrupt
                 except:
                     #print(traceback.format_exc())
                     # log
@@ -165,6 +178,8 @@ class PlayMedia(object):
                     self.driver.execute_script("document.getElementsByClassName('mkeRbtn')[0].click()")
                     sleep(1)
                 continue
+            except KeyboardInterrupt:
+                raise KeyboardInterrupt
             except:
                 pass
 
@@ -188,8 +203,11 @@ class PlayMedia(object):
                     sleep(1)
                     #self.driver.execute_script("document.querySelector('video').load();")
                     break
+                except KeyboardInterrupt:
+                    raise KeyboardInterrupt
                 except:
-                    print(format_exc())
+                    #print(format_exc())
+                    send_err(format_exc())
                     sleep(i+1)
             #print(3)
 
@@ -206,6 +224,8 @@ class PlayMedia(object):
                             "document.querySelector('audio').playbackRate=arguments[0];document.querySelector('audio').defaultPlaybackRate=arguments[0]", PlayMedia.rate)
                         #self.driver.execute_script("document.querySelector('audio').load();")
                         break
+                    except KeyboardInterrupt:
+                        raise KeyboardInterrupt
                     except:
                         sleep(i+1)
             if audio == 1:
@@ -251,7 +271,8 @@ class PlayMedia(object):
                         "return document.querySelector(arguments[0]).currentTime", media_type)
                     need_tm = total_tm-int(now_tm)
                     self.driver.execute_script("document.querySelector(arguments[0]).play();", media_type)
-
+                except KeyboardInterrupt:
+                    raise KeyboardInterrupt
                 except:
                     pass
                 # 交互
@@ -349,13 +370,19 @@ class PlayMedia(object):
                                 try:
                                     while 1:
                                         self.driver.switch_to_alert().accept()
+                                except KeyboardInterrupt:
+                                    raise KeyboardInterrupt
                                 except:
                                     sleep(0.3)
                                     pre += 1
+                            except KeyboardInterrupt:
+                                raise KeyboardInterrupt
                             except:
                                 #log_fp.write('      solve the question\n')
                                 sleep(10)
                                 break
+                except KeyboardInterrupt:
+                    raise KeyboardInterrupt
                 except:  # 10s延时
                     sleep(10)
 
