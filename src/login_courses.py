@@ -12,7 +12,7 @@
 # date     2020-03-27 21:01:12
 # FilePath\src\login_courses.py
 #
-import psutil
+
 from requests import post, Session, get
 from urllib.parse import quote
 from json import loads
