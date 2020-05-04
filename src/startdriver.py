@@ -24,7 +24,10 @@ class StartDriver(object):
         if SYSTEM==0:
             os_popen('taskkill /F /T /PID '+str(self.chrome_pid))
         else:
-            os_popen('kill -9 chromium')
+            pass
+            #self.driver.service.process.kill()
+            #os_killpg(self.chrome_pid,9)
+            #os_popen('kill -9 chromium')
         '''
         try:
             self.driver.quit()

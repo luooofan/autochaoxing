@@ -3,9 +3,9 @@
 # Author       : Luoofan
 # Date         : 2020-03-11 09:15:44
 # LastEditorsPlease set LastEditors
-# LastEditTime2020-04-24 09:26:56
+# LastEditTime2020-05-04 14:06:10
 # Description  :SearchAns
-# FilePath\source_code\SearchAns.py
+# FilePath\src\SearchAns.py
 #
 
 import tkinter as tk
@@ -51,15 +51,17 @@ def query_ans_normal(ev=None):
     queText.delete('1.0', 'end')'''
 
 def query_ans_normal(ev=None):
-    global res
+    #global res
     infodic = {
         'question': str(queText.get('0.0', 'end')),
         'type': '其他',
         'course':'',
         'courseID': ''
     }
+    resText.delete('1.0','end')
     QA=QueryAns(**infodic)
-    res.set(str(QA.work()))
+    #res.set(str(QA.work()))
+    resText.insert('1.0', str(QA.work()))
     queText.delete('1.0', 'end')
 
 
@@ -70,9 +72,11 @@ go = ttk.Button(monty, text='Go', width=5, command=query_ans_normal)
 go.grid(column=2, row=0, rowspan=2, sticky="n" + "s", padx=5)
 # tab1 output
 ttk.Label(monty, text="结果:", font=('Arial', 12), width=5).grid(column=0, row=3, padx=5, pady=5)
-res = tk.StringVar()
-tk.Label(monty, height=5, textvariable=res, font=('Arial', 12), width=45, wraplength=400, justify='left', anchor='w').grid(
-    column=1, row=3, rowspan=3, columnspan=2, pady=5, sticky="n"+"s")
+#res = tk.StringVar()
+resText = tk.Text(monty,font=('Arial', 12), width=46, height=5)
+resText.grid(column=1, row=3, rowspan=3, columnspan=2, pady=5, sticky="n"+"s")
+#tk.Label(monty, height=5, textvariable=res, font=('Arial', 12), width=45, wraplength=400, justify='left', anchor='w').grid(
+#    column=1, row=3, rowspan=3, columnspan=2, pady=5, sticky="n"+"s")
 #for child in monty.winfo_children():
 #    child.grid_configure(padx=5, pady=1)
 

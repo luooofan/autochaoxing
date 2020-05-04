@@ -46,6 +46,7 @@ if SYSTEM==0:
     #from win32con import CTRL_CLOSE_EVENT
 else:
     from signal import SIGHUP
+    from os import killpg,getppid
 
 class Login_courses(object):
     # 登录基类,账户信息,刷课选项
@@ -255,6 +256,8 @@ class Login_courses_by_request(Login_courses):
                     print(COLOR.OK+' LOGIN_FINISHED'+COLOR.END)
                     singlecourse = SC(driver, base_url+goal[0], goal[1], self.pattern, self._sc_out_fp)
                     singlecourse.work()
+                    if SYSTEM==1:
+                        break
         if self._sc_out_fp !=None:
             self._sc_out_fp.flush()
             self._sc_out_fp.close()
@@ -439,9 +442,10 @@ if __name__ == "__main__":
         process = Login_courses_by_request(logindata, mode)
         # process = Login_courses_by_chrome(logindata,mode)  #备用登录选项
         process.work()
-    except [SystemExit,KeyboardInterrupt]:
+    finally:
         if chrome_pid!=0:
             if SYSTEM == 0:
                 os_popen('taskkill /F /T /PID '+str(chrome_pid))
             else:
-                os_popen('kill -9 chromium')
+                #os_popen('kill -9 '+str(chrome_pid))
+                killpg(getppid(),9)

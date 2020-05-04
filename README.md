@@ -1,6 +1,6 @@
 # autochaoxing
 
-超星学习通无界面刷课脚本，通过selenium库+bs4库+正则处理，实现看视频+章节测试全自动，无需打开浏览器即可刷课（还有docker版本哦:smile:）
+超星学习通无界面刷课脚本，通过selenium+bs4+正则处理，实现看视频+章节测试全自动，无需打开浏览器即可刷课（还有docker版本哦:smile:）
 <hr/>
 
 ## 使用
@@ -16,7 +16,7 @@
 - 安装依赖：命令行执行<br/>
 `pip install -r requirements.txt`
   
-- 在**logindata_phone.txt**或**logindata.txt**中按提示填写登录信息，并把提示信息删除（推荐使用前者）
+- 在**logindata_phone.txt**或**logindata.txt**中按提示填写登录信息，并把提示信息删除
 
 - 查看帮助信息 ，选择合适的参数开始刷课<br/>
   `python autocx.py -h`     
@@ -33,7 +33,7 @@
 
 ## 关于autocx(Docker)
 
-autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.com/KimJungWha)制作了这个开箱即用的镜像
+autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.com/KimJungWha)制作了这个开箱即用的镜像<br/>
 详细信息和说明请[移步项目地址](https://hub.docker.com/r/kimjungwha/autocx)
 
 <br/>
@@ -49,19 +49,19 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
 - [x] 支持ppt、音频任务点
 - [x] 自动答章节测试题（**单选、多选、判断**）
 - [x] **多种模式：全自动，单课程自动，控制模式**
-- [x] **倍速**
+- [x] **视频倍速**
 - [x] 自定义查题API优先级
 - [x] 自定义章节测试自动提交限制
-- [x] **只看视频不答题**
+- [x] 只看视频不答题
 
 <br/>
 
 ## 暂不支持&ToDo
 
- - [ ] 非视频、章节测试的任务点
+ - [ ] 【非视频、章节测试、ppt、音频】的任务点
+ - [ ] 【非选择判断类题目】的自动答题
  - [ ] 自动考试
  - [ ] ~~自动填写登录验证码~~（手机登录不需要填写）
-   之后会尝试写图像识别接口解决该问题
 
 <br/>
 
@@ -80,9 +80,9 @@ autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.
 
 ## 更新（**如果有帮到你的话请赏颗:star:吧**）
 
-- More information about update please go to  [FAQ](https://github.com/Luoofan/autochaoxing/blob/master/doc/FAQ.md)
-- 2020-4-30:
-    - 修复了`Ctrl-C`方式中断程序导致的chrome后台进程残留
+- 详细更新信息请见-->[FAQ](https://github.com/Luoofan/autochaoxing/blob/master/doc/FAQ.md)
+- 2020-5-4：
+    - 发布查题程序（`exe`）  [通道](https://github.com/Luoofan/autochaoxing/releases)
 - 2020-4-29：
     - 支持ppt、音频任务点
 - 2020-4-24：
