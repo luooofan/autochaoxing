@@ -295,7 +295,7 @@ class QueryAns(object):
             return 0
 
     def BlogVCing_API(self):
-        url = 'http://blog.vcing.top/api.php?key=chaoxing&q='+re.sub(r'[ \t\n]','',self.que_ori)
+        url = 'http://test.vcing.top:81/api.php?key=chaoxing&q='+re.sub(r'[ \t\n]','',self.que_ori)
         try:
             ret=requestget(url).text
             index=ret.find('答案')
