@@ -125,9 +125,12 @@ class QueryAns(object):
             'wangketiku.com': self.WangKeTiKu_API
         }
         url_order=sorted(QueryAns.api_priority.items(),key=lambda x:x[1],reverse=False)
+        #print(url_order)  [('',),('',)...]
         res=""
         for index in range(0,len(url_order)):
+            #print(url_order[index][0])
             res=api_dic[url_order[index][0]]()
+            #print(res)
             if res==0 or res=='':
                 res=0
                 continue
@@ -149,9 +152,11 @@ class QueryAns(object):
 
     def SearchAns_GUI_API(self):
         # 以原问题访问准确率更高___h5源码实例化的时候尽量不使用该方式
-        url = 'http://api.xmlm8.com/tk.php?t='+parse.quote(re.sub(r'[ \t\n]','',self.que_ori))
+        #url = 'http://api.xmlm8.com/tk.php?t='+parse.quote(re.sub(r'[ \t\n]','',self.que_ori))
+        url = 'http://api.xmlm8.com/tk.php?t='+parse.quote(self.que_ori)
         try:
             ret_da = literal_eval(requestget(url).text)
+            #print(ret_da)
             # print("que:"+ret_da['tm']+'\n'+"ans:"+ret_da['da'])
             return ret_da['da']
         except KeyboardInterrupt:
@@ -161,8 +166,8 @@ class QueryAns(object):
 
     def GreasyFork_Group_API(self):
         # url = 'http://mooc.forestpolice.org/cx/0/' #WYN
-        url2 = 'http://voice.fafads.cn/xxt/api.php'
-        url1 = 'http://129.204.175.209/cha_xin.php'
+        url2 = 'http://voice.fafads.cn/xxt/api.php'  
+        #url1 = 'http://129.204.175.209/cha_xin.php'
         url3 = 'http://cx.icodef.com/wyn-nb'
 
         # def _prepare_query(index):
@@ -197,9 +202,9 @@ class QueryAns(object):
             'question': self.que,  # 不能用parse.quote()和goal
             'type': str(type)
         }
-        data1 = {
-            'content': self.que
-        }
+        #data1 = {
+        #    'content': self.que
+        #}
         data3 = {
             'question': self.que
         }
@@ -244,11 +249,12 @@ class QueryAns(object):
             return 0
 
         dic = {
-            '2':(url1,data1),
-            '3':(url2,data2),
+            #'2':(url1,data1),
+            '2':(url2,data2),
             '1':(url3,data3)
         }
-        for index in range(1,4):
+        for index in range(1,3):
+            #print(index)
             res=post_url(dic[str(index)][0],dic[str(index)][1])
             for item in QueryAns.noans_flag:
                 if item in str(res):
@@ -323,7 +329,7 @@ class QueryAns(object):
             self.que_lt[i][1] = re.sub(r'[(](.*?)[)]', '()', self.que_lt[i][1])
             self.que_lt[i][1] = re.sub(r'&nbsp;', '', self.que_lt[i][1])
             self.que_lt[i][1] = re.sub(r'\uff08(.*?)\uff09', '', self.que_lt[i][1])
-            self.que_lt[i][0] = re.sub(r' \t\n', '', self.que_lt[i][0])
+            self.que_lt[i][0] = re.sub(r'[ \t\n]+', '', self.que_lt[i][0])
 
 
 def test():
