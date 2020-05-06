@@ -182,6 +182,12 @@
 
 # UPDATE DETAILS
 
+- 2020-5-6:
+
+  - 提高了原`SearchAns`查题接口的准确率
+  - 取消一个失效的查题接口
+  - 更新`SearchAns.exe`
+
 - 2020-5-4：
 
   - 修复了docker版本下chromium进程残留的bug
