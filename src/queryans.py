@@ -19,9 +19,8 @@ class QueryAns(object):
         'greasyfork': 1,  
         'wangketiku.com': 2
     }
-
     noans_num = 5
-    noans_flag=['暂未搜','暂无答案','奋力撰写','收录中','日再来','李恒道']
+    noans_flag=['暂未搜','暂无答案','奋力撰写','收录中','日再来','李恒','未搜索到','未搜到']
 
     def __new__(cls, *args, **kwargs):
         if cls.instance is None:
@@ -330,6 +329,9 @@ class QueryAns(object):
             self.que_lt[i][1] = re.sub(r'&nbsp;', '', self.que_lt[i][1])
             self.que_lt[i][1] = re.sub(r'\uff08(.*?)\uff09', '', self.que_lt[i][1])
             self.que_lt[i][0] = re.sub(r'[ \t\n]+', '', self.que_lt[i][0])
+            self.que_lt[i][1] = re.sub(r'[ \t\n]+', '', self.que_lt[i][1])
+            self.que_lt[i][1] = re.sub(r'[\。]', '', self.que_lt[i][1])
+        #print(self.que_lt)
 
 
 def test():
