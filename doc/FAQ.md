@@ -182,6 +182,10 @@
 
 # UPDATE DETAILS
 
+- 2020-5-7:
+
+  - 提高了`GreasyFork组`查题接口的准确率
+  
 - 2020-5-6:
 
   - 提高了原`SearchAns`查题接口的准确率
