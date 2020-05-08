@@ -13,10 +13,11 @@ class QueryAns(object):
     pd_opt = ['正确', '错误', '√', '×', '对', '错', '是', '否', 'T', 'F', 'ri', 'wr', 'true', 'false']
     instance = None
 
-    api_priority={#越低越前
+    api_priority={
+        #接口对应取值越低 优先级越高 会优先查询该接口 (取值范围不限)
         'api.xmlm8.com': 4,
-        'blog.vcing.top': 3,
-        'greasyfork': 1,  
+        'blog.vcing.top': 3.5,
+        'greasyfork': -1,  
         'wangketiku.com': 2
     }
     noans_num = 5
