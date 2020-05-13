@@ -64,7 +64,7 @@ class StartDriver(object):
         chrome_options.add_argument('--disable-dev-shm-usage')
         chrome_options.add_argument('blink-settings=imagesEnabled=false')  # 不加载图片, 提升速度
         chrome_options.add_argument('--disable-gpu')
-        chrome_options.add_argument('--single-process')
+        #chrome_options.add_argument('--single-process')
         chrome_options.add_argument('--disable-plugins')
         if debugarg != '':
             chrome_options.add_argument(debugarg)

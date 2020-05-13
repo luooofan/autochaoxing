@@ -184,6 +184,10 @@
 
 # UPDATE DETAILS
 
+- 2020-5-13：
+
+  - 修复了部分win10不支持chrome启动选项(`single-process`)的bug
+
 - 2020-5-7:
 
   - 提高了`GreasyFork组`查题接口的准确率
