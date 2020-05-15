@@ -65,6 +65,8 @@ class SingleCourse(object):
             self._perform_model0()  # auto模式
         elif self.pattern == 2:
             self._perform_model2()  # control模式
+        elif self.pattern==3:
+            self._perform_model3()
         self._out_fp.flush()
 
     def _get_chapter_section(self):
@@ -295,6 +297,9 @@ class SingleCourse(object):
                 self.courseID=""
             QA=QueryAns(self.driver.page_source,course=self.course_name,courseID=self.courseID)
             ans_flag,ans_lt=QA.work()
+            #print(ans_flag)
+            #print(ans_lt)
+            #sleep(20)
 
             # print(ans_lt)
             # 开始答题
@@ -398,7 +403,6 @@ class SingleCourse(object):
                 #print(traceback.format_exc(), file=self._out_fp)
                 send_err(traceback.format_exc())
                 print(COLOR.ERR, "  提交失败！", COLOR.END, file=self._out_fp)
-                #log_fp.write("  提交失败！" + '\n')
                 return 1
             self.driver.switch_to.parent_frame()
             self.driver.switch_to.parent_frame()
@@ -469,6 +473,35 @@ class SingleCourse(object):
         # 递归调用
         return self._perform_model0()
 
+    def _perform_model3(self):
+        self._get_chapter_section()
+        last_time = time.time()-120  # 答题间隔控制,减少答题验证码的弹出
+        ch_se_st=input('please input ch_se:')
+        
+        ch_se_flag=0
+        # 遍历每个未完成章节
+        for ch_se in self.ch_se_lt:
+            if ch_se_st in ch_se[0]:
+                ch_se_flag=1
+            if ch_se_flag==0:
+                continue 
+            print(COLOR.DISPLAY + 'now turns to '+str(ch_se[0]) + COLOR.END, file=self._out_fp)
+            try:
+                PM = PlayMedia(self.driver, self._out_fp)
+                PM.play_media('https://mooc1-1.chaoxing.com'+ch_se[1])
+            except KeyboardInterrupt:
+                raise KeyboardInterrupt
+            except:
+                send_err(traceback.format_exc())
+
+            if self._que_server_flag == 1:
+                # 答题间隔控制
+                now_time = time.time()
+                if now_time-last_time < 120:
+                    sleep(120-(now_time-last_time))
+                last_time = time.time()
+                self._go_que_task()
+                
     ##
     # brief    单课程控制模式
     # details  需要输入 终止章节信息

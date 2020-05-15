@@ -83,7 +83,7 @@ def main():
     rate=1
     mode="single"
     noans_num=5
-    opt_mode = ['single', 'fullauto', 'control']
+    opt_mode = ['single', 'fullauto', 'control','debug']
     for opt_name,opt_value in opts:
         if opt_name in ('-h','--help'):
             print('''

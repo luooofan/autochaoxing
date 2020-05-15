@@ -21,7 +21,7 @@ class QueryAns(object):
         'wangketiku.com': 2
     }
     noans_num = 5
-    noans_flag=['暂未搜','暂无答案','奋力撰写','收录中','日再来','李恒','未搜索到','未搜到']
+    noans_flag=['暂未搜','暂无答案','奋力撰写','收录中','日再来','李恒','未搜索到','未搜到','数据库异常','请输入题目']
 
     def __new__(cls, *args, **kwargs):
         if cls.instance is None:
@@ -101,17 +101,19 @@ class QueryAns(object):
                     if opt in ans:
                         now_que_order.append(ansopt.index(opt) + 1)
                 if len(now_que_order) == 0:
-                    now_que_order.append(1)  # 无匹配答案默认选A
+                    now_que_order.append(0)  # 无匹配答案默认选A
+                    self.no_ans_num += 1
                 ans_order.append(now_que_order)
                 # if ansopt.count(ans) == 1:
                 #    ans_order.append(ansopt.index(ans)+1)
                 # else:
                 #    ans_order.append(1)
 
+        #print("no_ans_num:"+str(self.no_ans_num)+' '+str(QueryAns.noans_num))
         if self.no_ans_num < QueryAns.noans_num:
             for index in range(0,len(ans_order)):
                 if ans_order[index]==[0]:
-                    ans_order[index]==[1]
+                    ans_order[index]=[1]
             return 2,ans_order
         else:
             return 1,ans_order  # 返回一个列表,列表内的每一项是每个题目的答案列表
@@ -144,6 +146,7 @@ class QueryAns(object):
                 continue
             else:
                 break
+        #print(res)
         if res != 0:
             send_que('courseID:'+self.courseID+' course:'+self.course + ' que:' + self.que + '  ans:' + str(res) + '\n')
         else:
