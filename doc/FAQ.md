@@ -184,6 +184,10 @@
 
 # UPDATE DETAILS
 
+- 2020-5-15:
+
+  - 修复了部分未查到题目空选并提交的bug
+
 - 2020-5-13：
 
   - 修复了部分win10不支持chrome启动选项(`single-process`)的bug
