@@ -170,7 +170,7 @@ class QueryAns(object):
     def GreasyFork_Group_API(self):
         # url = 'http://mooc.forestpolice.org/cx/0/' #WYN
         url2 = 'http://voice.fafads.cn/xxt/api.php'  
-        #url1 = 'http://129.204.175.209/cha_xin.php'
+        #url1 = 'http://cx.beaa.cn/cx.php'
         url3 = 'http://cx.icodef.com/wyn-nb'
 
         # def _prepare_query(index):
@@ -209,7 +209,8 @@ class QueryAns(object):
         #    'content': self.que
         #}
         data3 = {
-            'question': self.que
+            'question': self.que,
+            'type':str(type)
         }
         def post_url(url, data):
             headers = {
@@ -217,7 +218,7 @@ class QueryAns(object):
             }
             timeout = 30
             r = post(url, data, headers=headers, timeout=timeout)
-            # print(r.text)
+            #print(r.text)
             status = r.status_code  # int
             # 200 且 code=1 响应成功
             # 200 且 code！=1 服务器繁忙
@@ -228,7 +229,7 @@ class QueryAns(object):
                     res = literal_eval(r.text.strip(' \n'))
                     # if res['code'] == 1:
                     #    print('   响应成功\n')
-                    # print(res['data'])
+                    #print(res['data'])
                     try:
                         return res['data']
                     except KeyboardInterrupt:
@@ -252,13 +253,16 @@ class QueryAns(object):
             return 0
 
         dic = {
-            #'2':(url1,data1),
-            '2':(url2,data2),
-            '1':(url3,data3)
+            #'1':(url1,data1),
+            '3':(url3,data3),
+            '2':(url2,data2)
         }
-        for index in range(1,3):
-            #print(index)
-            res=post_url(dic[str(index)][0],dic[str(index)][1])
+        #for index in range(1,len(dic)):
+        #    print(dic[str(index)][0])
+        #    res=post_url(dic[str(index)][0],dic[str(index)][1])
+        for value in dic.values():
+            #print(value[0])
+            res=post_url(value[0],value[1])
             for item in QueryAns.noans_flag:
                 if item in str(res):
                     res = 0
@@ -300,7 +304,7 @@ class QueryAns(object):
     def BlogVCing_API(self):
         url = 'http://test.vcing.top:81/api.php?key=chaoxing&q='+re.sub(r'[ \t\n]','',self.que_ori)
         try:
-            ret=requestget(url).text
+            ret=requestget(url,timeout=10).text
             index=ret.find('答案')
             if index!=-1:
                 return ret[index+2:]
