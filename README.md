@@ -34,7 +34,8 @@
 ## 关于autocx(Docker)
 
 autocx是autochaoxing的**Docker**版本，主要由[KimJungWha](https://github.com/KimJungWha)制作了这个开箱即用的镜像<br/>
-详细信息和说明请[移步项目地址](https://hub.docker.com/r/kimjungwha/autocx)
+详细信息和说明请[移步项目地址](https://hub.docker.com/r/kimjungwha/autocx)<br/><br/>
+[Rainy season boy](https://github.com/chenaidairong)与[KimJungWha](https://github.com/KimJungWha)分别制作了**Linux下自动安装docker与运行docker镜像的sh脚本**，详见[issues#8](https://github.com/Luoofan/autochaoxing/issues/8)，欢迎测试与反馈
 
 <br/>
 
