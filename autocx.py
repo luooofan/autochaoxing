@@ -31,6 +31,8 @@ def perform(mode,rate,noans_num):
 
     # 读取 手机号+密码 弹出多个弹窗
     lt_phone = getlogindata_phone()
+    lt = getlogindata()
+
     for i in range(len(lt_phone)//2):
         logindata = ""
         try:
@@ -44,12 +46,14 @@ def perform(mode,rate,noans_num):
             Popen('start cmd /k python ./src/login_courses.py '+logindata[0:-1]+' '+str(mode)+' '+str(rate)+' '+str(noans_num), shell=True)
         else:
             args_lt = ['python3', './src/login_courses.py', logindata[0:-1], str(mode), str(rate), str(noans_num), '&']
+            if i==len(lt_phone)//2-1 and len(lt)//3==0:
+                args_lt = ['python3', './src/login_courses.py', logindata[0:-1], str(mode), str(rate), str(noans_num),'last','&']
             sub_ps = StartAutoCX(args_lt)
             sub_ps.work()
         sleep(2)
 
     # 读取 机构账号 需要输入验证码 每次处理一个 按任意键后处理下一个
-    lt = getlogindata()
+    
     for i in range(len(lt)//3):
         logindata = ""
         try:
@@ -64,6 +68,9 @@ def perform(mode,rate,noans_num):
             input(COLOR.OK+' please press any key to continue'+COLOR.END)
         else:
             args_lt = ['python3', './src/login_courses.py', logindata[0:-1], str(mode), str(rate), str(noans_num), '&']
+            if i==len(lt)//3-1:
+                args_lt = ['python3', './src/login_courses.py',
+                           logindata[0:-1], str(mode), str(rate), str(noans_num), 'last','&']
             sub_ps = StartAutoCX(args_lt)
             sub_ps.work()
             sleep(2)

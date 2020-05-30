@@ -282,7 +282,7 @@ class QueryAns(object):
         try:
             ret = literal_eval(requestget(url, headers=headers).text)['answer']
             # print(ret)
-            ret = re.sub('[ \t\n\：]', '', ret)
+            ret = re.sub('[ \t\n：]', '', ret)
             ret = re.sub(r'题目(.+?)答案', '', ret)
             index = ret.rfind('选项')
             if index != -1:

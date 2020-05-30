@@ -448,4 +448,5 @@ if __name__ == "__main__":
                 os_popen('taskkill /F /T /PID '+str(chrome_pid))
             else:
                 #os_popen('kill -9 '+str(chrome_pid))
-                killpg(getppid(),9)
+                if len(argv)==6 and argv[5]=='last':
+                    killpg(getppid(),9)
