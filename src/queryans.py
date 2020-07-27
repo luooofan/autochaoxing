@@ -15,10 +15,10 @@ class QueryAns(object):
 
     api_priority={
         #接口对应取值越低 优先级越高 会优先查询该接口 (取值范围不限)
-        'api.xmlm8.com': 4,
-        'blog.vcing.top': 3.5,
-        'greasyfork': -1,  
-        'wangketiku.com': 2
+        'api.xmlm8.com': 2.5,
+        'blog.vcing.top': -1,
+        'greasyfork': 0,  
+        #'wangketiku.com': 
     }
     noans_num = 5
     noans_flag=['暂未搜','暂无答案','奋力撰写','收录中','日再来','李恒','未搜索到','未搜到','数据库异常','请输入题目']
@@ -124,7 +124,7 @@ class QueryAns(object):
             'api.xmlm8.com': self.SearchAns_GUI_API,
             'blog.vcing.top': self.BlogVCing_API,
             'greasyfork': self.GreasyFork_Group_API,
-            'wangketiku.com': self.WangKeTiKu_API
+            #'wangketiku.com': self.WangKeTiKu_API
         }
         url_order=sorted(QueryAns.api_priority.items(),key=lambda x:x[1],reverse=False)
         #print(url_order)  [('',),('',)...]
@@ -302,12 +302,16 @@ class QueryAns(object):
             return 0
 
     def BlogVCing_API(self):
-        url = 'http://test.vcing.top:81/api.php?key=chaoxing&q='+re.sub(r'[ \t\n]','',self.que_ori)
+        # github:https://github.com/destoryD/chaoxing-api
+        url = 'http://api.gochati.cn/htapi.php?q='+re.sub(r'[ \t\n]', '', self.que_ori)+'&token=test123'
         try:
-            ret=requestget(url,timeout=10).text
+            ret=requestget(url,timeout=2).text
             index=ret.find('答案')
             if index!=-1:
-                return ret[index+2:]
+                ret = ret[index+3:ret.find('剩余次数')]
+                ret = re.sub(r'<br>', '', ret)
+                #print(ret)
+                return ret
             else:
                 return 0
         except KeyboardInterrupt:
