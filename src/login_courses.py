@@ -132,7 +132,9 @@ class Login_courses_by_request(Login_courses):
         # print(courses)
         # 正则处理
         courses = sub(r'[ \t\n]', '', courses)
-        info = findall(r'<ahref=[\'\"](/mycourse.+?)[\'\"]target="_blank"title="(.+?)">(.+?)</p>', courses)
+        # info = findall(r'<ahref=[\'\"](/mycourse.+?)[\'\"]target="_blank"title="(.+?)">(.+?)</p>', courses)
+        info = findall(
+            r'<ahref=[\'\"](/visit.+?)[\'\"]target="_blank"title="(.+?)">(.+?)</p>', courses)
         del_lt = []
         for i in range(len(info)):
             info[i] = list(info[i])
@@ -143,6 +145,7 @@ class Login_courses_by_request(Login_courses):
             del info[i][2]
         for i in range(len(del_lt)):  # 去掉有结课模式的课程
             del info[del_lt[i]-i]
+        # print("info:"+str(info))
         return info
 
     @staticmethod  # 传入课程列表 输出课程 进行选课（1门） 选择0直接exit退出 选择范围外课程会陷入循环
