@@ -15,6 +15,8 @@
 
 - 安装依赖：命令行执行<br/>
 `pip install -r requirements.txt`
+- 考虑到国内直接pip下载的速度，这边建议运行一下这个命令<br/>
+`pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple`
   
 - 在**logindata_phone.txt**或**logindata.txt**中按提示填写登录信息，并把提示信息删除
 
