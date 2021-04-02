@@ -13,15 +13,15 @@ class QueryAns(object):
     pd_opt = ['正确', '错误', '√', '×', '对', '错', '是', '否', 'T', 'F', 'ri', 'wr', 'true', 'false']
     instance = None
 
-    api_priority={
-        #接口对应取值越低 优先级越高 会优先查询该接口 (取值范围不限)
+    api_priority = {
+        # 接口对应取值越低 优先级越高 会优先查询该接口 (取值范围不限)
         'api.xmlm8.com': 2.5,
         'blog.vcing.top': -1,
-        'greasyfork': 0,  
-        #'wangketiku.com': 
+        'greasyfork': 0,
+        # 'wangketiku.com':
     }
     noans_num = 5
-    noans_flag=['暂未搜','暂无答案','奋力撰写','收录中','日再来','李恒','未搜索到','未搜到','数据库异常','请输入题目']
+    noans_flag = ['暂未搜', '暂无答案', '奋力撰写', '收录中', '日再来', '李恒', '未搜索到', '未搜到', '数据库异常', '请输入题目']
 
     def __new__(cls, *args, **kwargs):
         if cls.instance is None:
@@ -72,8 +72,8 @@ class QueryAns(object):
                 self.que_type = 8
             else:
                 self.que_type = QueryAns.que_type.index(self.que_lt[i-1][0])
-            if self.que_type not in [0,1,3]:#非单选、多选、判断题的话只保存不作答
-                self.no_ans_num=QueryAns.noans_num
+            if self.que_type not in [0, 1, 3]:  # 非单选、多选、判断题的话只保存不作答
+                self.no_ans_num = QueryAns.noans_num
 
             # 访问查题接口获取答案
             self.que = self.que_lt[i - 1][1]
@@ -111,42 +111,42 @@ class QueryAns(object):
 
         #print("no_ans_num:"+str(self.no_ans_num)+' '+str(QueryAns.noans_num))
         if self.no_ans_num < QueryAns.noans_num:
-            for index in range(0,len(ans_order)):
-                if ans_order[index]==[0]:
-                    ans_order[index]=[1]
-            return 2,ans_order
+            for index in range(0, len(ans_order)):
+                if ans_order[index] == [0]:
+                    ans_order[index] = [1]
+            return 2, ans_order
         else:
-            return 1,ans_order  # 返回一个列表,列表内的每一项是每个题目的答案列表
+            return 1, ans_order  # 返回一个列表,列表内的每一项是每个题目的答案列表
 
     def _query_ans(self):
-        #根据api优先级排序，然后访问获取答案
+        # 根据api优先级排序，然后访问获取答案
         api_dic = {
             'api.xmlm8.com': self.SearchAns_GUI_API,
             'blog.vcing.top': self.BlogVCing_API,
             'greasyfork': self.GreasyFork_Group_API,
-            #'wangketiku.com': self.WangKeTiKu_API
+            # 'wangketiku.com': self.WangKeTiKu_API
         }
-        url_order=sorted(QueryAns.api_priority.items(),key=lambda x:x[1],reverse=False)
-        #print(url_order)  [('',),('',)...]
-        res=""
-        for index in range(0,len(url_order)):
-            #print(url_order[index][0])
-            res=api_dic[url_order[index][0]]()
-            #print(res)
-            if res==0 or res=='':
-                res=0
+        url_order = sorted(QueryAns.api_priority.items(), key=lambda x: x[1], reverse=False)
+        # print(url_order)  [('',),('',)...]
+        res = ""
+        for index in range(0, len(url_order)):
+            # print(url_order[index][0])
+            res = api_dic[url_order[index][0]]()
+            # print(res)
+            if res == 0 or res == '':
+                res = 0
                 continue
-            flag=1
+            flag = 1
             for item in QueryAns.noans_flag:
                 if item in str(res):
-                    flag=0
-                    res=0
+                    flag = 0
+                    res = 0
                     break
-            if flag==0:
+            if flag == 0:
                 continue
             else:
                 break
-        #print(res)
+        # print(res)
         if res != 0:
             send_que('courseID:'+self.courseID+' course:'+self.course + ' que:' + self.que + '  ans:' + str(res) + '\n')
         else:
@@ -159,7 +159,7 @@ class QueryAns(object):
         url = 'http://api.xmlm8.com/tk.php?t='+parse.quote(self.que_ori)
         try:
             ret_da = literal_eval(requestget(url).text)
-            #print(ret_da)
+            # print(ret_da)
             # print("que:"+ret_da['tm']+'\n'+"ans:"+ret_da['da'])
             return ret_da['da']
         except KeyboardInterrupt:
@@ -169,7 +169,7 @@ class QueryAns(object):
 
     def GreasyFork_Group_API(self):
         # url = 'http://mooc.forestpolice.org/cx/0/' #WYN
-        url2 = 'http://voice.fafads.cn/xxt/api.php'  
+        url2 = 'http://voice.fafads.cn/xxt/api.php'
         #url1 = 'http://cx.beaa.cn/cx.php'
         url3 = 'http://cx.icodef.com/wyn-nb'
 
@@ -205,20 +205,21 @@ class QueryAns(object):
             'question': self.que,  # 不能用parse.quote()和goal
             'type': str(type)
         }
-        #data1 = {
+        # data1 = {
         #    'content': self.que
-        #}
+        # }
         data3 = {
             'question': self.que,
-            'type':str(type)
+            'type': str(type)
         }
+
         def post_url(url, data):
             headers = {
                 'Content-type': 'application/x-www-form-urlencoded',
             }
             timeout = 30
             r = post(url, data, headers=headers, timeout=timeout)
-            #print(r.text)
+            # print(r.text)
             status = r.status_code  # int
             # 200 且 code=1 响应成功
             # 200 且 code！=1 服务器繁忙
@@ -229,7 +230,7 @@ class QueryAns(object):
                     res = literal_eval(r.text.strip(' \n'))
                     # if res['code'] == 1:
                     #    print('   响应成功\n')
-                    #print(res['data'])
+                    # print(res['data'])
                     try:
                         return res['data']
                     except KeyboardInterrupt:
@@ -253,21 +254,21 @@ class QueryAns(object):
             return 0
 
         dic = {
-            #'1':(url1,data1),
-            '3':(url3,data3),
-            '2':(url2,data2)
+            # '1':(url1,data1),
+            '3': (url3, data3),
+            '2': (url2, data2)
         }
-        #for index in range(1,len(dic)):
+        # for index in range(1,len(dic)):
         #    print(dic[str(index)][0])
         #    res=post_url(dic[str(index)][0],dic[str(index)][1])
         for value in dic.values():
-            #print(value[0])
-            res=post_url(value[0],value[1])
+            # print(value[0])
+            res = post_url(value[0], value[1])
             for item in QueryAns.noans_flag:
                 if item in str(res):
                     res = 0
                     break
-            if res!=0:
+            if res != 0:
                 return res
         return res
 
@@ -305,12 +306,12 @@ class QueryAns(object):
         # github:https://github.com/destoryD/chaoxing-api
         url = 'http://api.gochati.cn/htapi.php?q='+re.sub(r'[ \t\n]', '', self.que_ori)+'&token=test123'
         try:
-            ret=requestget(url,timeout=2).text
-            index=ret.find('答案')
-            if index!=-1:
+            ret = requestget(url, timeout=2).text
+            index = ret.find('答案')
+            if index != -1:
                 ret = ret[index+3:ret.find('剩余次数')]
                 ret = re.sub(r'<br>', '', ret)
-                #print(ret)
+                # print(ret)
                 return ret
             else:
                 return 0
@@ -343,7 +344,7 @@ class QueryAns(object):
             self.que_lt[i][0] = re.sub(r'[ \t\n]+', '', self.que_lt[i][0])
             self.que_lt[i][1] = re.sub(r'[ \t\n]+', '', self.que_lt[i][1])
             self.que_lt[i][1] = re.sub(r'[\。]', '', self.que_lt[i][1])
-        #print(self.que_lt)
+        # print(self.que_lt)
 
 
 def test():
@@ -351,7 +352,7 @@ def test():
         'question': 'question',
         'type': 'type'
     }
-    QA = QueryAns('course_name', **infodic)
+    QA = QueryAns(**infodic)
     print(QA.work())
 
 
