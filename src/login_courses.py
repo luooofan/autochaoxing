@@ -79,7 +79,7 @@ class Login_courses_by_request(Login_courses):
         #    "allowjoin": 0
         #}
         # searchUnis?filter='+quote(name)).text  # type:str
-        text = post(url='http://passport2.chaoxing.com/org/searchforms?filter=' +
+        text = post(url='https://passport2.chaoxing.com/org/searchforms?filter=' +
                     quote(self.school)+'&allowjoin=0&pid=-1').text
         try:
             dic = loads(text)  # 把字符串转化为字典
@@ -125,10 +125,10 @@ class Login_courses_by_request(Login_courses):
                    'Host': 'mooc1-2.chaoxing.com',
                    'Connection': 'keep-alive',
                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-                   'Referer': 'http://i.mooc.chaoxing.com',
+                   'Referer': 'https://i.mooc.chaoxing.com',
                    }
-        self.mysession.get(url="http://i.mooc.chaoxing.com/space/index").text
-        courses = self.mysession.get(url='http://mooc1-2.chaoxing.com/visit/courses', headers=headers).text
+        self.mysession.get(url="https://i.mooc.chaoxing.com/space/index").text
+        courses = self.mysession.get(url='https://mooc1-2.chaoxing.com/visit/courses', headers=headers).text
         # print(courses)
         # 正则处理
         courses = sub(r'[ \t\n]', '', courses)
@@ -302,7 +302,7 @@ class Login_courses_by_chrome(Login_courses):
         #log_fp.write('登录信息:' + logindata[0].strip(' \t\n') + logindata[1].strip(' \t\n') + '\n')
 
         # 访问登陆界面并选择机构
-        url = "https://passport2.chaoxing.com/login?refer=http://i.mooc.chaoxing.com"
+        url = "https://passport2.chaoxing.com/login?refer=https://i.mooc.chaoxing.com"
         self.driver.get(url)
 
         self.__wait.until(EC.presence_of_element_located((By.XPATH, '//a[@id="selectSchoolA"]')))
@@ -347,7 +347,7 @@ class Login_courses_by_chrome(Login_courses):
             self.driver.find_element_by_id('numcode').send_keys(numVerCode)
             self.driver.find_element_by_xpath('//input[@class="zl_btn_right"]').click()
             #log_fp.write("now url:" + self.driver.current_url + '\n')
-            if 'http://i.mooc.chaoxing.com/space/index' not in self.driver.current_url:
+            if 'https://i.mooc.chaoxing.com/space/index' not in self.driver.current_url:
                 print(COLOR.ERR, 'wrong vercode, login failed, please retry', COLOR.END)
             else:
                 break
