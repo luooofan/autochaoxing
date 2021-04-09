@@ -5,8 +5,8 @@
 #                 输出到文件,不输出到终端(保证ssh情况下的可行性)
 # author Luoofan
 # date   2020-04-03 10:11:02
-# FilePath\src\singlecourse.py
-# 
+# file   \src\singlecourse.py
+#
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.wait import WebDriverWait
@@ -15,7 +15,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from bs4 import BeautifulSoup
-from requests import post,get as requestget
+from requests import post, get as requestget
 import urllib.parse
 from ast import literal_eval
 import re
@@ -25,17 +25,19 @@ from colorama import Fore
 from colorama import init as colorinit
 import traceback
 from subprocess import Popen
-from publicfunc import Color,send_err,SYSTEM
+from publicfunc import Color, send_err, SYSTEM
 from playmedia import PlayMedia
 from queryans import QueryAns
 from sys import stdout
 
 COLOR = Color()
 
-if SYSTEM==0:
+if SYSTEM == 0:
     from PIL import Image
 
 # 单账号单课程自动化
+
+
 class SingleCourse(object):
 
     # 实例化该类需传入3-5个参数：已经登录的driver，章节名称及对应的url，运行模式以及视频速率
@@ -43,29 +45,31 @@ class SingleCourse(object):
         self.driver = driver
         self.menu_url = menu_url
         self.course_name = course_name
-        self.courseID=''
+        self.courseID = ''
         self.pattern = pattern
-        #self.rate=rate
+        # self.rate=rate
         self._setflag()
-        self._out_fp= out_fp if out_fp!=None else stdout
+        self._out_fp = out_fp if out_fp != None else stdout
+        self.levelclass = ['leveltwo', 'levelthree', 'levelfour', 'levelfive']
+
         #self._out_fp=open(course_name+'.txt', 'w+', encoding="utf-8") if SYSTEM==1 else stdout
 
     def _setflag(self):
-        self.ch_se_lt=[]
-        self.retry_dic={}
-        self._err_lt=[]   # 错误章节列表
+        self.ch_se_lt = []
+        self.retry_dic = {}
+        self._err_lt = []   # 错误章节列表
         #self._chapter = 0
         #self._section = 0
         #self._subsection = 0
         #self._end = 0
-        self._que_server_flag=1 #1正常 0异常
+        self._que_server_flag = 1  # 1正常 0异常
 
     def work(self):
         if self.pattern == 0:
             self._perform_model0()  # auto模式
         elif self.pattern == 2:
             self._perform_model2()  # control模式
-        elif self.pattern==3:
+        elif self.pattern == 3:
             self._perform_model3()
         self._out_fp.flush()
 
@@ -88,75 +92,51 @@ class SingleCourse(object):
             dialog.click()
             self._bs4_menu_page()
         sleep(1)
-        
+
         print(COLOR.WARN, '未完成任务章节：', COLOR.END, file=self._out_fp)
-        #, str(ch_se_lt), file=self._out_fp)
+        # , str(ch_se_lt), file=self._out_fp)
         for item in self.ch_se_lt:
-            print('\t'+str(item[0]),file=self._out_fp)
+            print('\t'+str(item[0]), file=self._out_fp)
             if str(item[0]) not in self.retry_dic.keys():
                 self.retry_dic[str(item[0])] = 0
-    
-    def _midprocess(self,input_lt,num):
-        #课程目录分析的中间过程
-        level = ['leveltwo', 'levelthree', 'levelfour', 'levelfive']
-        #print('num:'+str(num))
-        #print('str(len(input_lt)))
-        output_lt=[]
-        for item in input_lt:
-            title=""
-            if num==0:#units
-                try:
-                    title = item.h2.a.attrs['title']
-                    #print('units:'+title)
-                except KeyboardInterrupt:
-                    raise KeyboardInterrupt
-                except:
-                    continue
-            else:
-                try:
-                    title = item.find(class_='chapterNumber').string+'|-|'
-                    title += item.find(class_='articlename').a.attrs['title']
-                    icon = item.find(class_='icon').em.attrs['class']
-                    #print(title+'   '+str(icon))
-                    #"display:inline-block;"
-                    if 'orange' in icon or 'blank' in icon: #未完成
-                        try:
-                            self.ch_se_lt.append((title, item.find(class_='articlename').a.attrs['href']))
-                        except KeyboardInterrupt:
-                            raise KeyboardInterrupt
-                except KeyboardInterrupt:
-                    raise KeyboardInterrupt
-                except:
-                    pass
-            try:
-                sub_lt=item.find_all(class_=level[num])
-                if num==1: #第三级标题
-                    sub_lt=sub_lt[0].find_all(class_='clearfix')
-                if len(sub_lt)!=0:
-                    output_lt.append((title,self._midprocess(sub_lt,num+1)))
-                else:
-                    raise Exception
-            except KeyboardInterrupt:
-                raise KeyboardInterrupt
-            except:
-                if title!='':
-                    output_lt.append((title,[]))
-        return output_lt
 
-    def _bs4_menu_page(self,page_source=''):
-        #对课程目录页分析，得到课程目录信息 以及 未完成任务章节
-        self.ch_se_lt=[] #(order,url)
-        if page_source=="":
-            page_source=self.driver.page_source
-        soup=BeautifulSoup(page_source,'html.parser')
+    def _midprocess(self, unit, level):
+        # 课程目录分析的中间过程
+        try:
+            item = unit.find(class_='clearfix')
+            title = item.find(class_='chapterNumber').string+'|-|'  # +str(level)
+            title += item.find(class_='articlename').attrs['title']
+            icon = item.find(class_='icon').em.attrs['class']
+            #print(title+'   '+str(icon))
+            # "display:inline-block;"
+            if 'orange' in icon or 'blank' in icon:  # 未完成
+                tup = (title, item.a.attrs['href'])
+                if tup not in self.ch_se_lt:
+                    self.ch_se_lt.append(tup)
+        except KeyboardInterrupt:
+            raise KeyboardInterrupt
+        except:
+            pass
+
+        sub_lt = unit.find_all(class_=self.levelclass[level])
+
+        for item in sub_lt:
+            self._midprocess(item, level+1)
+
+    def _bs4_menu_page(self, page_source=''):
+        # 对课程目录页分析，得到课程目录信息 以及 未完成任务章节
+        self.ch_se_lt = []  # (order,url)
+        if page_source == "":
+            page_source = self.driver.page_source
+        soup = BeautifulSoup(page_source, 'html.parser')
 
         timeline = soup.find(class_='timeline')
-        units_lt=timeline.find_all(class_='units')
+        units_lt = timeline.find_all(class_='units')
+        for unit in units_lt:
+            # unit.h2.a.attrs['title']
+            self._midprocess(unit, 0)
 
-        #total_info = 
-        self._midprocess(units_lt, 0)
-        #print(str(total_info))
-        #print(str(self.ch_se_lt))
+        # print(str(self.ch_se_lt))
 
     def _ans_question(self):
         # 点击章节测验
@@ -257,7 +237,7 @@ class SingleCourse(object):
                 raise KeyboardInterrupt
             except:
                 pass
-                #icon_flag = 0  # 有的无任务点标识
+                # icon_flag = 0  # 有的无任务点标识
 
             try:
                 wait.until(EC.presence_of_element_located((By.XPATH, first_road+task_road[v_num-1]+'/iframe[1]')))
@@ -279,27 +259,27 @@ class SingleCourse(object):
                 # print(self.driver.page_source)
             sleep(3)
 
-            #查询并获取答案
+            # 查询并获取答案
             data = {
                 'courseId': '',
                 'classId': '',
-                #'oldWorkId': '',
-                #'workRelationId': ''
+                # 'oldWorkId': '',
+                # 'workRelationId': ''
             }
             try:
                 for key in data.keys():
                     data[key] = self.driver.execute_script('return document.getElementById(arguments[0]).value', key)
                     sleep(0.1)
-                self.courseID=data['courseId']+' '+data['classId'] 
+                self.courseID = data['courseId']+' '+data['classId']
             except KeyboardInterrupt:
                 raise KeyboardInterrupt
             except:
-                self.courseID=""
-            QA=QueryAns(self.driver.page_source,course=self.course_name,courseID=self.courseID)
-            ans_flag,ans_lt=QA.work()
-            #print(ans_flag)
-            #print(ans_lt)
-            #sleep(20)
+                self.courseID = ""
+            QA = QueryAns(self.driver.page_source, course=self.course_name, courseID=self.courseID)
+            ans_flag, ans_lt = QA.work()
+            # print(ans_flag)
+            # print(ans_lt)
+            # sleep(20)
 
             # print(ans_lt)
             # 开始答题
@@ -312,7 +292,7 @@ class SingleCourse(object):
             try:
                 for i in range(0, len(ans_lt)):
                     for j in range(0, len(ans_lt[i])):
-                        if ans_lt[i][j]==0:
+                        if ans_lt[i][j] == 0:
                             continue
                         try:
                             # print(i,j,ans_lt[i][j])
@@ -337,7 +317,7 @@ class SingleCourse(object):
                 sleep(5)
                 return 1
                 #str(self._chapter) + '-' + str(self._section)
-                
+
             # 点击提交并确定，检测验证码
             # //*[@id="tempsave"]
             # //*[@id="ZyBottom"]/div/div[4]/div[4]/div[4]/div[5]/a[1]
@@ -361,11 +341,11 @@ class SingleCourse(object):
                 while 1:
                     img = self.driver.find_element_by_id('imgVerCode')
                     img.screenshot('ans_vercode.png')
-                    if SYSTEM==0:
+                    if SYSTEM == 0:
                         img = Image.open('ans_vercode.png')
                         img.show()
                     else:
-                        p=Popen(['./src/viu', 'ans_vercode.png'])
+                        p = Popen(['./src/viu', 'ans_vercode.png'])
                         p.communicate()
                         sleep(1.5)
                     numVerCode = input(COLOR.NOTE + "  please input the ans_vercode:" + COLOR.END, file=self._out_fp)
@@ -417,19 +397,19 @@ class SingleCourse(object):
 
             if err_flag != 0:
                 print(COLOR.ERR, 'unfinished!', COLOR.END, file=self._out_fp)
-                #self._err_lt.append()  # 记录答题提交失败的章节
+                # self._err_lt.append()  # 记录答题提交失败的章节
             else:
                 print(COLOR.OK, 'finished!', COLOR.END, file=self._out_fp)
         except KeyboardInterrupt:
-                raise KeyboardInterrupt
+            raise KeyboardInterrupt
         except:
             send_err(traceback.format_exc())
 
-            
     ##
     # brief    单课程自动模式
     # details  自动完成单课程下的任务(过程不需要输入)，递归调用自身，未完成任务点为空时退出
     #          (单章节设定重试次数，超过次数则退出，避免死循环)
+
     def _perform_model0(self):
         # 获取未完成章节列表并输出
         self._get_chapter_section()
@@ -442,49 +422,13 @@ class SingleCourse(object):
         last_time = time.time()-120  # 答题间隔控制,减少答题验证码的弹出
 
         # 遍历每个未完成章节
-        end_flag=1
+        end_flag = 1
         for ch_se in self.ch_se_lt:
-            if self.retry_dic[str(ch_se[0])]>2:
+            if self.retry_dic[str(ch_se[0])] > 2:
                 continue
-            end_flag=0
-            self.retry_dic[str(ch_se[0])]+=1
-            
-            print(COLOR.DISPLAY + 'now turns to '+str(ch_se[0]) + COLOR.END, file=self._out_fp)
-            try:
-                PM=PlayMedia(self.driver,self._out_fp)
-                PM.play_media('https://mooc1-1.chaoxing.com'+ch_se[1])
-            except KeyboardInterrupt:
-                raise KeyboardInterrupt
-            except:
-                send_err(traceback.format_exc())
+            end_flag = 0
+            self.retry_dic[str(ch_se[0])] += 1
 
-            if self._que_server_flag==1:
-                # 答题间隔控制
-                now_time = time.time()
-                if now_time-last_time < 120:
-                    sleep(120-(now_time-last_time))
-                last_time = time.time()
-                self._go_que_task()
-
-        if end_flag==1:
-            print(COLOR.OK, 'finish the lesson! quit! ', COLOR.END, file=self._out_fp)
-            return
-        #log_fp.write("err_lt:" + str(error_lt) + '\n')
-        # 递归调用
-        return self._perform_model0()
-
-    def _perform_model3(self):
-        self._get_chapter_section()
-        last_time = time.time()-120  # 答题间隔控制,减少答题验证码的弹出
-        ch_se_st=input('please input ch_se:')
-        
-        ch_se_flag=0
-        # 遍历每个未完成章节
-        for ch_se in self.ch_se_lt:
-            if ch_se_st in ch_se[0]:
-                ch_se_flag=1
-            if ch_se_flag==0:
-                continue 
             print(COLOR.DISPLAY + 'now turns to '+str(ch_se[0]) + COLOR.END, file=self._out_fp)
             try:
                 PM = PlayMedia(self.driver, self._out_fp)
@@ -501,7 +445,43 @@ class SingleCourse(object):
                     sleep(120-(now_time-last_time))
                 last_time = time.time()
                 self._go_que_task()
-                
+
+        if end_flag == 1:
+            print(COLOR.OK, 'finish the lesson! quit! ', COLOR.END, file=self._out_fp)
+            return
+        #log_fp.write("err_lt:" + str(error_lt) + '\n')
+        # 递归调用
+        return self._perform_model0()
+
+    def _perform_model3(self):
+        self._get_chapter_section()
+        last_time = time.time()-120  # 答题间隔控制,减少答题验证码的弹出
+        ch_se_st = input('please input ch_se:')
+
+        ch_se_flag = 0
+        # 遍历每个未完成章节
+        for ch_se in self.ch_se_lt:
+            if ch_se_st in ch_se[0]:
+                ch_se_flag = 1
+            if ch_se_flag == 0:
+                continue
+            print(COLOR.DISPLAY + 'now turns to '+str(ch_se[0]) + COLOR.END, file=self._out_fp)
+            try:
+                PM = PlayMedia(self.driver, self._out_fp)
+                PM.play_media('https://mooc1-1.chaoxing.com'+ch_se[1])
+            except KeyboardInterrupt:
+                raise KeyboardInterrupt
+            except:
+                send_err(traceback.format_exc())
+
+            if self._que_server_flag == 1:
+                # 答题间隔控制
+                now_time = time.time()
+                if now_time-last_time < 120:
+                    sleep(120-(now_time-last_time))
+                last_time = time.time()
+                self._go_que_task()
+
     ##
     # brief    单课程控制模式
     # details  需要输入 终止章节信息
@@ -519,7 +499,7 @@ class SingleCourse(object):
 
         # 遍历每个未完成章节
         for ch_se in self.ch_se_lt:
-            
+
             if end_ch_se in ch_se[0]:
                 print(COLOR.OK, "OK! finish your task!", COLOR.END, file=self._out_fp)
                 print(COLOR.DISPLAY, "now check your unfinished tasks:", COLOR.END, file=self._out_fp)
@@ -528,7 +508,7 @@ class SingleCourse(object):
 
             print(COLOR.DISPLAY + 'now turns to '+str(ch_se[0]) + COLOR.END, file=self._out_fp)
             try:
-                PM=PlayMedia(self.driver,self._out_fp)
+                PM = PlayMedia(self.driver, self._out_fp)
                 PM.play_media('https://mooc1-1.chaoxing.com'+ch_se[1])
             except KeyboardInterrupt:
                 raise KeyboardInterrupt
