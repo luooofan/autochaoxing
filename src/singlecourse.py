@@ -103,16 +103,18 @@ class SingleCourse(object):
     def _midprocess(self, unit, level):
         # 课程目录分析的中间过程
         try:
-            item = unit.find(class_='clearfix')
-            title = item.find(class_='chapterNumber').string+'|-|'  # +str(level)
-            title += item.find(class_='articlename').attrs['title']
-            icon = item.find(class_='icon').em.attrs['class']
-            #print(title+'   '+str(icon))
-            # "display:inline-block;"
-            if 'orange' in icon or 'blank' in icon:  # 未完成
-                tup = (title, item.a.attrs['href'])
-                if tup not in self.ch_se_lt:
-                    self.ch_se_lt.append(tup)
+            # item = unit.find(class_='clearfix')
+            items=unit.find_all(class_='clearfix')
+            for item in items:
+                title = item.find(class_='chapterNumber').string+'|-|'  # +str(level)
+                title += item.find(class_='articlename').attrs['title']
+                icon = item.find(class_='icon').em.attrs['class']
+                #print(title+'   '+str(icon)) # debuging
+                # "display:inline-block;"
+                if 'orange' in icon or 'blank' in icon:  # 未完成
+                    tup = (title, item.a.attrs['href'])
+                    if tup not in self.ch_se_lt:
+                        self.ch_se_lt.append(tup)
         except KeyboardInterrupt:
             raise KeyboardInterrupt
         except:
