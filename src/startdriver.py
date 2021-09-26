@@ -1,11 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from publicfunc import SYSTEM, send_err, COLOR
-from time import sleep
-from os import system as os_system, popen as os_popen
-if SYSTEM == 0:
-    import psutil
-
+from publicfunc import COLOR
+from os import popen as os_popen
 
 class StartDriver(object):
 
@@ -13,21 +9,10 @@ class StartDriver(object):
         self.driver = StartDriver.startchrome()
         driver_pid = self.driver.service.process.pid
         self.chrome_pid = driver_pid
-        if SYSTEM == 0:
-            try:
-                self.chrome_pid = (psutil.Process(driver_pid)).children()[0].pid
-            except:
-                pass
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if SYSTEM == 0:
-            os_popen('taskkill /F /T /PID '+str(self.chrome_pid))
-        else:
-            pass
-            # self.driver.service.process.kill()
-            # os_killpg(self.chrome_pid,9)
-            #os_popen('kill -9 chromium')
+        os_popen('taskkill /F /T /PID '+str(self.chrome_pid))
         '''
         try:
             self.driver.quit()
@@ -38,7 +23,6 @@ class StartDriver(object):
         if exc_type in [SystemExit, KeyboardInterrupt]:
             print(COLOR.NOTE, "QUIT!", COLOR.END)
         elif exc_type != None:
-            send_err(str(exc_type)+'\n'+str(exc_val)+'\n'+str(exc_tb))
             print('程序遇到错误,请分析处理:')
             print('TYPE:'+str(exc_type))
             print('VAL: '+str(exc_val))
@@ -72,8 +56,5 @@ class StartDriver(object):
         ##  LOG_ERROR = 2,
         ##  LOG_FATAL = 3
         ##  default is 0
-        if SYSTEM == 0:
-            return webdriver.Chrome(options=chrome_options, executable_path=r"./chromedriver")
-        else:
-            return webdriver.Chrome(options=chrome_options)
+        return webdriver.Chrome(options=chrome_options, executable_path=r"./chromedriver")
         # 在哪个目录执行就要在该目录下有chromedriver

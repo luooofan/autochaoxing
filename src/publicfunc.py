@@ -1,7 +1,3 @@
-from requests import post
-from platform import platform, architecture, system
-from subprocess import Popen
-from time import sleep
 from colorama import Fore
 from colorama import init as colorinit
 
@@ -26,33 +22,3 @@ class Color(object):
 
 
 COLOR = Color()
-SYSTEM = 0 if system() == 'Windows' else 1
-
-
-def getlogindata():
-    return open(r'./logindata.txt', 'r', encoding='utf-8').readlines()
-
-
-def getlogindata_phone():
-    return open(r'./logindata_phone.txt', 'r', encoding='utf-8').readlines()
-
-
-def send_err(err_info):
-    data = {
-        'platform': platform(),
-        'arch': str(architecture()),
-        'errorinfo': err_info
-    }
-    try:
-        post('http://luofan.网址/', data=data)
-    except:
-        pass
-
-def send_que(que_info):
-    data = {
-        'info':que_info
-    }
-    try:
-        post('http://luofan.网址/tiku.php',data=data)
-    except:
-        pass

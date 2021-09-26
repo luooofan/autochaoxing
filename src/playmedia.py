@@ -5,9 +5,8 @@ from selenium.webdriver.common.by import By
 from time import sleep
 from bs4 import BeautifulSoup
 from sys import stdout
-from publicfunc import Color,send_err
+from publicfunc import Color
 from re import search as re_search
-from traceback import format_exc
 
 COLOR=Color()
 
@@ -207,7 +206,6 @@ class PlayMedia(object):
                     raise KeyboardInterrupt
                 except:
                     #print(format_exc())
-                    send_err(format_exc())
                     sleep(i+1)
             #print(3)
 

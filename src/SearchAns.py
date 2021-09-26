@@ -5,16 +5,11 @@
 # LastEditorsPlease set LastEditors
 # LastEditTime2020-05-04 14:06:10
 # Description  :SearchAns
-# FilePath\src\SearchAns.py
+# file   \src\SearchAns.py
 #
 
 import tkinter as tk
 from tkinter import ttk
-from ast import literal_eval
-from re import sub
-from urllib.parse import quote
-from requests import post
-from requests import get
 from queryans import QueryAns
 
 win = tk.Tk()

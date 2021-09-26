@@ -3,4 +3,3 @@ pillow
 requests
 beautifulsoup4
 colorama
-psutil

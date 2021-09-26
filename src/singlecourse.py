@@ -1,39 +1,24 @@
 # coding=utf-8
 ##
 # brief   单账号下单课程任务类
-#          DOCKER:不用PIL显示图像，采用viu在终端显示
-#                 输出到文件,不输出到终端(保证ssh情况下的可行性)
-# author Luoofan
-# date   2020-04-03 10:11:02
-# file   \src\singlecourse.py
-#
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from bs4 import BeautifulSoup
-from requests import post, get as requestget
-import urllib.parse
-from ast import literal_eval
-import re
 from time import sleep
 import time
-from colorama import Fore
-from colorama import init as colorinit
 import traceback
 from subprocess import Popen
-from publicfunc import Color, send_err, SYSTEM
+from publicfunc import Color
 from playmedia import PlayMedia
 from queryans import QueryAns
 from sys import stdout
+from PIL import Image
 
 COLOR = Color()
 
-if SYSTEM == 0:
-    from PIL import Image
 
 # 单账号单课程自动化
 
@@ -383,7 +368,6 @@ class SingleCourse(object):
             except:
                 #print('=======', file=self._out_fp)
                 #print(traceback.format_exc(), file=self._out_fp)
-                send_err(traceback.format_exc())
                 print(COLOR.ERR, "  提交失败！", COLOR.END, file=self._out_fp)
                 return 1
             self.driver.switch_to.parent_frame()
@@ -405,7 +389,7 @@ class SingleCourse(object):
         except KeyboardInterrupt:
             raise KeyboardInterrupt
         except:
-            send_err(traceback.format_exc())
+            pass
 
     ##
     # brief    单课程自动模式
@@ -438,7 +422,7 @@ class SingleCourse(object):
             except KeyboardInterrupt:
                 raise KeyboardInterrupt
             except:
-                send_err(traceback.format_exc())
+                pass
 
             if self._que_server_flag == 1:
                 # 答题间隔控制
@@ -474,7 +458,7 @@ class SingleCourse(object):
             except KeyboardInterrupt:
                 raise KeyboardInterrupt
             except:
-                send_err(traceback.format_exc())
+                pass
 
             if self._que_server_flag == 1:
                 # 答题间隔控制
@@ -515,7 +499,7 @@ class SingleCourse(object):
             except KeyboardInterrupt:
                 raise KeyboardInterrupt
             except:
-                send_err(traceback.format_exc())
+                pass
 
             if self._que_server_flag == 1:
                 # 答题间隔控制

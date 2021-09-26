@@ -4,7 +4,6 @@ from urllib import parse
 from requests import post, get as requestget
 from traceback import format_exc
 from ast import literal_eval
-from publicfunc import send_que
 
 
 class QueryAns(object):
@@ -147,10 +146,7 @@ class QueryAns(object):
             else:
                 break
         # print(res)
-        if res != 0:
-            send_que('courseID:'+self.courseID+' course:'+self.course + ' que:' + self.que + '  ans:' + str(res) + '\n')
-        else:
-            self.no_ans_num += 1
+        self.no_ans_num += 1
         return res
 
     def SearchAns_GUI_API(self):
