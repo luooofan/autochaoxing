@@ -1,5 +1,6 @@
 # autochaoxing
 
+本项目不再维护
 ## Recommonded projects
 
 - [GreasyFork related scripts](https://greasyfork.org/zh-CN/scripts?q=%E8%B6%85%E6%98%9F)
