@@ -9,8 +9,6 @@ from selenium.webdriver.common.action_chains import ActionChains
 from bs4 import BeautifulSoup
 from time import sleep
 import time
-import traceback
-from subprocess import Popen
 from publicfunc import Color
 from playmedia import PlayMedia
 from queryans import QueryAns
@@ -37,7 +35,6 @@ class SingleCourse(object):
         self._out_fp = out_fp if out_fp != None else stdout
         self.levelclass = ['leveltwo', 'levelthree', 'levelfour', 'levelfive']
 
-        #self._out_fp=open(course_name+'.txt', 'w+', encoding="utf-8") if SYSTEM==1 else stdout
 
     def _setflag(self):
         self.ch_se_lt = []
@@ -47,7 +44,7 @@ class SingleCourse(object):
         #self._section = 0
         #self._subsection = 0
         #self._end = 0
-        self._que_server_flag = 1  # 1正常 0异常
+        self._que_server_flag = 0  # 1正常 0异常
 
     def work(self):
         if self.pattern == 0:
@@ -284,12 +281,12 @@ class SingleCourse(object):
                         try:
                             # print(i,j,ans_lt[i][j])
                             radio = self.driver.find_element_by_xpath(
-                                '//*[@id="ZyBottom"]/div' + '/div[4]' * i + '/div[2]/ul/li[' + str(ans_lt[i][j]) + ']/label/input')
+                                '//*[@id="ZyBottom"]/div[' + str(i+1) + ']/div[2]/ul/li[' + str(ans_lt[i][j]) + ']/label/input')
                         except KeyboardInterrupt:
                             raise KeyboardInterrupt
                         except:
                             radio = self.driver.find_element_by_xpath(
-                                '//*[@id="ZyBottom"]/div' + '/div[4]' * i + '/div[2]/div/ul/li[' + str(ans_lt[i][j]) + ']/label/input')
+                                '//*[@id="ZyBottom"]/div[' + str(i+1) + ']/div[2]/div/ul/li[' + str(ans_lt[i][j]) + ']/label/input')
                         self.driver.execute_script("arguments[0].scrollIntoView();arguments[0].click();", radio)
                         # action_chains.move_to_element(radio)
                         # radio.click()
@@ -328,14 +325,9 @@ class SingleCourse(object):
                 while 1:
                     img = self.driver.find_element_by_id('imgVerCode')
                     img.screenshot('ans_vercode.png')
-                    if SYSTEM == 0:
-                        img = Image.open('ans_vercode.png')
-                        img.show()
-                    else:
-                        p = Popen(['./src/viu', 'ans_vercode.png'])
-                        p.communicate()
-                        sleep(1.5)
-                    numVerCode = input(COLOR.NOTE + "  please input the ans_vercode:" + COLOR.END, file=self._out_fp)
+                    img = Image.open('ans_vercode.png')
+                    img.show()
+                    numVerCode = input(COLOR.NOTE + "  please input the ans_vercode:" + COLOR.END)
                     #log_fp.write('  input the ans_vercode\n')
                     # self.driver.find_element_by_id('code').send_keys(numVerCode)
                     self.driver.find_element_by_xpath('//input[@id="code"]').send_keys(numVerCode)

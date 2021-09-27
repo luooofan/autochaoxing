@@ -1,12 +1,4 @@
 # coding=utf-8
-##
-# Author       : Luoofan
-# Date         : 2020-03-11 09:15:44
-# LastEditorsPlease set LastEditors
-# LastEditTime2020-05-04 14:06:10
-# Description  :SearchAns
-# file   \src\SearchAns.py
-#
 
 import tkinter as tk
 from tkinter import ttk
@@ -35,15 +27,6 @@ ttk.Label(monty, text="题目:", font=('Arial', 12), width=5).grid(column=0, row
 queText = tk.Text(monty, font=('Arial', 12), width=40, height=3)
 queText.grid(column=1, row=0, rowspan=2)  # ,sticky='W')
 # tab1 button
-
-'''
-def query_ans_normal(ev=None):
-    global res
-    q = quote(queText.get('0.0', 'end'))
-    url = 'http://api.xmlm8.com/tk.php?t='+q
-    ret_da = literal_eval(get(url).text)
-    res.set("que:"+ret_da['tm']+'\n'+"ans:"+ret_da['da'])
-    queText.delete('1.0', 'end')'''
 
 def query_ans_normal(ev=None):
     #global res

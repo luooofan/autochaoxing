@@ -14,10 +14,11 @@ class QueryAns(object):
 
     api_priority = {
         # 接口对应取值越低 优先级越高 会优先查询该接口 (取值范围不限)
-        'api.xmlm8.com': 2.5,
-        'blog.vcing.top': -1,
-        'greasyfork': 0,
-        # 'wangketiku.com':
+        'greasyfork': 0,        # 项目地址 可以star支持:https://github.com/CodFrm/cxmooc-tools
+        # 'blog.vcing.top': -1, # 需要自行配置token, 详见https://github.com/destoryD/chaoxing-api
+        # 已失效:
+        # 'wangketiku.com': 3.5
+        # 'api.xmlm8.com': 2.5,
     }
     noans_num = 5
     noans_flag = ['暂未搜', '暂无答案', '奋力撰写', '收录中', '日再来', '李恒', '未搜索到', '未搜到', '数据库异常', '请输入题目']
@@ -123,14 +124,15 @@ class QueryAns(object):
             'api.xmlm8.com': self.SearchAns_GUI_API,
             'blog.vcing.top': self.BlogVCing_API,
             'greasyfork': self.GreasyFork_Group_API,
-            # 'wangketiku.com': self.WangKeTiKu_API
+            'wangketiku.com': self.WangKeTiKu_API
         }
         url_order = sorted(QueryAns.api_priority.items(), key=lambda x: x[1], reverse=False)
         # print(url_order)  [('',),('',)...]
+        
         res = ""
-        for index in range(0, len(url_order)):
-            # print(url_order[index][0])
-            res = api_dic[url_order[index][0]]()
+        for url in url_order:
+            res = api_dic[url[0]]()
+            # print(url)
             # print(res)
             if res == 0 or res == '':
                 res = 0
@@ -145,7 +147,7 @@ class QueryAns(object):
                 continue
             else:
                 break
-        # print(res)
+
         self.no_ans_num += 1
         return res
 
@@ -164,10 +166,9 @@ class QueryAns(object):
             return 0
 
     def GreasyFork_Group_API(self):
+        # NOTE: 项目地址 可以star支持:https://github.com/CodFrm/cxmooc-tools
         # url = 'http://mooc.forestpolice.org/cx/0/' #WYN
-        url2 = 'http://voice.fafads.cn/xxt/api.php'
-        #url1 = 'http://cx.beaa.cn/cx.php'
-        url3 = 'http://cx.icodef.com/wyn-nb'
+        url = 'http://cx.icodef.com/wyn-nb?v=3'
 
         # def _prepare_query(index):
         #    data = {
@@ -185,40 +186,23 @@ class QueryAns(object):
         #    sleep(1)
         # _prepare_query()
 
-        # get goal
-        '''lt = [x for x in range(0, 10)]
-        lt.extend(['(', ')', '?'])
-        goal = url1
-        for c in self.que:
-            if c in lt:
-                goal += c
-            else:
-                goal += parse.quote(c)'''
-
-        #course = urllib.parse.quote(self.course)
-        data2 = {
-            # 'course': course,
-            'question': self.que,  # 不能用parse.quote()和goal
-            'type': str(type)
-        }
-        # data1 = {
-        #    'content': self.que
-        # }
-        data3 = {
+        data = {
             'question': self.que,
-            'type': str(type)
+            'type': str(type),
+            'id': ""# self.driver.execute_script('return document.getElementById(arguments[0]).value', key)
         }
 
         def post_url(url, data):
             headers = {
                 'Content-type': 'application/x-www-form-urlencoded',
+                'Authorization': ''
             }
             timeout = 30
             r = post(url, data, headers=headers, timeout=timeout)
             # print(r.text)
             status = r.status_code  # int
             # 200 且 code=1 响应成功
-            # 200 且 code！=1 服务器繁忙
+            # 200 且 code!=1 服务器繁忙
             # 403 请求过于频繁
             # 其他 服务器异常
             if status == 200:
@@ -249,22 +233,12 @@ class QueryAns(object):
             #    print('   服务器异常\n')
             return 0
 
-        dic = {
-            # '1':(url1,data1),
-            '3': (url3, data3),
-            '2': (url2, data2)
-        }
-        # for index in range(1,len(dic)):
-        #    print(dic[str(index)][0])
-        #    res=post_url(dic[str(index)][0],dic[str(index)][1])
-        for value in dic.values():
-            # print(value[0])
-            res = post_url(value[0], value[1])
-            for item in QueryAns.noans_flag:
-                if item in str(res):
-                    res = 0
-                    break
-            if res != 0:
+        res = post_url(url, data)
+        for item in QueryAns.noans_flag:
+            if item in str(res):
+                res = 0
+                break
+        if res != 0:
                 return res
         return res
 
@@ -300,7 +274,9 @@ class QueryAns(object):
 
     def BlogVCing_API(self):
         # github:https://github.com/destoryD/chaoxing-api
-        url = 'http://api.gochati.cn/htapi.php?q='+re.sub(r'[ \t\n]', '', self.que_ori)+'&token=test123'
+        # NOTE: 需要自行加群申请token然后更改此处token值
+        token = "test123"
+        url = 'http://api.gochati.cn/htapi.php?q='+re.sub(r'[ \t\n]', '', self.que_ori)+'&token='+str(token)
         try:
             ret = requestget(url, timeout=2).text
             index = ret.find('答案')
